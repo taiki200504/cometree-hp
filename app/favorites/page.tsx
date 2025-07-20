@@ -10,51 +10,20 @@ import ModernHero from "@/components/modern-hero"
 import { useFavorites } from "@/context/favorites-context"
 import { Heart, Calendar, User, Search, ExternalLink } from "lucide-react"
 
-// サンプルデータ（実際のアプリケーションでは、APIから取得するか、別のデータソースから取得）
-const sampleItems = [
-  {
-    id: "1",
-    title: "学生団体運営のコツ：メンバーのモチベーション維持方法",
-    category: "運営ノウハウ",
-    author: "UNION運営チーム",
-    date: "2024年1月15日",
-    type: "article",
-  },
-  {
-    id: "2",
-    title: "企業との協賛交渉で成功するための5つのポイント",
-    category: "資金調達",
-    author: "田中太郎",
-    date: "2024年1月10日",
-    type: "article",
-  },
-  {
-    id: "3",
-    title: "SNSマーケティング基礎講座",
-    category: "マーケティング",
-    author: "佐藤花子",
-    date: "2024年1月5日",
-    type: "event",
-  },
-  {
-    id: "4",
-    title: "学生起業家のためのビジネスプラン作成ワークショップ",
-    category: "起業・ビジネス",
-    author: "山田次郎",
-    date: "2024年1月1日",
-    type: "event",
-  },
-]
+// サンプルデータ削除済み。今後はAPIや本番データ取得に対応。
 
 export default function Favorites() {
   const { favorites } = useFavorites()
   const [searchTerm, setSearchTerm] = useState("")
-  const [favoriteItems, setFavoriteItems] = useState<typeof sampleItems>([])
+  const [favoriteItems, setFavoriteItems] = useState<any[]>([]) // サンプルデータを削除したため、型をany[]に変更
 
   useEffect(() => {
     // お気に入りIDに対応するアイテムを取得
-    const items = sampleItems.filter((item) => favorites.includes(item.id))
-    setFavoriteItems(items)
+    // サンプルデータを削除したため、この部分は実際のデータ取得に置き換える必要があります。
+    // 例: APIからデータを取得する場合
+    // const items = await fetchItemsFromAPI(); // ここにAPI呼び出しを追加
+    // setFavoriteItems(items);
+    console.log("Favorites:", favorites); // サンプルデータがないため、ログを出力
   }, [favorites])
 
   const filteredFavorites = useMemo(() => {
