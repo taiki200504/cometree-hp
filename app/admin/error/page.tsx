@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
@@ -14,11 +14,33 @@ export default function AuthErrorPage() {
   const [email, setEmail] = useState('gakusei.union226@gmail.com')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [errorDescription, setErrorDescription] = useState('')
   const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
 
-  const error = searchParams.get('error')
-  const errorDescription = searchParams.get('error_description')
+  // URLハッシュフラグメントからエラー情報を取得
+  useEffect(() => {
+    const processHashFragment = () => {
+      try {
+        const hash = window.location.hash.substring(1)
+        const params = new URLSearchParams(hash)
+        
+        const errorParam = params.get('error')
+        const errorCode = params.get('error_code')
+        const errorDesc = params.get('error_description')
+        
+        if (errorParam) {
+          setError(errorParam)
+          setErrorDescription(errorDesc || '')
+        }
+      } catch (err) {
+        console.error('Error processing hash fragment:', err)
+      }
+    }
+
+    processHashFragment()
+  }, [])
 
   const handleResendInvite = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +48,15 @@ export default function AuthErrorPage() {
     setMessage('')
 
     try {
+      // 既存のユーザーを削除（もし存在する場合）
+      const { data: { users } } = await supabase.auth.admin.listUsers()
+      const existingUser = users?.find(u => u.email === email)
+      
+      if (existingUser) {
+        await supabase.auth.admin.deleteUser(existingUser.id)
+      }
+
+      // 新しい招待メールを送信
       const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
         redirectTo: `https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/signup`
       })
@@ -53,6 +84,17 @@ export default function AuthErrorPage() {
     }
   }
 
+  const getErrorDescription = () => {
+    switch (error) {
+      case 'otp_expired':
+        return '招待メールの有効期限（24時間）が切れています。新しい招待メールを送信してください。'
+      case 'access_denied':
+        return 'アクセス権限がありません。管理者に連絡してください。'
+      default:
+        return '認証処理中にエラーが発生しました。新しい招待メールを送信してください。'
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <Card className="w-full max-w-md">
@@ -68,7 +110,7 @@ export default function AuthErrorPage() {
         <CardContent className="space-y-4">
           <Alert>
             <AlertDescription>
-              メールリンクが無効または期限切れです。新しい招待メールを送信してください。
+              {getErrorDescription()}
             </AlertDescription>
           </Alert>
 
