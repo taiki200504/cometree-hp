@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
@@ -16,9 +16,48 @@ export default function AdminSignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [processingToken, setProcessingToken] = useState(true)
   const router = useRouter()
   const supabase = createClientComponentClient()
   const searchParams = useSearchParams()
+
+  // URLハッシュフラグメントからトークン情報を処理
+  useEffect(() => {
+    const processHashFragment = async () => {
+      try {
+        // URLハッシュフラグメントを取得
+        const hash = window.location.hash.substring(1)
+        const params = new URLSearchParams(hash)
+        
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+        const type = params.get('type')
+        
+        if (type === 'invite' && accessToken && refreshToken) {
+          // セッションを設定
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          })
+          
+          if (error) {
+            console.error('Session setting error:', error)
+            setError('セッションの設定に失敗しました: ' + error.message)
+          } else {
+            // セッション設定成功
+            console.log('Session set successfully')
+          }
+        }
+      } catch (err) {
+        console.error('Token processing error:', err)
+        setError('トークンの処理に失敗しました')
+      } finally {
+        setProcessingToken(false)
+      }
+    }
+
+    processHashFragment()
+  }, [supabase.auth])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +76,16 @@ export default function AdminSignupPage() {
     setLoading(true)
     
     try {
-      // 招待メールのトークンを使ってパスワードを設定
+      // 現在のユーザー情報を取得
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        setError('ユーザー情報が見つかりません。再度招待メールからアクセスしてください。')
+        setLoading(false)
+        return
+      }
+
+      // パスワードを更新
       const { error } = await supabase.auth.updateUser({ password })
       
       if (error) {
@@ -53,6 +101,21 @@ export default function AdminSignupPage() {
     }
     
     setLoading(false)
+  }
+
+  if (processingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p>認証情報を処理中...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
