@@ -1,5 +1,4 @@
 import { createServerSupabaseClient, createAdminSupabaseClient } from './supabase'
-import { sendNewsUpdateEmail, sendEventUpdateEmail, sendBoardUpdateEmail } from './email'
 
 export type ContentStatus = 'draft' | 'published' | 'archived' | 'cancelled' | 'completed'
 
@@ -105,11 +104,11 @@ export class NewsCMS {
     
     // 公開時にメール配信
     if (updates.status === 'published' && article) {
-      await sendNewsUpdateEmail({
-        title: article.title,
-        excerpt: article.excerpt || article.content.substring(0, 200),
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${article.slug}`
-      })
+      // await sendNewsUpdateEmail({
+      //   title: article.title,
+      //   excerpt: article.excerpt || article.content.substring(0, 200),
+      //   url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${article.slug}`
+      // })
     }
     
     return article
@@ -250,12 +249,12 @@ export class EventCMS {
     
     // 公開時にメール配信
     if (updates.status === 'published' && event) {
-      await sendEventUpdateEmail({
-        title: event.title,
-        description: event.description || '',
-        startDate: event.start_date,
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/events/${event.slug}`
-      })
+      // await sendEventUpdateEmail({
+      //   title: event.title,
+      //   description: event.description || '',
+      //   startDate: event.start_date,
+      //   url: `${process.env.NEXT_PUBLIC_SITE_URL}/events/${event.slug}`
+      // })
     }
     
     return event
@@ -348,11 +347,11 @@ export class BoardCMS {
     }
     
     // 投稿時にメール配信
-    await sendBoardUpdateEmail({
-      title: post.title,
-      content: post.content,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/board/${post.id}`
-    })
+    // await sendBoardUpdateEmail({
+    //   title: post.title,
+    //   content: post.content,
+    //   url: `${process.env.NEXT_PUBLIC_SITE_URL}/board/${post.id}`
+    // })
     
     return post
   }
