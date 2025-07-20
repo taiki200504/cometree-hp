@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 export default function CreateEvent() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
@@ -332,21 +333,12 @@ export default function CreateEvent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="featuredImage">イベント画像</Label>
-                <div className="mt-2 flex items-center space-x-4">
-                  <Button variant="outline" type="button">
-                    <Upload className="h-4 w-4 mr-2" />
-                    画像を選択
-                  </Button>
-                  <Input
-                    id="featuredImage"
-                    value={formData.featuredImage}
-                    onChange={(e) => setFormData({ ...formData, featuredImage: e.target.value })}
-                    placeholder="画像URLを入力"
-                  />
-                </div>
-              </div>
+              <ImageUpload
+                value={formData.featuredImage}
+                onChange={(url) => setFormData({ ...formData, featuredImage: url })}
+                label="イベント画像"
+                placeholder="画像をドラッグ&ドロップまたはクリックして選択"
+              />
             </CardContent>
           </Card>
         </form>
