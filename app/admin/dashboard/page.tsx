@@ -26,11 +26,31 @@ import Link from 'next/link'
 export default function AdminDashboard() {
   const { user, loading, signOut, requireAuth } = useAdminAuthSimple()
   const [stats, setStats] = useState({
-    news: 12,
-    events: 5,
-    users: 3,
-    views: 1247
+    news: 0,
+    events: 0,
+    users: 0,
+    organizations: 0,
+    partners: 0,
+    members: 0,
+    views: 0
   })
+
+  // データ取得
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/admin/stats')
+        if (response.ok) {
+          const data = await response.json()
+          setStats(data)
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   useEffect(() => {
     requireAuth()
@@ -267,7 +287,7 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <Button variant="outline" className="flex items-center space-x-2" asChild>
                   <Link href="/admin/news/create">
                     <Plus className="h-4 w-4" />
@@ -278,6 +298,18 @@ export default function AdminDashboard() {
                   <Link href="/admin/events/create">
                     <Plus className="h-4 w-4" />
                     <span>イベント作成</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="flex items-center space-x-2" asChild>
+                  <Link href="/admin/organizations/create">
+                    <Plus className="h-4 w-4" />
+                    <span>加盟団体追加</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="flex items-center space-x-2" asChild>
+                  <Link href="/admin/partners/create">
+                    <Plus className="h-4 w-4" />
+                    <span>提携団体追加</span>
                   </Link>
                 </Button>
                 <Button variant="outline" className="flex items-center space-x-2" asChild>
