@@ -29,13 +29,18 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
 
+    console.log('Attempting to sign in...')
+
     const { error } = await signIn(email, password)
     
     if (error) {
+      console.error('Sign in error:', error)
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/admin/dashboard')
+      console.log('Sign in successful, waiting for redirect...')
+      // リダイレクトはuseAdminAuthで処理される
+      setLoading(false)
     }
   }
 

@@ -29,11 +29,12 @@ export function useAdminAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
         setUser(session?.user ?? null)
         setLoading(false)
         
         if (session?.user) {
-          checkAdminRole(session.user.id)
+          await checkAdminRole(session.user.id)
         } else {
           setIsAdmin(false)
         }
@@ -44,25 +45,46 @@ export function useAdminAuth() {
   }, [supabase.auth])
 
   const checkAdminRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single()
 
-    if (!error && data?.role === 'admin') {
-      setIsAdmin(true)
-    } else {
+      if (!error && data?.role === 'admin') {
+        setIsAdmin(true)
+        console.log('User is admin:', userId)
+      } else {
+        setIsAdmin(false)
+        console.log('User is not admin or error:', error)
+      }
+    } catch (err) {
+      console.error('Error checking admin role:', err)
       setIsAdmin(false)
     }
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (!error) {
+        console.log('Sign in successful, redirecting to dashboard...')
+        // 少し遅延を入れてからリダイレクト
+        setTimeout(() => {
+          router.push('/admin/dashboard')
+        }, 1000)
+      }
+      
+      return { error }
+    } catch (err) {
+      console.error('Sign in error:', err)
+      return { error: err as Error }
+    }
   }
 
   const signOut = async () => {
@@ -72,10 +94,12 @@ export function useAdminAuth() {
 
   const requireAuth = () => {
     if (!loading && !user) {
+      console.log('No user, redirecting to login')
       router.push('/admin/login')
       return false
     }
     if (!loading && !isAdmin) {
+      console.log('User is not admin, redirecting to login')
       router.push('/admin/login')
       return false
     }
