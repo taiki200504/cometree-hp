@@ -21,7 +21,8 @@ import {
   TrendingUp,
   Activity,
   Building,
-  Handshake
+  Handshake,
+  MessageSquare
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -34,7 +35,8 @@ export default function AdminDashboard() {
     organizations: 0,
     partners: 0,
     members: 0,
-    views: 0
+    views: 0,
+    boardPosts: 0
   })
 
   // データ取得
@@ -100,6 +102,18 @@ export default function AdminDashboard() {
       actions: [
         { label: '新規作成', icon: <Plus className="h-4 w-4" />, href: '/admin/events/create' },
         { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/events' }
+      ]
+    },
+    {
+      title: '掲示板管理',
+      description: '掲示板投稿の管理',
+      icon: <MessageSquare className="h-6 w-6" />,
+      href: '/admin/board',
+      color: 'bg-gradient-to-r from-pink-500 to-pink-600',
+      count: stats.boardPosts || 0,
+      actions: [
+        { label: '新規投稿', icon: <Plus className="h-4 w-4" />, href: '/admin/board/create' },
+        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/board' }
       ]
     },
     {

@@ -15,7 +15,8 @@ export async function GET() {
       usersCount,
       organizationsCount,
       partnersCount,
-      membersCount
+      membersCount,
+      boardPostsCount
     ] = await Promise.allSettled([
       // ニュース記事数
       supabase
@@ -45,6 +46,11 @@ export async function GET() {
       // 運営メンバー数
       supabase
         .from('members')
+        .select('id', { count: 'exact', head: true }),
+      
+      // 掲示板投稿数
+      supabase
+        .from('board_posts')
         .select('id', { count: 'exact', head: true })
     ])
 
@@ -66,6 +72,7 @@ export async function GET() {
       organizations: getCount(organizationsCount),
       partners: getCount(partnersCount),
       members: getCount(membersCount),
+      boardPosts: getCount(boardPostsCount),
       views
     })
   } catch (error) {
@@ -78,6 +85,7 @@ export async function GET() {
       organizations: 0,
       partners: 0,
       members: 0,
+      boardPosts: 0,
       views: 0
     })
   }

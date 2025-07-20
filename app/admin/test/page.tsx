@@ -82,6 +82,28 @@ export default function AdminTest() {
         }
       },
       {
+        name: '掲示板管理ページテスト',
+        test: async () => {
+          try {
+            const response = await fetch('/admin/board')
+            return response.ok ? 'PASS' : 'FAIL'
+          } catch {
+            return 'FAIL'
+          }
+        }
+      },
+      {
+        name: '掲示板作成ページテスト',
+        test: async () => {
+          try {
+            const response = await fetch('/admin/board/create')
+            return response.ok ? 'PASS' : 'FAIL'
+          } catch {
+            return 'FAIL'
+          }
+        }
+      },
+      {
         name: '加盟団体管理ページテスト',
         test: async () => {
           try {
