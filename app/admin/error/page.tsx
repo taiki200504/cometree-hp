@@ -58,7 +58,7 @@ export default function AuthErrorPage() {
 
       // 新しい招待メールを送信
       const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/signup`
+        redirectTo: `https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/signup`
       })
 
       if (error) {

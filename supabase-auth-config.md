@@ -7,25 +7,25 @@
 2. Authentication → Settings → Auth Settings
 3. 「Site URL」を設定：
    ```
-   https://gakusei-union-ennb2jxel-union-022b7003.vercel.app
+   https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app
    ```
 4. 「Redirect URLs」に以下を追加：
    ```
-   https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/signup
-   https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/reset-password
-   https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/error
+   https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/signup
+   https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/reset-password
+   https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/error
    ```
 
 ### 2. 招待メール送信時の設定
 招待メールを送信する際は、以下のURLを指定：
 ```
-https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/signup
+https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/signup
 ```
 
 ### 3. パスワードリセットメール送信時の設定
 パスワードリセットメールを送信する際は、以下のURLを指定：
 ```
-https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/reset-password
+https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/reset-password
 ```
 
 ## 認証フロー
