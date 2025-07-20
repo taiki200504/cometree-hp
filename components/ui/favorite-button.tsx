@@ -14,7 +14,7 @@ interface FavoriteButtonProps {
 }
 
 export default function FavoriteButton({ itemId, className, size = "md", showText = false }: FavoriteButtonProps) {
-  const { isFavorite, addFavorite, removeFavorite } = useFavorites()
+  const { isFavorite = () => false, addFavorite = () => {}, removeFavorite = () => {} } = useFavorites() || {};
   const favorited = isFavorite(itemId)
 
   const handleClick = (e: React.MouseEvent) => {

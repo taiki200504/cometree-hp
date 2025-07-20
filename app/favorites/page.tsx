@@ -13,7 +13,7 @@ import { Heart, Calendar, User, Search, ExternalLink } from "lucide-react"
 // サンプルデータ削除済み。今後はAPIや本番データ取得に対応。
 
 export default function Favorites() {
-  const { favorites } = useFavorites()
+  const { favorites = [] } = useFavorites() || {};
   const [searchTerm, setSearchTerm] = useState("")
   const [favoriteItems, setFavoriteItems] = useState<any[]>([]) // サンプルデータを削除したため、型をany[]に変更
 

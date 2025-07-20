@@ -10,7 +10,7 @@ import Image from "next/image"
 import { useStats } from "@/hooks/use-stats"
 
 export default function CommunityService() {
-  const { stats = {}, loading = false } = useStats() || {};
+  const { stats, loading } = useStats()
   const newsItems = [
     {
       title: "第3回全国学生団体サミット開催決定",
