@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAdminAuth } from '@/hooks/use-admin-auth'
+import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,7 +20,7 @@ export default function AdminLogin() {
   const [resetEmail, setResetEmail] = useState('')
   const [resetLoading, setResetLoading] = useState(false)
   const [resetMessage, setResetMessage] = useState('')
-  const { signIn } = useAdminAuth()
+  const { signIn } = useAdminAuthSimple()
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -39,7 +39,7 @@ export default function AdminLogin() {
       setLoading(false)
     } else {
       console.log('Sign in successful, waiting for redirect...')
-      // リダイレクトはuseAdminAuthで処理される
+      // リダイレクトはuseAdminAuthSimpleで処理される
       setLoading(false)
     }
   }
