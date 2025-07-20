@@ -19,7 +19,9 @@ import {
   Trash2,
   Bell,
   TrendingUp,
-  Activity
+  Activity,
+  Building,
+  Handshake
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -101,15 +103,39 @@ export default function AdminDashboard() {
       ]
     },
     {
-      title: 'ユーザー管理',
-      description: '管理者アカウントの管理',
-      icon: <Users className="h-6 w-6" />,
-      href: '/admin/users',
-      color: 'bg-gradient-to-r from-purple-500 to-purple-600',
-      count: stats.users,
+      title: '加盟団体管理',
+      description: '加盟団体の管理',
+      icon: <Building className="h-6 w-6" />,
+      href: '/admin/organizations',
+      color: 'bg-gradient-to-r from-indigo-500 to-indigo-600',
+      count: stats.organizations,
       actions: [
-        { label: 'ユーザー一覧', icon: <Users className="h-4 w-4" />, href: '/admin/users' },
-        { label: '権限設定', icon: <Settings className="h-4 w-4" />, href: '/admin/users/permissions' }
+        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/organizations/create' },
+        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/organizations' }
+      ]
+    },
+    {
+      title: '提携団体管理',
+      description: '提携団体の管理',
+      icon: <Handshake className="h-6 w-6" />,
+      href: '/admin/partners',
+      color: 'bg-gradient-to-r from-amber-500 to-amber-600',
+      count: stats.partners,
+      actions: [
+        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/partners/create' },
+        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/partners' }
+      ]
+    },
+    {
+      title: '運営メンバー管理',
+      description: '運営メンバーの管理',
+      icon: <Users className="h-6 w-6" />,
+      href: '/admin/members',
+      color: 'bg-gradient-to-r from-teal-500 to-teal-600',
+      count: stats.members,
+      actions: [
+        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/members/create' },
+        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/members' }
       ]
     },
     {
@@ -210,11 +236,11 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">管理者</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
+                  <p className="text-sm font-medium text-gray-600">加盟団体</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.organizations}</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
-                  <Users className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-indigo-100 rounded-full">
+                  <Building className="h-6 w-6 text-indigo-600" />
                 </div>
               </div>
             </CardContent>
@@ -236,7 +262,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Management Menu */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {menuItems.map((item) => (
             <Card key={item.title} className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
               <CardHeader>

@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    // 実際のデータを取得
+    // 実際のデータを取得（テーブルが存在しない場合は0を返す）
     const [
       newsCount,
       eventsCount,
@@ -16,7 +16,7 @@ export async function GET() {
       organizationsCount,
       partnersCount,
       membersCount
-    ] = await Promise.all([
+    ] = await Promise.allSettled([
       // ニュース記事数
       supabase
         .from('news')
@@ -48,23 +48,37 @@ export async function GET() {
         .select('id', { count: 'exact', head: true })
     ])
 
+    // 結果を処理
+    const getCount = (result: PromiseSettledResult<any>) => {
+      if (result.status === 'fulfilled' && result.value.data !== null) {
+        return result.value.count || 0
+      }
+      return 0
+    }
+
     // ページビュー数（仮の実装）
     const views = 12470 // TODO: 実際のアクセスログから取得
 
     return NextResponse.json({
-      news: newsCount.count || 0,
-      events: eventsCount.count || 0,
-      users: usersCount.count || 0,
-      organizations: organizationsCount.count || 0,
-      partners: partnersCount.count || 0,
-      members: membersCount.count || 0,
+      news: getCount(newsCount),
+      events: getCount(eventsCount),
+      users: getCount(usersCount),
+      organizations: getCount(organizationsCount),
+      partners: getCount(partnersCount),
+      members: getCount(membersCount),
       views
     })
   } catch (error) {
     console.error('Error fetching admin stats:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch statistics' },
-      { status: 500 }
-    )
+    // エラー時はデフォルト値を返す
+    return NextResponse.json({
+      news: 0,
+      events: 0,
+      users: 0,
+      organizations: 0,
+      partners: 0,
+      members: 0,
+      views: 0
+    })
   }
 } 

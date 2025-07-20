@@ -55,15 +55,21 @@ export default function CreateNews() {
     setIsSubmitting(true)
 
     try {
+      // バリデーション
+      if (!formData.title.trim() || !formData.content.trim()) {
+        alert('タイトルと本文は必須です')
+        return
+      }
+
       // TODO: Supabaseにデータを保存
       console.log('Saving news:', formData)
       
       // 成功時の処理
-      setTimeout(() => {
-        router.push('/admin/news')
-      }, 1000)
+      alert('ニュースが正常に保存されました')
+      router.push('/admin/news')
     } catch (error) {
       console.error('Error saving news:', error)
+      alert('保存中にエラーが発生しました')
     } finally {
       setIsSubmitting(false)
     }

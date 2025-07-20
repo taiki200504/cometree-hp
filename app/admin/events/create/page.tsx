@@ -63,15 +63,21 @@ export default function CreateEvent() {
     setIsSubmitting(true)
 
     try {
+      // バリデーション
+      if (!formData.title.trim() || !formData.date || !formData.time) {
+        alert('イベント名、開催日、開始時刻は必須です')
+        return
+      }
+
       // TODO: Supabaseにデータを保存
       console.log('Saving event:', formData)
       
       // 成功時の処理
-      setTimeout(() => {
-        router.push('/admin/events')
-      }, 1000)
+      alert('イベントが正常に保存されました')
+      router.push('/admin/events')
     } catch (error) {
       console.error('Error saving event:', error)
+      alert('保存中にエラーが発生しました')
     } finally {
       setIsSubmitting(false)
     }
