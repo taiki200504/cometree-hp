@@ -45,7 +45,7 @@ export default function AdminLogin() {
     setResetMessage('')
     setError('')
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: `${window.location.origin}/admin/reset-password`,
+      redirectTo: `https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/reset-password`,
     })
     if (error) {
       setResetMessage('リセットメール送信に失敗しました: ' + error.message)
