@@ -54,19 +54,26 @@ export default function AuthErrorPage() {
       
       if (existingUser) {
         await supabase.auth.admin.deleteUser(existingUser.id)
+        console.log('Existing user deleted:', existingUser.id)
       }
 
-      // 新しい招待メールを送信
+      // 新しい招待メールを送信（リダイレクト先を明示的に指定）
       const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/signup`
+        redirectTo: `https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/signup`,
+        data: {
+          role: 'admin'
+        }
       })
 
       if (error) {
+        console.error('Invite error:', error)
         setMessage('招待メールの送信に失敗しました: ' + error.message)
       } else {
         setMessage('新しい招待メールを送信しました。メールをご確認ください。')
+        console.log('Invite email sent successfully')
       }
     } catch (err) {
+      console.error('Unexpected error:', err)
       setMessage('予期しないエラーが発生しました。')
     }
 
