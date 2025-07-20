@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase"
+import { createServerSupabaseClient } from "@/lib/supabaseServer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { CalendarDays, Clock, PlayCircle } from "lucide-react"
@@ -39,7 +39,7 @@ const formatDuration = (seconds: number) => {
 
 export default async function PodcastDetailPage({ params }: { params: { id: string } }) {
   try {
-  const supabase = createServerClient()
+  const supabase = createServerSupabaseClient()
   const { data: episode, error } = await supabase
     .from("podcast_episodes")
     .select("id, title, description, audio_url, published_at, show_name, duration")
