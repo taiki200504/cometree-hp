@@ -13,6 +13,7 @@
    ```
    https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/signup
    https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/reset-password
+   https://gakusei-union-ennb2jxel-union-022b7003.vercel.app/admin/error
    ```
 
 ### 2. 招待メール送信時の設定
