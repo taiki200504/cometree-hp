@@ -14,15 +14,19 @@ import {
   Eye,
   FileText,
   Upload,
-  Calendar
+  Calendar,
+  Loader2
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { PreviewModal } from '@/components/ui/preview-modal'
+import { useToast } from '@/hooks/use-toast'
 
 export default function CreateNews() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
   const router = useRouter()
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -34,12 +38,13 @@ export default function CreateNews() {
     author: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
@@ -58,27 +63,58 @@ export default function CreateNews() {
     try {
       // バリデーション
       if (!formData.title.trim() || !formData.content.trim()) {
-        alert('タイトルと本文は必須です')
+        toast({
+          title: "エラー",
+          description: "タイトルと本文は必須です",
+          variant: "destructive"
+        })
         return
       }
 
-      // TODO: Supabaseにデータを保存
-      console.log('Saving news:', formData)
-      
-      // 成功時の処理
-      alert('ニュースが正常に保存されました')
+      const response = await fetch('/api/admin/news', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          author: user.email
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '保存に失敗しました')
+      }
+
+      toast({
+        title: "成功",
+        description: "ニュースが正常に保存されました",
+      })
+
       router.push('/admin/news')
     } catch (error) {
       console.error('Error saving news:', error)
-      alert('保存中にエラーが発生しました')
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : '保存中にエラーが発生しました',
+        variant: "destructive"
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handlePreview = () => {
-    // プレビュー機能
-    console.log('Preview:', formData)
+    setShowPreview(true)
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
@@ -99,13 +135,25 @@ export default function CreateNews() {
                 <h1 className="text-xl font-bold text-gray-900">ニュース作成</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handlePreview}>
-                <Eye className="h-4 w-4 mr-2" />
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={handlePreview}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <Eye className="h-4 w-4" />
                 プレビュー
               </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex items-center space-x-2"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
                 {isSubmitting ? '保存中...' : '保存'}
               </Button>
             </div>
@@ -115,44 +163,59 @@ export default function CreateNews() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* 基本情報 */}
+          <Card>
             <CardHeader>
               <CardTitle>基本情報</CardTitle>
               <CardDescription>
                 ニュースの基本情報を入力してください
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
                 <Label htmlFor="title">タイトル *</Label>
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="ニュースのタイトルを入力"
                   required
                 />
               </div>
-              
-              <div>
-                <Label htmlFor="excerpt">概要</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">要約</Label>
                 <Textarea
                   id="excerpt"
                   value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  placeholder="ニュースの概要を入力"
+                  onChange={(e) => handleInputChange('excerpt', e.target.value)}
+                  placeholder="ニュースの要約を入力（任意）"
                   rows={3}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="space-y-2">
+                <Label htmlFor="content">本文 *</Label>
+                <Textarea
+                  id="content"
+                  value={formData.content}
+                  onChange={(e) => handleInputChange('content', e.target.value)}
+                  placeholder="ニュースの本文を入力"
+                  rows={10}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
                   <Label htmlFor="category">カテゴリー</Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => handleInputChange('category', value)}
+                  >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="カテゴリーを選択" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="general">一般</SelectItem>
@@ -162,103 +225,68 @@ export default function CreateNews() {
                     </SelectContent>
                   </Select>
                 </div>
-                
-                <div>
+
+                <div className="space-y-2">
                   <Label htmlFor="status">ステータス</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleInputChange('status', value)}
+                  >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="ステータスを選択" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">下書き</SelectItem>
                       <SelectItem value="published">公開</SelectItem>
-                      <SelectItem value="scheduled">予約投稿</SelectItem>
+                      <SelectItem value="archived">アーカイブ</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="tags">タグ</Label>
                 <Input
                   id="tags"
                   value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  onChange={(e) => handleInputChange('tags', e.target.value)}
                   placeholder="タグをカンマ区切りで入力（例: イベント, お知らせ, 重要）"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Content */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+          {/* 画像設定 */}
+          <Card>
             <CardHeader>
-              <CardTitle>本文</CardTitle>
+              <CardTitle>画像設定</CardTitle>
               <CardDescription>
-                ニュースの本文を入力してください
+                ニュースのアイキャッチ画像を設定してください
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div>
-                <Label htmlFor="content">本文 *</Label>
-                <Textarea
-                  id="content"
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="ニュースの本文を入力"
-                  rows={15}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Media */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>メディア</CardTitle>
-              <CardDescription>
-                画像やファイルをアップロードできます
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <ImageUpload
                 value={formData.featuredImage}
-                onChange={(url) => setFormData({ ...formData, featuredImage: url })}
+                onChange={(url) => handleInputChange('featuredImage', url)}
                 label="アイキャッチ画像"
                 placeholder="画像をドラッグ&ドロップまたはクリックして選択"
               />
             </CardContent>
           </Card>
-
-          {/* SEO */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>SEO設定</CardTitle>
-              <CardDescription>
-                検索エンジン最適化の設定
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="metaTitle">メタタイトル</Label>
-                <Input
-                  id="metaTitle"
-                  placeholder="検索結果に表示されるタイトル"
-                />
-              </div>
-              <div>
-                <Label htmlFor="metaDescription">メタ説明</Label>
-                <Textarea
-                  id="metaDescription"
-                  placeholder="検索結果に表示される説明文"
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
         </form>
       </main>
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={{
+          ...formData,
+          type: 'news',
+          date: new Date().toISOString(),
+          author: user.email
+        }}
+      />
     </div>
   )
 } 

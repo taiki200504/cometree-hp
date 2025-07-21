@@ -1,16 +1,50 @@
-import { createServerSupabaseClient, createAdminSupabaseClient } from './supabase'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { NextRequest } from 'next/server'
 
-export type User = {
+// Supabaseクライアントの作成
+const createServerSupabaseClient = () => {
+  const cookieStore = cookies()
+  
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: false,
+      },
+      global: {
+        headers: {
+          cookie: cookieStore.toString(),
+        },
+      },
+    }
+  )
+}
+
+const createAdminSupabaseClient = () => {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
+
+// ユーザー型定義
+export interface User {
   id: string
   email: string
-  name: string
-  role: 'user' | 'admin' | 'moderator'
+  name?: string
+  role?: string
   organization_id?: string
 }
 
-// サーバーサイドでのユーザー取得
+// 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const supabase = createServerSupabaseClient()
@@ -20,176 +54,126 @@ export async function getCurrentUser(): Promise<User | null> {
       return null
     }
 
-    // ユーザープロファイル情報を取得
-    const { data: profile } = await supabase
+    // ユーザーの詳細情報を取得
+    const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('*')
+      .select('name, role, organization_id')
       .eq('id', user.id)
       .single()
 
-    if (!profile) {
-      return null
+    if (profileError) {
+      console.error('Profile fetch error:', profileError)
     }
 
     return {
       id: user.id,
       email: user.email!,
-      name: profile.name,
-      role: profile.role,
-      organization_id: profile.organization_id
+      name: profile?.name || user.user_metadata?.name,
+      role: profile?.role || 'user',
+      organization_id: profile?.organization_id
     }
   } catch (error) {
-    console.error('Error getting current user:', error)
+    console.error('getCurrentUser error:', error)
     return null
   }
 }
 
-// 認証が必要なページでの使用
-export async function requireAuth(): Promise<User> {
+// サインイン
+export async function signIn(email: string, password: string) {
+  try {
+    const supabase = createServerSupabaseClient()
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    if (error) {
+      throw error
+    }
+
+    return { success: true, user: data.user }
+  } catch (error) {
+    console.error('Sign in error:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Sign in failed' }
+  }
+}
+
+// サインアップ
+export async function signUp(email: string, password: string, name?: string) {
+  try {
+    const supabase = createServerSupabaseClient()
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: name || email.split('@')[0]
+        }
+      }
+    })
+
+    if (error) {
+      throw error
+    }
+
+    return { success: true, user: data.user }
+  } catch (error) {
+    console.error('Sign up error:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Sign up failed' }
+  }
+}
+
+// サインアウト
+export async function signOut() {
+  try {
+    const supabase = createServerSupabaseClient()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      throw error
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Sign out error:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Sign out failed' }
+  }
+}
+
+// 認証が必要なミドルウェア
+export async function requireAuth(request: NextRequest) {
   const user = await getCurrentUser()
   
   if (!user) {
-    redirect('/auth/login')
+    throw new Error('Authentication required')
   }
   
   return user
 }
 
-// 管理者権限が必要なページでの使用
-export async function requireAdmin(): Promise<User> {
-  const user = await requireAuth()
+// 管理者認証が必要なミドルウェア
+export async function requireAdmin(request: NextRequest) {
+  const user = await getCurrentUser()
+  
+  if (!user) {
+    throw new Error('Authentication required')
+  }
   
   if (user.role !== 'admin') {
-    redirect('/auth/login')
+    throw new Error('Admin access required')
   }
   
   return user
 }
 
-// 加盟団体メンバー権限が必要なページでの使用
-export async function requireOrganizationMember(): Promise<User> {
-  const user = await requireAuth()
-  
-  if (!user.organization_id) {
-    redirect('/auth/login')
-  }
-  
-  return user
-}
-
-// ログイン処理
-export async function signIn(email: string, password: string) {
-  const supabase = createServerSupabaseClient()
-  
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-  
-  return data
-}
-
-// ログアウト処理
-export async function signOut() {
-  const supabase = createServerSupabaseClient()
-  
-  const { error } = await supabase.auth.signOut()
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-}
-
-// ユーザー登録処理
-export async function signUp(email: string, password: string, name: string, organization_id?: string) {
-  const supabase = createServerSupabaseClient()
-  
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-        organization_id
-      }
-    }
-  })
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-  
-  // ユーザープロファイルを作成
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert({
-        id: data.user.id,
-        email: data.user.email!,
-        name,
-        role: 'user',
-        organization_id,
-        is_active: true
-      })
-    
-    if (profileError) {
-      throw new Error(profileError.message)
-    }
-  }
-  
-  return data
-}
-
-// パスワードリセット
-export async function resetPassword(email: string) {
-  const supabase = createServerSupabaseClient()
-  
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
-  })
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-}
-
-// ユーザー情報更新
-export async function updateUserProfile(userId: string, updates: Partial<User>) {
-  const supabase = createServerSupabaseClient()
-  
-  const { error } = await supabase
-    .from('users')
-    .update(updates)
-    .eq('id', userId)
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-}
-
-// 組織情報取得
-export async function getOrganization(organizationId: string) {
-  const supabase = createServerSupabaseClient()
-  
-  const { data, error } = await supabase
-    .from('organizations')
-    .select('*')
-    .eq('id', organizationId)
-    .single()
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-  
-  return data
-}
-
-// アクセスログ記録
-export async function logAccess(userId: string | null, endpoint: string, method: string, statusCode: number, responseTime: number) {
+// アクセスログを記録
+export async function logAccess(
+  userId: string | null,
+  endpoint: string,
+  method: string,
+  statusCode: number,
+  responseTime: number
+) {
   try {
     const supabase = createAdminSupabaseClient()
     
@@ -200,9 +184,13 @@ export async function logAccess(userId: string | null, endpoint: string, method:
         endpoint,
         method,
         status_code: statusCode,
-        response_time: responseTime
+        response_time: responseTime,
+        timestamp: new Date().toISOString()
       })
   } catch (error) {
-    console.error('Error logging access:', error)
+    console.error('Log access error:', error)
   }
 }
+
+// サーバーサイドのSupabaseクライアントをエクスポート
+export { createServerSupabaseClient, createAdminSupabaseClient } 

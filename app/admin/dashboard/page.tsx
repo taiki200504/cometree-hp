@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -26,9 +27,21 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+interface Stats {
+  news: number
+  events: number
+  users: number
+  organizations: number
+  partners: number
+  members: number
+  views: number
+  boardPosts: number
+}
+
 export default function AdminDashboard() {
-  const { user, loading, signOut, requireAuth } = useAdminAuthSimple()
-  const [stats, setStats] = useState({
+  const { user, loading, signOut, userRole } = useAdminAuthSimple()
+  const router = useRouter()
+  const [stats, setStats] = useState<Stats>({
     news: 0,
     events: 0,
     users: 0,
@@ -38,6 +51,7 @@ export default function AdminDashboard() {
     views: 0,
     boardPosts: 0
   })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
   // データ取得
   useEffect(() => {
@@ -50,6 +64,8 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
+      } finally {
+        setIsLoadingStats(false)
       }
     }
 
@@ -57,8 +73,17 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => {
-    requireAuth()
-  }, [requireAuth])
+    if (!loading && !user) {
+      router.push('/admin/login')
+    }
+  }, [loading, user, router])
+
+  // 管理者権限チェック
+  useEffect(() => {
+    if (!loading && user && userRole !== 'admin') {
+      router.push('/admin/login')
+    }
+  }, [loading, user, userRole, router])
 
   if (loading) {
     return (
@@ -71,7 +96,7 @@ export default function AdminDashboard() {
     )
   }
 
-  if (!user) {
+  if (!user || userRole !== 'admin') {
     return null
   }
 
@@ -153,15 +178,15 @@ export default function AdminDashboard() {
       ]
     },
     {
-      title: '統計情報',
+      title: 'アクセス解析',
       description: 'サイト統計の更新と分析',
       icon: <BarChart3 className="h-6 w-6" />,
-      href: '/admin/stats',
+      href: '/admin/analytics',
       color: 'bg-gradient-to-r from-orange-500 to-orange-600',
       count: stats.views,
       actions: [
-        { label: '統計表示', icon: <TrendingUp className="h-4 w-4" />, href: '/admin/stats' },
-        { label: '分析レポート', icon: <Activity className="h-4 w-4" />, href: '/admin/stats/reports' }
+        { label: '統計表示', icon: <TrendingUp className="h-4 w-4" />, href: '/admin/analytics' },
+        { label: '分析レポート', icon: <Activity className="h-4 w-4" />, href: '/admin/analytics/reports' }
       ]
     }
   ]
@@ -208,106 +233,104 @@ export default function AdminDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            お疲れ様です、{user.email?.split('@')[0]}さん
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            ようこそ、{user.email}さん
           </h2>
           <p className="text-gray-600">
-            今日もUNIÓNの管理をお願いします。最新の統計情報と管理機能をご利用ください。
+            今日もUNIÓNの管理をお疲れ様です。以下の機能からお選びください。
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">ニュース記事</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.news}</p>
+        {/* Stats Overview */}
+        {isLoadingStats ? (
+          <div className="mb-8 flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm opacity-90">ニュース</p>
+                    <p className="text-2xl font-bold">{stats.news}</p>
+                  </div>
+                  <FileText className="h-8 w-8 opacity-80" />
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <FileText className="h-6 w-6 text-blue-600" />
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm opacity-90">イベント</p>
+                    <p className="text-2xl font-bold">{stats.events}</p>
+                  </div>
+                  <Calendar className="h-8 w-8 opacity-80" />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm opacity-90">ページビュー</p>
+                    <p className="text-2xl font-bold">{stats.views.toLocaleString()}</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm opacity-90">加盟団体</p>
+                    <p className="text-2xl font-bold">{stats.organizations}</p>
+                  </div>
+                  <Building className="h-8 w-8 opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">イベント</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.events}</p>
-                </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Calendar className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">加盟団体</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.organizations}</p>
-                </div>
-                <div className="p-3 bg-indigo-100 rounded-full">
-                  <Building className="h-6 w-6 text-indigo-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">月間PV</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.views.toLocaleString()}</p>
-                </div>
-                <div className="p-3 bg-orange-100 rounded-full">
-                  <TrendingUp className="h-6 w-6 text-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Management Menu */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {menuItems.map((item) => (
-            <Card key={item.title} className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <CardHeader>
+        {/* Menu Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {menuItems.map((item, index) => (
+            <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 bg-white/60 backdrop-blur-sm">
+              <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className={`p-3 rounded-lg ${item.color} text-white`}>
                     {item.icon}
                   </div>
-                  <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+                  <Badge variant="secondary" className="bg-gray-100 text-gray-700">
                     {item.count}
                   </Badge>
                 </div>
-                <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                   {item.title}
                 </CardTitle>
                 <CardDescription className="text-gray-600">
                   {item.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex space-x-2">
-                  {item.actions.map((action, index) => (
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  {item.actions.map((action, actionIndex) => (
                     <Button
-                      key={index}
+                      key={actionIndex}
                       variant="outline"
                       size="sm"
-                      className="flex-1 flex items-center space-x-2 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                      className="w-full justify-start group-hover:border-blue-300 group-hover:text-blue-600 transition-colors"
                       asChild
                     >
                       <Link href={action.href}>
                         {action.icon}
-                        <span>{action.label}</span>
+                        <span className="ml-2">{action.label}</span>
                       </Link>
                     </Button>
                   ))}
@@ -318,55 +341,28 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8">
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Activity className="h-5 w-5" />
-                <span>クイックアクション</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/news/create">
-                    <Plus className="h-4 w-4" />
-                    <span>ニュース作成</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/events/create">
-                    <Plus className="h-4 w-4" />
-                    <span>イベント作成</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/organizations/create">
-                    <Plus className="h-4 w-4" />
-                    <span>加盟団体追加</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/partners/create">
-                    <Plus className="h-4 w-4" />
-                    <span>提携団体追加</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/stats">
-                    <BarChart3 className="h-4 w-4" />
-                    <span>統計確認</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2" asChild>
-                  <Link href="/admin/settings">
-                    <Settings className="h-4 w-4" />
-                    <span>設定</span>
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mt-12">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
+              <Link href="/admin/news/create">
+                <FileText className="h-6 w-6" />
+                <span>ニュース作成</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
+              <Link href="/admin/events/create">
+                <Calendar className="h-6 w-6" />
+                <span>イベント作成</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
+              <Link href="/admin/analytics">
+                <BarChart3 className="h-6 w-6" />
+                <span>統計確認</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </main>
     </div>

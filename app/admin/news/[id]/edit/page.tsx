@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,155 +8,84 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { ImageUpload } from '@/components/ui/image-upload'
 import { 
   ArrowLeft,
   Save,
   Eye,
-  X,
-  Plus,
   FileText,
+  Upload,
+  Calendar,
   Loader2
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { PreviewModal } from '@/components/ui/preview-modal'
+import { useToast } from '@/hooks/use-toast'
 
 interface NewsData {
   id: string
   title: string
-  excerpt: string
   content: string
+  excerpt?: string
+  status: string
   category: string
-  status: 'published' | 'draft' | 'archived'
+  featured_image?: string
   tags: string[]
-  featuredImage: string
-  seoTitle: string
-  seoDescription: string
-  publishedAt: string
-  createdAt: string
-  updatedAt: string
+  author: string
 }
 
-export default function EditNews() {
-  const router = useRouter()
-  const params = useParams()
+export default function EditNews({ params }: { params: { id: string } }) {
   const { user, loading, requireAuth } = useAdminAuthSimple()
+  const router = useRouter()
+  const { toast } = useToast()
+  const [formData, setFormData] = useState<NewsData>({
+    id: '',
+    title: '',
+    content: '',
+    excerpt: '',
+    status: 'draft',
+    category: 'general',
+    featured_image: '',
+    tags: [],
+    author: ''
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [newTag, setNewTag] = useState('')
-  const [newsData, setNewsData] = useState<NewsData | null>(null)
-  const [formData, setFormData] = useState({
-    title: '',
-    excerpt: '',
-    content: '',
-    category: 'general',
-    status: 'draft' as 'published' | 'draft' | 'archived',
-    tags: [] as string[],
-    featuredImage: '',
-    seoTitle: '',
-    seoDescription: ''
-  })
+  const [showPreview, setShowPreview] = useState(false)
 
+  // ニュースデータを取得
   useEffect(() => {
-    requireAuth()
+    const fetchNews = async () => {
+      try {
+        const response = await fetch(`/api/admin/news/${params.id}`)
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result.error || 'ニュースの取得に失敗しました')
+        }
+
+        setFormData({
+          ...result.data,
+          tags: result.data.tags || []
+        })
+      } catch (error) {
+        console.error('Error fetching news:', error)
+        toast({
+          title: "エラー",
+          description: error instanceof Error ? error.message : 'ニュースの取得に失敗しました',
+          variant: "destructive"
+        })
+        router.push('/admin/news')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     if (params.id) {
-      fetchNewsData(params.id as string)
+      fetchNews()
     }
-  }, [requireAuth, params.id])
-
-  const fetchNewsData = async (id: string) => {
-    try {
-      // TODO: Supabaseからデータを取得
-      // 仮のデータ
-      const mockData: NewsData = {
-        id,
-        title: 'サンプルニュース記事',
-        excerpt: 'これはサンプルのニュース記事です。',
-        content: '詳細な内容がここに入ります。',
-        category: 'general',
-        status: 'draft',
-        tags: ['サンプル', 'テスト'],
-        featuredImage: '',
-        seoTitle: 'SEOタイトル',
-        seoDescription: 'SEO説明文',
-        publishedAt: '',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
-      }
-      
-      setNewsData(mockData)
-      setFormData({
-        title: mockData.title,
-        excerpt: mockData.excerpt,
-        content: mockData.content,
-        category: mockData.category,
-        status: mockData.status,
-        tags: mockData.tags,
-        featuredImage: mockData.featuredImage,
-        seoTitle: mockData.seoTitle,
-        seoDescription: mockData.seoDescription
-      })
-    } catch (error) {
-      console.error('Error fetching news:', error)
-      alert('ニュースデータの取得に失敗しました')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleInputChange = (field: keyof typeof formData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }))
-      setNewTag('')
-    }
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      // バリデーション
-      if (!formData.title.trim() || !formData.content.trim()) {
-        alert('タイトルと本文は必須です')
-        return
-      }
-
-      // TODO: Supabaseにデータを更新
-      console.log('Updating news:', formData)
-      
-      // 成功時の処理
-      alert('ニュースが正常に更新されました')
-      router.push('/admin/news')
-    } catch (error) {
-      console.error('Error updating news:', error)
-      alert('更新中にエラーが発生しました')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handlePreview = () => {
-    // プレビュー機能（実装予定）
-    alert('プレビュー機能は実装予定です')
-  }
+  }, [params.id, router, toast])
 
   if (loading || isLoading) {
     return (
@@ -170,8 +98,70 @@ export default function EditNews() {
     )
   }
 
-  if (!user || !newsData) {
+  if (!user) {
+    requireAuth()
     return null
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      // バリデーション
+      if (!formData.title.trim() || !formData.content.trim()) {
+        toast({
+          title: "エラー",
+          description: "タイトルと本文は必須です",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const response = await fetch(`/api/admin/news/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          tags: Array.isArray(formData.tags) ? formData.tags : []
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '更新に失敗しました')
+      }
+
+      toast({
+        title: "成功",
+        description: "ニュースが正常に更新されました",
+      })
+
+      router.push('/admin/news')
+    } catch (error) {
+      console.error('Error updating news:', error)
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : '更新中にエラーが発生しました',
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePreview = () => {
+    setShowPreview(true)
+  }
+
+  const handleInputChange = (field: string, value: string | string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
@@ -184,7 +174,7 @@ export default function EditNews() {
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/admin/news">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  ニュース管理
+                  ニュース一覧
                 </Link>
               </Button>
               <div className="flex items-center space-x-2">
@@ -192,13 +182,25 @@ export default function EditNews() {
                 <h1 className="text-xl font-bold text-gray-900">ニュース編集</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handlePreview} disabled={isSubmitting}>
-                <Eye className="h-4 w-4 mr-2" />
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={handlePreview}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <Eye className="h-4 w-4" />
                 プレビュー
               </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex items-center space-x-2"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
                 {isSubmitting ? '更新中...' : '更新'}
               </Button>
             </div>
@@ -208,74 +210,77 @@ export default function EditNews() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* 基本情報 */}
+          <Card>
             <CardHeader>
               <CardTitle>基本情報</CardTitle>
               <CardDescription>
-                ニュース記事の基本情報を編集してください
+                ニュースの基本情報を編集してください
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
                 <Label htmlFor="title">タイトル *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="ニュースのタイトルを入力"
-                  className="mt-1"
                   required
                 />
               </div>
 
-              <div>
-                <Label htmlFor="excerpt">概要</Label>
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">要約</Label>
                 <Textarea
                   id="excerpt"
-                  value={formData.excerpt}
+                  value={formData.excerpt || ''}
                   onChange={(e) => handleInputChange('excerpt', e.target.value)}
-                  placeholder="ニュースの概要を入力"
-                  className="mt-1"
+                  placeholder="ニュースの要約を入力（任意）"
                   rows={3}
                 />
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="content">本文 *</Label>
                 <Textarea
                   id="content"
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   placeholder="ニュースの本文を入力"
-                  className="mt-1 min-h-[300px]"
+                  rows={10}
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category">カテゴリ</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="category">カテゴリー</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => handleInputChange('category', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="カテゴリーを選択" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="general">一般</SelectItem>
-                      <SelectItem value="technology">技術</SelectItem>
-                      <SelectItem value="business">ビジネス</SelectItem>
-                      <SelectItem value="education">教育</SelectItem>
-                      <SelectItem value="events">イベント</SelectItem>
+                      <SelectItem value="event">イベント</SelectItem>
+                      <SelectItem value="announcement">お知らせ</SelectItem>
+                      <SelectItem value="press">プレスリリース</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="status">ステータス</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => handleInputChange('status', value)}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleInputChange('status', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="ステータスを選択" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">下書き</SelectItem>
@@ -285,102 +290,50 @@ export default function EditNews() {
                   </Select>
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">タグ</Label>
+                <Input
+                  id="tags"
+                  value={Array.isArray(formData.tags) ? formData.tags.join(', ') : ''}
+                  onChange={(e) => handleInputChange('tags', e.target.value.split(',').map(tag => tag.trim()))}
+                  placeholder="タグをカンマ区切りで入力（例: イベント, お知らせ, 重要）"
+                />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Featured Image */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+          {/* 画像設定 */}
+          <Card>
             <CardHeader>
-              <CardTitle>アイキャッチ画像</CardTitle>
+              <CardTitle>画像設定</CardTitle>
               <CardDescription>
-                ニュース記事のアイキャッチ画像を設定してください
+                ニュースのアイキャッチ画像を設定してください
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ImageUpload
-                value={formData.featuredImage}
-                onChange={(url) => handleInputChange('featuredImage', url)}
+                value={formData.featured_image || ''}
+                onChange={(url) => handleInputChange('featured_image', url)}
                 label="アイキャッチ画像"
                 placeholder="画像をドラッグ&ドロップまたはクリックして選択"
               />
             </CardContent>
           </Card>
-
-          {/* Tags */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>タグ</CardTitle>
-              <CardDescription>
-                ニュースに関連するタグを追加してください
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex space-x-2">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="新しいタグを入力"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                />
-                <Button type="button" variant="outline" onClick={handleAddTag}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center space-x-1">
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 hover:text-red-600"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* SEO Settings */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>SEO設定</CardTitle>
-              <CardDescription>
-                検索エンジン最適化のための設定を行ってください
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="seoTitle">SEOタイトル</Label>
-                <Input
-                  id="seoTitle"
-                  value={formData.seoTitle}
-                  onChange={(e) => handleInputChange('seoTitle', e.target.value)}
-                  placeholder="SEO用のタイトルを入力"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="seoDescription">SEO説明</Label>
-                <Textarea
-                  id="seoDescription"
-                  value={formData.seoDescription}
-                  onChange={(e) => handleInputChange('seoDescription', e.target.value)}
-                  placeholder="SEO用の説明文を入力"
-                  className="mt-1"
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
         </form>
       </main>
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={{
+          ...formData,
+          type: 'news',
+          date: new Date().toISOString(),
+          author: user.email
+        }}
+      />
     </div>
   )
 } 

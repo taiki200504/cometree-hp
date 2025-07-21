@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,50 +15,106 @@ import {
   Trash2,
   Calendar,
   User,
-  FileText
+  FileText,
+  Loader2,
+  Filter
 } from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/hooks/use-toast'
+
+interface NewsItem {
+  id: string
+  title: string
+  content: string
+  excerpt?: string
+  author: string
+  status: string
+  category: string
+  created_at: string
+  published_at?: string
+  views?: number
+}
 
 export default function AdminNews() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [news, setNews] = useState<NewsItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
 
-  // サンプルデータ
-  const [news] = useState([
-    {
-      id: 1,
-      title: 'UNIÓN新年度活動開始のお知らせ',
-      content: '2025年度のUNIÓN活動が本格的に開始されました...',
-      author: 'gakusei.union226@gmail.com',
-      publishedAt: '2025-01-15',
-      status: 'published',
-      views: 245
-    },
-    {
-      id: 2,
-      title: '加盟団体募集のお知らせ',
-      content: '新しい加盟団体を募集しています...',
-      author: 'gakusei.union226@gmail.com',
-      publishedAt: '2025-01-10',
-      status: 'draft',
-      views: 0
-    },
-    {
-      id: 3,
-      title: 'イベント開催のお知らせ',
-      content: '来月開催予定のイベントについて...',
-      author: 'gakusei.union226@gmail.com',
-      publishedAt: '2025-01-05',
-      status: 'published',
-      views: 189
+  useEffect(() => {
+    fetchNews()
+  }, [searchTerm, statusFilter])
+
+  const fetchNews = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (searchTerm) params.append('search', searchTerm)
+      if (statusFilter) params.append('status', statusFilter)
+      params.append('limit', '50')
+
+      const response = await fetch(`/api/admin/news?${params}`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'ニュースの取得に失敗しました')
+      }
+
+      setNews(result.data || [])
+    } catch (error) {
+      console.error('Error fetching news:', error)
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : 'ニュースの取得に失敗しました',
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
-  ])
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('このニュースを削除しますか？この操作は取り消せません。')) {
+      return
+    }
+
+    setIsDeleting(id)
+    try {
+      const response = await fetch(`/api/admin/news/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || '削除に失敗しました')
+      }
+
+      toast({
+        title: "成功",
+        description: "ニュースが正常に削除されました",
+      })
+
+      // リストを更新
+      setNews(prev => prev.filter(item => item.id !== id))
+    } catch (error) {
+      console.error('Error deleting news:', error)
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : '削除に失敗しました',
+        variant: "destructive"
+      })
+    } finally {
+      setIsDeleting(null)
+    }
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
@@ -70,20 +126,25 @@ export default function AdminNews() {
     return null
   }
 
-  const filteredNews = news.filter(item =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.content.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'published':
         return <Badge className="bg-green-100 text-green-800">公開中</Badge>
       case 'draft':
         return <Badge variant="secondary">下書き</Badge>
+      case 'archived':
+        return <Badge variant="outline">アーカイブ</Badge>
       default:
         return <Badge variant="outline">不明</Badge>
     }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
   }
 
   return (
@@ -117,10 +178,10 @@ export default function AdminNews() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
-        <div className="mb-6">
+        <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="ニュースを検索..."
                 value={searchTerm}
@@ -128,75 +189,104 @@ export default function AdminNews() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline">すべて</Button>
-              <Button variant="outline">公開中</Button>
-              <Button variant="outline">下書き</Button>
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">すべてのステータス</option>
+                <option value="published">公開中</option>
+                <option value="draft">下書き</option>
+                <option value="archived">アーカイブ</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* News List */}
-        <div className="space-y-4">
-          {filteredNews.map((item) => (
-            <Card key={item.id} className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                      {getStatusBadge(item.status)}
-                    </div>
-                    <p className="text-gray-600 mb-3 line-clamp-2">{item.content}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <User className="h-4 w-4" />
-                        <span>{item.author}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{item.publishedAt}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Eye className="h-4 w-4" />
-                        <span>{item.views} views</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2 ml-4">
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredNews.length === 0 && (
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-12 text-center">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">ニュースが見つかりません</h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm ? '検索条件に一致するニュースがありません。' : 'まだニュースが作成されていません。'}
-              </p>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : news.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <FileText className="h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">ニュースがありません</h3>
+              <p className="text-gray-500 mb-4">新しいニュースを作成してください</p>
               <Button asChild>
                 <Link href="/admin/news/create">
                   <Plus className="h-4 w-4 mr-2" />
-                  最初のニュースを作成
+                  ニュースを作成
                 </Link>
               </Button>
             </CardContent>
           </Card>
+        ) : (
+          <div className="grid gap-6">
+            {news.map((item) => (
+              <Card key={item.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                          {item.title}
+                        </h3>
+                        {getStatusBadge(item.status)}
+                      </div>
+                      
+                      {item.excerpt && (
+                        <p className="text-gray-600 line-clamp-2">
+                          {item.excerpt}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(item.created_at)}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <User className="h-4 w-4" />
+                          <span>{item.author}</span>
+                        </div>
+                        {item.views !== undefined && (
+                          <div className="flex items-center space-x-1">
+                            <Eye className="h-4 w-4" />
+                            <span>{item.views} views</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 ml-4">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/admin/news/${item.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={isDeleting === item.id}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        {isDeleting === item.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </main>
     </div>

@@ -8,16 +8,51 @@ import { useRouter } from 'next/navigation'
 export function useAdminAuthSimple() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const supabase = createClientComponentClient()
   const router = useRouter()
 
   useEffect(() => {
+    let mounted = true
+
     // Get initial session
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
-      console.log('Initial session:', session?.user?.email)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+        
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          try {
+            // ユーザーの役割を取得
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', session.user.id)
+              .single()
+            
+            if (!mounted) return
+            
+            if (error) {
+              console.warn('Error fetching user role:', error)
+              setUserRole('user') // デフォルト値
+            } else {
+              setUserRole(userData?.role || 'user')
+            }
+          } catch (roleError) {
+            console.warn('Error fetching user role:', roleError)
+            if (mounted) setUserRole('user') // デフォルト値
+          }
+        }
+        
+        if (mounted) setLoading(false)
+        console.log('Initial session:', session?.user?.email, 'Role:', userRole)
+      } catch (error) {
+        console.error('Error getting session:', error)
+        if (mounted) setLoading(false)
+      }
     }
 
     getSession()
@@ -25,29 +60,79 @@ export function useAdminAuthSimple() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+        
         console.log('Auth state changed:', event, session?.user?.email)
         setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          try {
+            // ユーザーの役割を取得
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', session.user.id)
+              .single()
+            
+            if (!mounted) return
+            
+            if (error) {
+              console.warn('Error fetching user role:', error)
+              setUserRole('user') // デフォルト値
+            } else {
+              setUserRole(userData?.role || 'user')
+            }
+          } catch (roleError) {
+            console.warn('Error fetching user role:', roleError)
+            if (mounted) setUserRole('user') // デフォルト値
+          }
+        } else {
+          setUserRole(null)
+        }
+        
         setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting to sign in...')
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       
-      if (!error) {
-        console.log('Sign in successful, redirecting to dashboard...')
-        // 少し遅延を入れてからリダイレクト
+      if (!error && data.user) {
+        console.log('Sign in successful, checking user role...')
+        
+        // ユーザーの役割を確認
+        const { data: userData, error: roleError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+        
+        if (roleError) {
+          console.warn('Error fetching user role:', roleError)
+          return { error: new Error('ユーザー情報の取得に失敗しました') }
+        }
+        
+        if (userData?.role !== 'admin') {
+          await supabase.auth.signOut()
+          return { error: new Error('管理者権限がありません') }
+        }
+        
+        console.log('Admin role confirmed, redirecting to dashboard...')
+        // 認証状態が確実に更新されてからリダイレクト
         setTimeout(() => {
           router.push('/admin/dashboard')
-        }, 1000)
+        }, 500)
       }
       
       return { error }
@@ -71,11 +156,29 @@ export function useAdminAuthSimple() {
     return true
   }
 
+  const requireAdmin = () => {
+    if (!loading && !user) {
+      console.log('No user, redirecting to login')
+      router.push('/admin/login')
+      return false
+    }
+    
+    if (!loading && user && userRole !== 'admin') {
+      console.log('Not admin, redirecting to login')
+      router.push('/admin/login')
+      return false
+    }
+    
+    return true
+  }
+
   return {
     user,
     loading,
+    userRole,
     signIn,
     signOut,
     requireAuth,
+    requireAdmin,
   }
 } 

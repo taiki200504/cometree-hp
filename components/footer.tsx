@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { Twitter, Instagram, Youtube, Mail, ExternalLink } from "lucide-react"
+import { Twitter, Instagram, Youtube, Mail, ExternalLink, Settings } from "lucide-react"
 
 export default function Footer() {
   const footerLinks = {
@@ -107,6 +107,30 @@ export default function Footer() {
                 </Link>
               ))}
             </div>
+            {/* 秘密の管理者ログインボタン - Twitterロゴの下に配置 */}
+            <div className="mt-2 flex justify-center">
+              <Link
+                href="/admin"
+                className="group relative inline-block w-12 h-12 bg-gray-800 hover:bg-gray-600 transition-all duration-500 ease-in-out rounded-md border border-gray-600"
+                title="管理者ログイン"
+                style={{
+                  opacity: 0.2,
+                  transform: 'scale(0.9)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.2'
+                  e.currentTarget.style.transform = 'scale(0.9)'
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Settings className="h-6 w-6 text-gray-600 group-hover:text-gray-400 transition-colors duration-300" />
+                </div>
+              </Link>
+            </div>
           </div>
 
           {/* UNIONについて */}
@@ -209,6 +233,8 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+
       </div>
     </footer>
   )

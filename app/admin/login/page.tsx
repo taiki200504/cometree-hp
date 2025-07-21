@@ -1,140 +1,223 @@
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2 } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { 
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle
+} from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [showReset, setShowReset] = useState(false)
-  const [resetEmail, setResetEmail] = useState('')
-  const [resetLoading, setResetLoading] = useState(false)
-  const [resetMessage, setResetMessage] = useState('')
-  const { signIn } = useAdminAuthSimple()
+  const { signIn, user, loading, userRole } = useAdminAuthSimple()
+  const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  // 既にログインしている場合はダッシュボードにリダイレクト
+  useEffect(() => {
+    if (!loading && user && userRole === 'admin') {
+      router.push('/admin/dashboard')
+    }
+  }, [user, loading, userRole, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setIsSubmitting(true)
     setError('')
 
-    console.log('Attempting to sign in...')
-
-    const { error } = await signIn(email, password)
-    
-    if (error) {
-      console.error('Sign in error:', error)
-      setError(error.message)
-      setLoading(false)
-    } else {
-      console.log('Sign in successful, waiting for redirect...')
-      // リダイレクトはuseAdminAuthSimpleで処理される
-      setLoading(false)
+    try {
+      const { error } = await signIn(formData.email, formData.password)
+      
+      if (error) {
+        setError(error.message)
+        toast({
+          title: "ログインエラー",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "ログイン成功",
+          description: "ダッシュボードにリダイレクトしています...",
+        })
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('ログイン中にエラーが発生しました')
+      toast({
+        title: "エラー",
+        description: "ログイン中にエラーが発生しました",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setResetLoading(true)
-    setResetMessage('')
-    setError('')
-    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: `https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app/admin/reset-password`,
-    })
-    if (error) {
-      setResetMessage('リセットメール送信に失敗しました: ' + error.message)
-    } else {
-      setResetMessage('リセット用メールを送信しました。メールをご確認ください。')
-    }
-    setResetLoading(false)
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    // エラーをクリア
+    if (error) setError('')
+  }
+
+  // ローディング中または既にログインしている場合は何も表示しない
+  if (loading || user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">管理画面ログイン</CardTitle>
-          <CardDescription className="text-center">
-            UNIÓN管理画面にログインしてください
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {showReset ? (
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="resetEmail">メールアドレス</Label>
-                <Input
-                  id="resetEmail"
-                  type="email"
-                  placeholder="gakusei.union226@gmail.com"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  required
-                />
-              </div>
-              {resetMessage && (
-                <Alert>
-                  <AlertDescription>{resetMessage}</AlertDescription>
-                </Alert>
-              )}
-              <Button type="submit" className="w-full" disabled={resetLoading}>
-                {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                パスワードリセットメール送信
-              </Button>
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setShowReset(false)}>
-                ログイン画面に戻る
-              </Button>
-            </form>
-          ) : (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-xl">U</span>
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              UNIÓN
+            </h1>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+            管理画面ログイン
+          </h2>
+          <p className="text-gray-600">
+            管理者アカウントでログインしてください
+          </p>
+        </div>
+
+        {/* Login Form */}
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-xl text-center">ログイン</CardTitle>
+            <CardDescription className="text-center">
+              メールアドレスとパスワードを入力してください
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">メールアドレス</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="gakusei.union226@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="admin@union.example.com"
+                    className="pl-10"
+                    required
+                  />
+                </div>
               </div>
+
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">パスワード</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    placeholder="パスワードを入力"
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
               </div>
+
+              {/* Error Message */}
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
               )}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                ログイン
-              </Button>
-              <Button type="button" variant="link" className="w-full" onClick={() => setShowReset(true)}>
-                パスワードを忘れた方はこちら
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ログイン中...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    ログイン
+                  </>
+                )}
               </Button>
             </form>
-          )}
-        </CardContent>
-      </Card>
+
+            {/* Additional Info */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-2">
+                  管理者アカウントをお持ちでない場合
+                </p>
+                <p className="text-xs text-gray-500">
+                  システム管理者にお問い合わせください
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-sm text-gray-500">
+            © 2025 UNIÓN. All rights reserved.
+          </p>
+        </div>
+      </div>
     </div>
   )
 } 

@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
     
     const { data, error } = await supabase
       .from('stats')
@@ -43,7 +44,8 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
     
     // Check if user is authenticated and is admin
     const { data: { user } } = await supabase.auth.getUser()
