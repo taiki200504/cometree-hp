@@ -12,12 +12,12 @@ export default function Footer() {
       { href: "/about/initiatives", label: "事業内容" },
       { href: "/about/students", label: "学生向け取り組み" },
       { href: "/about/community", label: "コミュニティ" },
-      { href: "/about/media", label: "メディア出演" },
+      { href: "/media", label: "メディア出演" },
     ],
     services: [
       { href: "/services", label: "サービス概要" },
-      { href: "/services/students", label: "学生向けサービス" },
-      { href: "/services/corporations", label: "企業向けサービス" },
+      { href: "/services?tab=student", label: "学生向けサービス" },
+      { href: "/services?tab=corporate", label: "企業向けサービス" },
     ],
     community: [
       { href: "/community", label: "コミュニティ概要" },
