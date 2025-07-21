@@ -3,8 +3,8 @@ import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 
 // Supabaseクライアントの作成
-const createServerSupabaseClient = () => {
-  const cookieStore = cookies()
+const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies()
   
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,7 +47,7 @@ export interface User {
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
@@ -81,7 +81,7 @@ export async function getCurrentUser(): Promise<User | null> {
 // サインイン
 export async function signIn(email: string, password: string) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -101,7 +101,7 @@ export async function signIn(email: string, password: string) {
 // サインアップ
 export async function signUp(email: string, password: string, name?: string) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -126,7 +126,7 @@ export async function signUp(email: string, password: string, name?: string) {
 // サインアウト
 export async function signOut() {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { error } = await supabase.auth.signOut()
 
     if (error) {
