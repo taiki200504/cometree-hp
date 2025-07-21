@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 
 // Supabaseクライアントの作成
-const createServerSupabaseClient = async () => {
-  const cookieStore = await cookies()
-  
+const createServerSupabaseClient = () => {
+  // next/headersのcookies()はリクエストごとに呼び出す必要がある
+  const cookieStore = cookies()
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
