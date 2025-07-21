@@ -112,11 +112,14 @@ export function useAdminAuthSimple() {
         console.log('Sign in successful, checking user role...')
         
         // ユーザーの役割を確認
+        console.log('Fetching user role for user ID:', data.user.id)
         const { data: userData, error: roleError } = await supabase
           .from('users')
           .select('role')
           .eq('id', data.user.id)
           .single()
+        
+        console.log('User data response:', userData, 'Error:', roleError)
         
         if (roleError) {
           console.warn('Error fetching user role:', roleError)
