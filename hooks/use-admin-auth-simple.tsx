@@ -92,38 +92,36 @@ export function useAdminAuthSimple() {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting to sign in via API...')
+      console.log('Attempting to sign in via API...');
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        return { error: new Error(data.error || 'ログインに失敗しました') }
+        return { error: new Error(data.error || 'ログインに失敗しました') };
       }
 
-      console.log('Sign in successful, redirecting to dashboard...')
-      // 認証状態の変更を監視している onAuthStateChange が発火し、
-      // user state が更新されるのを待つため少し遅延させる
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (data.success && data.user?.role === 'admin') {
+        console.log('Admin sign in successful. Redirecting to dashboard...');
+        // ログイン成功後、直接ダッシュボードにリダイレクト
+        router.push('/admin/dashboard');
+      } else {
+        // API側で弾かれるはずだが、念のためクライアントでもチェック
+        return { error: new Error('管理者権限がありません。') };
+      }
       
-      // 画面をリロードしてサーバーセッションから最新の認証状態を反映させる
-      router.refresh();
-
-      // useAdminAuthSimple フックの useEffect が再実行され、
-      // userRole が 'admin' であればダッシュボードにリダイレクトされる
-      
-      return { error: null }
+      return { error: null };
     } catch (err) {
-      console.error('Sign in error:', err)
-      return { error: err as Error }
+      console.error('Sign in error:', err);
+      return { error: err as Error };
     }
-  }
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut()

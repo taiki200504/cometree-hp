@@ -55,5 +55,9 @@ export async function POST(request: NextRequest) {
   // ログイン成功のログを記録
   await logAccess(data.user.id, '/api/auth/login', 'POST', 200, responseTime)
 
-  return NextResponse.json({ success: true, user: data.user })
+  // 成功レスポンスにロール情報を含める
+  return NextResponse.json({ 
+    success: true, 
+    user: { ...data.user, role: userRole.role } 
+  })
 } 
