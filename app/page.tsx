@@ -517,15 +517,15 @@ export default function Home() {
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-[#066ff2] rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300">学生Slackコミュニティ（1200名以上）</span>
+                      <span className="text-gray-700 dark:text-gray-300">学生Slackコミュニティ（270名以上）</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-[#066ff2] rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300">加盟団体85団体のネットワーク</span>
+                      <span className="text-gray-700 dark:text-gray-300">加盟団体60団体のネットワーク</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-[#066ff2] rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300">イベント・ワークショップ開催</span>
+                      <span className="text-gray-700 dark:text-gray-300">イベント・メディア/マスコミ特化コミュニティ併設</span>
                     </li>
                   </ul>
                   <Link
