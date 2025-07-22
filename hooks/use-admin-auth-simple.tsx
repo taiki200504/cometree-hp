@@ -15,90 +15,80 @@ export function useAdminAuthSimple() {
   useEffect(() => {
     let mounted = true
 
-    // Get initial session
-    const getSession = async () => {
+    const fetchUserRole = async (user: User) => {
+      if (!mounted) return;
+      console.log('[Auth] Fetching user role for:', user.id);
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (!mounted) return
-        
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          try {
-            // ユーザーの役割を取得
-            const { data: userData, error } = await supabase
-              .from('users')
-              .select('role')
-              .eq('id', session.user.id)
-              .single()
-            
-            if (!mounted) return
-            
-            if (error) {
-              console.warn('Error fetching user role:', error)
-              setUserRole('user') // デフォルト値
-            } else {
-              setUserRole(userData?.role || 'user')
-            }
-          } catch (roleError) {
-            console.warn('Error fetching user role:', roleError)
-            if (mounted) setUserRole('user') // デフォルト値
-          }
+        const { data, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (!mounted) return;
+
+        if (error) {
+          console.error('[Auth] Error fetching user role:', error);
+          setUserRole('user'); // Fallback role
+        } else {
+          console.log('[Auth] Fetched role data:', data);
+          const role = data?.role || 'user';
+          setUserRole(role);
+          console.log('[Auth] User role set to:', role);
         }
-        
-        if (mounted) setLoading(false)
-        console.log('Initial session:', session?.user?.email, 'Role:', userRole)
-      } catch (error) {
-        console.error('Error getting session:', error)
-        if (mounted) setLoading(false)
+      } catch (e) {
+        if (mounted) {
+          console.error('[Auth] Exception fetching user role:', e);
+          setUserRole('user'); // Fallback role
+        }
       }
-    }
+    };
 
-    getSession()
+    const getSession = async () => {
+      if (!mounted) return;
+      console.log('[Auth] Getting initial session...');
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!mounted) return;
 
-    // Listen for auth changes
+      if (error) {
+        console.error('[Auth] Error in getSession:', error);
+        setLoading(false);
+        return;
+      }
+
+      console.log('[Auth] Initial session user:', session?.user?.email);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await fetchUserRole(session.user);
+      } else {
+        setUserRole(null);
+      }
+      setLoading(false);
+    };
+
+    getSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!mounted) return
-        
-        console.log('Auth state changed:', event, session?.user?.email)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          try {
-            // ユーザーの役割を取得
-            const { data: userData, error } = await supabase
-              .from('users')
-              .select('role')
-              .eq('id', session.user.id)
-              .single()
-            
-            if (!mounted) return
-            
-            if (error) {
-              console.warn('Error fetching user role:', error)
-              setUserRole('user') // デフォルト値
-            } else {
-              setUserRole(userData?.role || 'user')
-            }
-          } catch (roleError) {
-            console.warn('Error fetching user role:', roleError)
-            if (mounted) setUserRole('user') // デフォルト値
-          }
-        } else {
-          setUserRole(null)
+        if (!mounted) return;
+        console.log(`[Auth] Auth state changed: ${event}`, session?.user?.email);
+        setUser(session?.user ?? null);
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          await fetchUserRole(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          setUserRole(null);
         }
-        
-        setLoading(false)
       }
-    )
+    );
 
     return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [])
+      mounted = false;
+      console.log('[Auth] Unsubscribing from auth state changes.');
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
     try {
