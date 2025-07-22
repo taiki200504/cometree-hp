@@ -102,43 +102,33 @@ export function useAdminAuthSimple() {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting to sign in...')
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      console.log('Attempting to sign in via API...')
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       })
-      
-      if (!error && data.user) {
-        console.log('Sign in successful, checking user role...')
-        
-        // ユーザーの役割を確認
-        console.log('Fetching user role for user ID:', data.user.id)
-        const { data: userData, error: roleError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', data.user.id)
-          .single()
-        
-        console.log('User data response:', userData, 'Error:', roleError)
-        
-        if (roleError) {
-          console.warn('Error fetching user role:', roleError)
-          return { error: new Error('ユーザー情報の取得に失敗しました') }
-        }
-        
-        if (userData?.role !== 'admin') {
-          await supabase.auth.signOut()
-          return { error: new Error('管理者権限がありません') }
-        }
-        
-        console.log('Admin role confirmed, redirecting to dashboard...')
-        // 認証状態が確実に更新されてからリダイレクト
-        setTimeout(() => {
-          router.push('/admin/dashboard')
-        }, 500)
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'ログインに失敗しました') }
       }
+
+      console.log('Sign in successful, redirecting to dashboard...')
+      // 認証状態の変更を監視している onAuthStateChange が発火し、
+      // user state が更新されるのを待つため少し遅延させる
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      return { error }
+      // 画面をリロードしてサーバーセッションから最新の認証状態を反映させる
+      router.refresh();
+
+      // useAdminAuthSimple フックの useEffect が再実行され、
+      // userRole が 'admin' であればダッシュボードにリダイレクトされる
+      
+      return { error: null }
     } catch (err) {
       console.error('Sign in error:', err)
       return { error: err as Error }
