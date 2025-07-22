@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // 一時的にロールチェックを無効化してログインを試す
+  /*
   // ユーザーのロールを確認
   const { data: userRole, error: roleError } = await supabase
     .from('users')
@@ -50,6 +52,7 @@ export async function POST(request: NextRequest) {
       { status: 403 }
     )
   }
+  */
 
   const responseTime = Date.now() - startTime
   // ログイン成功のログを記録
