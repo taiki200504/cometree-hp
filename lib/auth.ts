@@ -91,7 +91,8 @@ export async function signIn(email: string, password: string) {
       throw error
     }
 
-    return { success: true, user: data.user }
+    // data.session を必ず返す
+    return { success: true, user: data.user, session: data.session }
   } catch (error) {
     console.error('Sign in error:', error)
     return { success: false, error: error instanceof Error ? error.message : 'Sign in failed' }

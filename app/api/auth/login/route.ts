@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Supabase Authを使用してログイン
-    const { user } = await signIn(email, password)
+    const { user, session } = await signIn(email, password)
     
     if (!user) {
       return NextResponse.json(
@@ -29,13 +29,28 @@ export async function POST(request: NextRequest) {
     // アクセスログを記録
     await logAccess(user.id, '/api/auth/login', 'POST', 200, responseTime)
     
-    return NextResponse.json({
+    // Set-Cookieでアクセストークンを返す
+    const response = new NextResponse(JSON.stringify({
       success: true,
       user: {
         id: user.id,
         email: user.email
       }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     })
+    if (session && session.access_token) {
+      response.cookies.set('sb-access-token', session.access_token, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: true,
+        // domain: '.gakusei-union-hp.vercel.app', // 必要なら有効化
+        maxAge: 60 * 60 * 24 * 7 // 1週間
+      })
+    }
+    return response;
     
   } catch (error) {
     const responseTime = Date.now() - startTime
