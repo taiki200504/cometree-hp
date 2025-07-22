@@ -1,12 +1,15 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { signOut, logAccess } from '@/lib/auth'
+import { logAccess } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
-  
+  const supabase = createRouteHandlerClient({ cookies })
+
   try {
     // Supabase Authを使用してログアウト
-    await signOut()
+    await supabase.auth.signOut()
     
     const responseTime = Date.now() - startTime
     

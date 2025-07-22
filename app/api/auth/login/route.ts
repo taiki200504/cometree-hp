@@ -1,68 +1,59 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { signIn, logAccess } from '@/lib/auth'
+import { logAccess } from '@/lib/auth' // logAccessは引き続き使用
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
-  
-  try {
-    const { email, password } = await request.json()
-    
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      )
-    }
-    
-    // Supabase Authを使用してログイン
-    const { user, session } = await signIn(email, password)
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      )
-    }
-    
-    const responseTime = Date.now() - startTime
-    
-    // アクセスログを記録
-    await logAccess(user.id, '/api/auth/login', 'POST', 200, responseTime)
-    
-    // Set-Cookieでアクセストークンを返す
-    const response = new NextResponse(JSON.stringify({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    })
-    if (session && session.access_token) {
-      response.cookies.set('sb-access-token', session.access_token, {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: true,
-        // domain: '.gakusei-union-hp.vercel.app', // 必要なら有効化
-        maxAge: 60 * 60 * 24 * 7 // 1週間
-      })
-    }
-    return response;
-    
-  } catch (error) {
-    const responseTime = Date.now() - startTime
-    
-    // エラーログを記録
-    await logAccess(null, '/api/auth/login', 'POST', 500, responseTime)
-    
-    console.error('Login error:', error)
-    
+  const { email, password } = await request.json()
+
+  if (!email || !password) {
     return NextResponse.json(
-      { error: 'Login failed' },
-      { status: 500 }
+      { error: 'Email and password are required' },
+      { status: 400 }
     )
   }
+
+  const supabase = createRouteHandlerClient({ cookies })
+  
+  // signInWithPasswordはセッションを自動的にCookieに保存します
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    const responseTime = Date.now() - startTime
+    // ログイン失敗のログを記録
+    await logAccess(null, '/api/auth/login', 'POST', 401, responseTime)
+    return NextResponse.json(
+      { error: 'Invalid credentials' }, 
+      { status: 401 }
+    )
+  }
+
+  // ユーザーのロールを確認
+  const { data: userRole, error: roleError } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', data.user.id)
+    .single()
+
+  if (roleError || userRole?.role !== 'admin') {
+    const responseTime = Date.now() - startTime
+    // 管理者権限がない場合もログを記録
+    await logAccess(data.user.id, '/api/auth/login', 'POST', 403, responseTime)
+    // 念のためサインアウトさせておく
+    await supabase.auth.signOut()
+    return NextResponse.json(
+      { error: 'Admin access required' },
+      { status: 403 }
+    )
+  }
+
+  const responseTime = Date.now() - startTime
+  // ログイン成功のログを記録
+  await logAccess(data.user.id, '/api/auth/login', 'POST', 200, responseTime)
+
+  return NextResponse.json({ success: true, user: data.user })
 } 

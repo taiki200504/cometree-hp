@@ -1,26 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 
 // Supabaseクライアントの作成
-const createServerSupabaseClient = () => {
-  // next/headersのcookies()はリクエストごとに呼び出す必要がある
-  const cookieStore = cookies()
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        persistSession: false,
-      },
-      global: {
-        headers: {
-          cookie: cookieStore.toString(),
-        },
-      },
-    }
-  )
-}
+
 
 const createAdminSupabaseClient = () => {
   return createClient(
@@ -47,7 +31,7 @@ export interface User {
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
@@ -78,31 +62,12 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-// サインイン
-export async function signIn(email: string, password: string) {
-  try {
-    const supabase = await createServerSupabaseClient()
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
 
-    if (error) {
-      throw error
-    }
-
-    // data.session を必ず返す
-    return { success: true, user: data.user, session: data.session }
-  } catch (error) {
-    console.error('Sign in error:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Sign in failed' }
-  }
-}
 
 // サインアップ
 export async function signUp(email: string, password: string, name?: string) {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -124,22 +89,7 @@ export async function signUp(email: string, password: string, name?: string) {
   }
 }
 
-// サインアウト
-export async function signOut() {
-  try {
-    const supabase = await createServerSupabaseClient()
-    const { error } = await supabase.auth.signOut()
 
-    if (error) {
-      throw error
-    }
-
-    return { success: true }
-  } catch (error) {
-    console.error('Sign out error:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Sign out failed' }
-  }
-}
 
 // 認証が必要なミドルウェア
 export async function requireAuth(request: NextRequest) {
@@ -194,4 +144,4 @@ export async function logAccess(
 }
 
 // サーバーサイドのSupabaseクライアントをエクスポート
-export { createServerSupabaseClient, createAdminSupabaseClient } 
+export { createAdminSupabaseClient } 
