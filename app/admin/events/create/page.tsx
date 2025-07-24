@@ -1,348 +1,197 @@
 "use client"
 
 import { useState } from 'react'
-import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  ArrowLeft,
-  Save,
-  Eye,
-  Calendar,
-  Upload,
-  MapPin,
-  Users,
-  Clock
-} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ImageUpload } from '@/components/ui/image-upload'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import ImageUpload from '@/components/ui/image-upload'
+import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/use-toast'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 
-export default function CreateEvent() {
-  const { user, loading, requireAuth } = useAdminAuthSimple()
+const eventFormSchema = z.object({
+  title: z.string().min(3, { message: 'タイトルは3文字以上で入力してください。' }),
+  description: z.string().optional(),
+  image_url: z.string().url({ message: '有効なURLを入力してください。' }).optional().or(z.literal('')),
+  start_date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "有効な日付を入力してください。" }),
+  end_date: z.string().optional(),
+  location: z.string().optional(),
+  is_published: z.boolean().default(false),
+})
+
+type EventFormValues = z.infer<typeof eventFormSchema>
+
+export default function CreateEventPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    date: '',
-    time: '',
-    endTime: '',
-    location: '',
-    maxParticipants: 50,
-    status: 'draft',
-    category: 'general',
-    featuredImage: '',
-    registrationRequired: true,
-    registrationDeadline: '',
-    contactEmail: '',
-    contactPhone: ''
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
+
+  const form = useForm<EventFormValues>({
+    resolver: zodResolver(eventFormSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      image_url: '',
+      start_date: '',
+      end_date: '',
+      location: '',
+      is_published: false,
+    },
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    requireAuth()
-    return null
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
+  const onSubmit = async (data: EventFormValues) => {
+    setLoading(true)
     try {
-      // バリデーション
-      if (!formData.title.trim() || !formData.date || !formData.time) {
-        alert('イベント名、開催日、開始時刻は必須です')
-        return
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'イベントの作成に失敗しました。')
       }
 
-      // TODO: Supabaseにデータを保存
-      console.log('Saving event:', formData)
-      
-      // 成功時の処理
-      alert('イベントが正常に保存されました')
+      toast({
+        title: "成功",
+        description: "新しいイベントが作成されました。",
+      })
       router.push('/admin/events')
     } catch (error) {
-      console.error('Error saving event:', error)
-      alert('保存中にエラーが発生しました')
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : '不明なエラーが発生しました。',
+        variant: 'destructive',
+      })
     } finally {
-      setIsSubmitting(false)
+      setLoading(false)
     }
   }
 
-  const handlePreview = () => {
-    // プレビュー機能
-    console.log('Preview:', formData)
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/events">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  イベント一覧
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-6 w-6 text-green-600" />
-                <h1 className="text-xl font-bold text-gray-900">イベント作成</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handlePreview}>
-                <Eye className="h-4 w-4 mr-2" />
-                プレビュー
-              </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
-                <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? '保存中...' : '保存'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>基本情報</CardTitle>
-              <CardDescription>
-                イベントの基本情報を入力してください
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="title">イベント名 *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="イベントのタイトルを入力"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="description">説明</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="イベントの詳細説明を入力"
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category">カテゴリー</Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">一般</SelectItem>
-                      <SelectItem value="meeting">会議</SelectItem>
-                      <SelectItem value="workshop">ワークショップ</SelectItem>
-                      <SelectItem value="seminar">セミナー</SelectItem>
-                      <SelectItem value="party">懇親会</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="status">ステータス</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">下書き</SelectItem>
-                      <SelectItem value="upcoming">開催予定</SelectItem>
-                      <SelectItem value="ongoing">開催中</SelectItem>
-                      <SelectItem value="completed">終了</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Date and Time */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>日時・場所</CardTitle>
-              <CardDescription>
-                イベントの日時と場所を設定してください
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="date">開催日 *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="time">開始時刻 *</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="endTime">終了時刻</Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={formData.endTime}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="location">開催場所</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="開催場所を入力（例: 東京大学本郷キャンパス）"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Registration */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>参加申込設定</CardTitle>
-              <CardDescription>
-                参加申込の設定を行います
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="registrationRequired"
-                  checked={formData.registrationRequired}
-                  onChange={(e) => setFormData({ ...formData, registrationRequired: e.target.checked })}
-                  className="rounded"
-                />
-                <Label htmlFor="registrationRequired">参加申込が必要</Label>
-              </div>
-
-              {formData.registrationRequired && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="maxParticipants">最大参加者数</Label>
-                      <Input
-                        id="maxParticipants"
-                        type="number"
-                        value={formData.maxParticipants}
-                        onChange={(e) => setFormData({ ...formData, maxParticipants: parseInt(e.target.value) })}
-                        min="1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="registrationDeadline">申込締切</Label>
-                      <Input
-                        id="registrationDeadline"
-                        type="datetime-local"
-                        value={formData.registrationDeadline}
-                        onChange={(e) => setFormData({ ...formData, registrationDeadline: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Contact Information */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>連絡先情報</CardTitle>
-              <CardDescription>
-                イベントに関する問い合わせ先を設定
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="contactEmail">連絡先メール</Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                    placeholder="event@union.example.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contactPhone">連絡先電話番号</Label>
-                  <Input
-                    id="contactPhone"
-                    value={formData.contactPhone}
-                    onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                    placeholder="03-1234-5678"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Media */}
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>メディア</CardTitle>
-              <CardDescription>
-                イベントの画像やファイルをアップロードできます
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ImageUpload
-                value={formData.featuredImage}
-                onChange={(url) => setFormData({ ...formData, featuredImage: url })}
-                label="イベント画像"
-                placeholder="画像をドラッグ&ドロップまたはクリックして選択"
+    <div className="p-4 md:p-8">
+      <div className="mb-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/admin/events">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            イベント一覧に戻る
+          </Link>
+        </Button>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>イベントの新規作成</CardTitle>
+          <CardDescription>新しいイベントの情報を入力してください。</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>タイトル</FormLabel>
+                    <FormControl>
+                      <Input placeholder="イベントのタイトル" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </CardContent>
-          </Card>
-        </form>
-      </main>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>詳細</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="イベントの詳細" {...field} rows={5} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>画像</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="start_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>開始日時</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>場所</FormLabel>
+                    <FormControl>
+                      <Input placeholder="開催場所" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="is_published"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel>公開ステータス</FormLabel>
+                      <CardDescription>
+                        オンにすると、イベントがウェブサイトに公開されます。
+                      </CardDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end">
+                <Button type="submit" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  作成する
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   )
-} 
+}

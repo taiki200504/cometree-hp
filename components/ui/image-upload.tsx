@@ -1,136 +1,119 @@
 "use client"
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { 
-  Upload, 
-  X, 
-  Image as ImageIcon,
-  Loader2
-} from 'lucide-react'
+import { Loader2, UploadCloud, XCircle } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 
 interface ImageUploadProps {
-  value?: string
+  value?: string // Current image URL
   onChange: (url: string) => void
-  onRemove?: () => void
-  label?: string
-  placeholder?: string
-  className?: string
 }
 
-export function ImageUpload({
-  value,
-  onChange,
-  onRemove,
-  label = "画像",
-  placeholder = "画像を選択してください",
-  className = ""
-}: ImageUploadProps) {
-  const [isUploading, setIsUploading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export default function ImageUpload({ value, onChange }: ImageUploadProps) {
+  const [file, setFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(value || null)
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0]
+      setFile(selectedFile)
+      setPreviewUrl(URL.createObjectURL(selectedFile))
+    }
+  }
 
-    setIsUploading(true)
-    setError(null)
+  const handleUpload = async () => {
+    if (!file) {
+      toast({
+        title: "エラー",
+        description: "ファイルを選択してください。",
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setLoading(true)
+    const formData = new FormData()
+    formData.append('file', file)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/storage/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || 'アップロードに失敗しました')
+        const errorData = await response.json()
+        throw new Error(errorData.error || '画像のアップロードに失敗しました。')
       }
 
-      onChange(data.url)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'アップロードに失敗しました')
+      const data = await response.json()
+      onChange(data.url) // Pass the public URL to the parent component
+      toast({
+        title: "成功",
+        description: "画像をアップロードしました。",
+      })
+    } catch (error) {
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : '不明なエラーが発生しました。',
+        variant: 'destructive',
+      })
     } finally {
-      setIsUploading(false)
+      setLoading(false)
+      setFile(null) // Clear selected file after upload
     }
   }
 
   const handleRemove = () => {
-    if (onRemove) {
-      onRemove()
-    } else {
-      onChange('')
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    setPreviewUrl(null)
+    onChange('') // Clear the URL in the parent component
+    setFile(null)
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <Label>{label}</Label>
-      
-      {value ? (
-        <div className="relative">
-          <img
-            src={value}
-            alt="アップロードされた画像"
-            className="w-full h-48 object-cover rounded-lg border"
-          />
+    <div className="space-y-4">
+      {previewUrl && (
+        <div className="relative w-48 h-48 rounded-md overflow-hidden">
+          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
           <Button
             type="button"
             variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2"
+            size="icon"
+            className="absolute top-2 right-2 rounded-full"
             onClick={handleRemove}
           >
-            <X className="h-4 w-4" />
+            <XCircle className="h-4 w-4" />
           </Button>
         </div>
-      ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-            disabled={isUploading}
-          />
-          
-          {isUploading ? (
-            <div className="space-y-2">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
-              <p className="text-sm text-gray-600">アップロード中...</p>
+      )}
+      {!previewUrl && (
+        <div className="flex items-center justify-center w-full">
+          <Label
+            htmlFor="file-upload"
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <UploadCloud className="w-8 h-8 mb-4 text-gray-500" />
+              <p className="mb-2 text-sm text-gray-500">
+                <span className="font-semibold">クリックしてアップロード</span> またはドラッグ＆ドロップ
+              </p>
+              <p className="text-xs text-gray-500">SVG, PNG, JPG, GIF (最大 800x400px)</p>
             </div>
-          ) : (
-            <div className="space-y-2">
-              <ImageIcon className="h-8 w-8 mx-auto text-gray-400" />
-              <p className="text-sm text-gray-600">{placeholder}</p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-2"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                画像を選択
-              </Button>
-            </div>
-          )}
+            <Input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+          </Label>
         </div>
       )}
-
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
+      {file && !loading && (
+        <Button onClick={handleUpload} disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          画像をアップロード
+        </Button>
       )}
     </div>
   )
-} 
+}

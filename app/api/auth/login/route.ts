@@ -1,10 +1,23 @@
+import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
 import { logAccess } from '@/lib/auth' // logAccessは引き続き使用
+import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
+
+  // Apply rate limiting
+  const ip = request.ip || 'unknown'; // Get client IP address
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', retryAfter: resetAfter / 1000 },
+      { status: 429, headers: { 'Retry-After': `${resetAfter / 1000}` } }
+    );
+  }
+
   const { email, password } = await request.json()
 
   if (!email || !password) {

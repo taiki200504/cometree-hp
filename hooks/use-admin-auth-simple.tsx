@@ -103,17 +103,21 @@ export function useAdminAuthSimple() {
 
       const data = await response.json();
 
+      // --- ここからデバッグログ --- 
+      console.log('API response status:', response.status);
+      console.log('API response data:', JSON.stringify(data, null, 2));
+      // --- ここまでデバッグログ --- 
+
       if (!response.ok) {
         return { error: new Error(data.error || 'ログインに失敗しました') };
       }
 
       if (data.success && data.user?.role === 'admin') {
         console.log('Admin sign in successful. Redirecting to dashboard...');
-        // ログイン成功後、直接ダッシュボードにリダイレクト
         router.push('/admin/dashboard');
       } else {
-        // API側で弾かれるはずだが、念のためクライアントでもチェック
-        return { error: new Error('管理者権限がありません。') };
+        console.error('Redirect condition failed. Data:', data);
+        return { error: new Error('管理者権限がないか、APIの応答が不正です。') };
       }
       
       return { error: null };

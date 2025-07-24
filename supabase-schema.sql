@@ -135,6 +135,7 @@ BEGIN
   VALUES (NEW.id, NEW.email, 'admin')
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
+
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

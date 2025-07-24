@@ -52,18 +52,28 @@ export default function AdminDashboard() {
     boardPosts: 0
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [statsError, setStatsError] = useState<string | null>(null)
 
   // データ取得
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        setStatsError(null); // Reset error on new fetch
         const response = await fetch('/api/admin/stats')
         if (response.ok) {
           const data = await response.json()
-          setStats(data)
+          if (data.error) {
+            setStatsError(data.error);
+          } else {
+            setStats(data)
+          }
+        } else {
+          const errorData = await response.json();
+          setStatsError(errorData.error || '統計データの取得に失敗しました。');
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
+        setStatsError(error instanceof Error ? error.message : '不明なエラーが発生しました。');
       } finally {
         setIsLoadingStats(false)
       }
@@ -113,9 +123,27 @@ export default function AdminDashboard() {
   // 一時的に管理者権限チェックを無効化
   console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
 
-  const handleSignOut = async () => {
-    await signOut()
-  }
+  const [isUpdatingStats, setIsUpdatingStats] = useState(false)
+
+  const handleUpdateStats = async () => {
+    setIsUpdatingStats(true);
+    try {
+      const response = await fetch('/api/admin/stats/update', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '統計データの更新に失敗しました。');
+      }
+      // 更新後、統計データを再フェッチして表示を更新
+      fetchStats();
+    } catch (error) {
+      console.error('Error updating stats:', error);
+      // ここでトースト通知などを表示することも可能
+    } finally {
+      setIsUpdatingStats(false);
+    }
+  };
 
   const menuItems = [
     {
@@ -249,15 +277,24 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             ようこそ、{user.email}さん
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             今日もUNIÓNの管理をお疲れ様です。以下の機能からお選びください。
           </p>
+          <Button onClick={handleUpdateStats} disabled={isUpdatingStats}>
+            {isUpdatingStats && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            統計データを更新
+          </Button>
         </div>
 
         {/* Stats Overview */}
         {isLoadingStats ? (
           <div className="mb-8 flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : statsError ? (
+          <div className="mb-8 text-red-500 text-center py-8">
+            <p>{statsError}</p>
+            <p className="text-sm text-gray-500">統計データの読み込み中にエラーが発生しました。Supabaseの接続や環境変数を確認してください。</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
