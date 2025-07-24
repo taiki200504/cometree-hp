@@ -79,8 +79,7 @@ export default function CreatePartnerPage() {
       <div className="mb-4">
         <Button variant="outline" size="sm" asChild>
           <Link href="/admin/partners">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            提携団体一覧に戻る
+            戻る
           </Link>
         </Button>
       </div>
@@ -110,7 +109,7 @@ export default function CreatePartnerPage() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>詳細</Label>
+                    <FormLabel>詳細</FormLabel>
                     <FormControl>
                       <Textarea placeholder="団体の詳細" {...field} />
                     </FormControl>

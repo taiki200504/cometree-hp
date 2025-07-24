@@ -39,15 +39,6 @@ export default function EditPartnerPage() {
     resolver: zodResolver(partnerFormSchema),
   })
 
-  name: '',
-      description: '',
-      logo_url: '',
-      category: '',
-      website_url: '',
-      is_active: true,
-    },
-  })
-
   useEffect(() => {
     const fetchPartner = async () => {
       try {
