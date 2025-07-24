@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import RichTextEditor from '@/components/ui/rich-text-editor' // Import RichTextEditor
+import dynamic from 'next/dynamic'
 import { useToast } from '@/components/ui/use-toast'
 import { ArrowLeft, Loader2 } from 'lucide-react'
+
+const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor'), { ssr: false })
 
 const boardFormSchema = z.object({
   title: z.string().min(3, { message: 'タイトルは3文字以上で入力してください。' }),
