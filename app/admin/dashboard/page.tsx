@@ -224,7 +224,7 @@ export default function AdminDashboard() {
       count: stats.views,
       actions: [
         { label: '統計表示', icon: <TrendingUp className="h-4 w-4" />, href: '/admin/analytics' },
-        { label: '分析レポート', icon: <Activity className="h-4 w-4" />, href: '/admin/analytics/reports' }
+        { label: '統計データ', icon: <Activity className="h-4 w-4" />, href: '/admin/stats' }
       ]
     }
   ]

@@ -27,9 +27,9 @@ export function useAdminAuthSimple() {
       if (!mounted) return;
       console.log('[Auth] Fetching user role for:', user.id);
       
-      // タイムアウトを設定
+      // タイムアウトを設定 (increased for production)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Role fetch timeout')), 10000);
+        setTimeout(() => reject(new Error('Role fetch timeout')), 30000);
       });
 
       try {
@@ -69,9 +69,9 @@ export function useAdminAuthSimple() {
       if (!mounted) return;
       console.log('[Auth] Getting initial session...');
       
-      // セッション取得のタイムアウトを設定
+      // セッション取得のタイムアウトを設定 (increased for production)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Session fetch timeout')), 15000);
+        setTimeout(() => reject(new Error('Session fetch timeout')), 30000);
       });
 
       try {

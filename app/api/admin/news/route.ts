@@ -44,18 +44,30 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit
 
   // ニュース記事と総数を取得
-  const { data: news, error: newsError, count } = await supabase
-    .from('news')
-    .select('id, title, is_published, published_at, created_at', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+  try {
+    const { data: news, error: newsError, count } = await supabase
+      .from('news')
+      .select('id, title, is_published, published_at, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
-  if (newsError) {
-    console.error('Error fetching news:', newsError)
-    return NextResponse.json({ error: `Failed to fetch news: ${newsError.message}` }, { status: 500 })
+    if (newsError) {
+      console.error('Error fetching news:', newsError)
+      return NextResponse.json({ 
+        error: `Failed to fetch news: ${newsError.message}`,
+        details: newsError,
+        code: newsError.code
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({ news, totalCount: count })
+  } catch (error) {
+    console.error('Exception in news fetch:', error)
+    return NextResponse.json({ 
+      error: 'Database connection error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
-
-  return NextResponse.json({ news, totalCount: count })
 }
 
 // POST handler for creating a new news article
@@ -63,7 +75,7 @@ export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
-  // Apply rate limiting (admin route) (admin route)
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
   const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
