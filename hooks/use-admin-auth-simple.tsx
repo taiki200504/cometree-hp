@@ -63,9 +63,27 @@ export function useAdminAuthSimple() {
       console.log('[Auth] Getting initial session...');
 
       try {
-        // Skip session check on initial load to avoid timeouts
-        // We'll rely on the login API for authentication
-        console.log('[Auth] Skipping initial session check to avoid timeouts');
+        // For dashboard pages, try to get session with a short timeout
+        if (typeof window !== 'undefined' && window.location.pathname.includes('/admin/dashboard')) {
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Session fetch timeout')), 5000);
+          });
+
+          const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+          
+          if (!mounted) return;
+
+          if (session?.user) {
+            console.log('[Auth] Found existing session:', session.user.email);
+            setUser(session.user);
+            await fetchUserRole(session.user);
+            return;
+          }
+        }
+        
+        // Skip session check on login page to avoid timeouts
+        console.log('[Auth] Skipping session check');
         setLoading(false);
         return;
       } catch (error) {
@@ -76,7 +94,7 @@ export function useAdminAuthSimple() {
       }
     };
 
-    // Only get session if we're not on the login page
+    // Get session for dashboard pages, skip for login page
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
       getSession();
     } else {
@@ -142,7 +160,10 @@ export function useAdminAuthSimple() {
         setUser(data.user);
         setUserRole(data.user.role);
         setLoading(false);
-        router.push('/admin/dashboard');
+        
+        // Use window.location for hard redirect to avoid state reset
+        window.location.href = '/admin/dashboard';
+        return { error: null };
       } else {
         console.error('Redirect condition failed. Data:', data);
         return { error: new Error('管理者権限がないか、APIの応答が不正です。') };
