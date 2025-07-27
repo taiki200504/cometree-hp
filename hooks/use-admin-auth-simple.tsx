@@ -18,10 +18,10 @@ export function useAdminAuthSimple() {
     // 強制的にローディング状態をリセットするフォールバック
     const fallbackTimeout = setTimeout(() => {
       if (mounted && loading) {
-        console.log('[Auth] Fallback: Force setting loading to false after 20 seconds');
+        console.log('[Auth] Fallback: Force setting loading to false after 10 seconds');
         setLoading(false);
       }
-    }, 20000);
+    }, 10000);
 
     const fetchUserRole = async (user: User) => {
       if (!mounted) return;
@@ -63,7 +63,13 @@ export function useAdminAuthSimple() {
       console.log('[Auth] Getting initial session...');
 
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Add a timeout to prevent hanging
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Session fetch timeout')), 10000);
+        });
+
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
         
         if (!mounted) return;
 
@@ -146,7 +152,11 @@ export function useAdminAuthSimple() {
       }
 
       if (data.success && data.user?.role === 'admin') {
-        console.log('Admin sign in successful. Redirecting to dashboard...');
+        console.log('Admin sign in successful. Setting user data and redirecting...');
+        // Set the user data directly to avoid re-authentication
+        setUser(data.user);
+        setUserRole(data.user.role);
+        setLoading(false);
         router.push('/admin/dashboard');
       } else {
         console.error('Redirect condition failed. Data:', data);
