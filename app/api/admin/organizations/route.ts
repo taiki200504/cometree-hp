@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { data: { session } } = await supabase.auth.getSession()
 
   if (!session) {
@@ -46,7 +47,8 @@ export async function GET(request: NextRequest) {
 
 // POST handler for creating a new organization
 export async function POST(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   // Apply rate limiting
   const ip = request.ip || 'unknown'; // Get client IP address
