@@ -32,6 +32,7 @@ export default function AdminLogin() {
   // 既にログインしている場合はダッシュボードにリダイレクト
   useEffect(() => {
     if (user && userRole === 'admin') {
+      console.log('[Login] User is admin, redirecting to dashboard');
       router.push('/admin/dashboard')
     }
   }, [user, userRole, router])
@@ -95,12 +96,7 @@ export default function AdminLogin() {
 
   // ユーザーが既にログインしている場合は何も表示しない（リダイレクト中）
   if (user && userRole === 'admin') {
-    return null;
-  }
-
-  // 既にログインしている場合はダッシュボードにリダイレクト
-  if (user && userRole === 'admin') {
-    console.log('[Login] User is admin, redirecting to dashboard');
+    console.log('[Login] User is admin, showing redirect spinner');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
         <div className="text-center">

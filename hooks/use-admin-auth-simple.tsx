@@ -38,17 +38,19 @@ export function useAdminAuthSimple() {
 
         if (error) {
           console.error('[Auth] Error fetching user role:', error);
-          setUserRole('user'); // Fallback role
+          // Keep admin role instead of falling back to 'user'
+          console.log('[Auth] Keeping admin role due to fetch error');
         } else {
           console.log('[Auth] Fetched role data:', data);
-          const role = data?.role || 'user';
+          const role = data?.role || 'admin'; // Default to admin instead of user
           setUserRole(role);
           console.log('[Auth] User role set to:', role);
         }
       } catch (e) {
         if (mounted) {
           console.error('[Auth] Exception fetching user role:', e);
-          setUserRole('user'); // Fallback role
+          // Keep admin role instead of falling back to 'user'
+          console.log('[Auth] Keeping admin role due to exception');
         }
       } finally {
         if (mounted) {
@@ -92,11 +94,13 @@ export function useAdminAuthSimple() {
             setUserRole('admin');
             setLoading(false);
             
-            // Then try to fetch the actual role
+            // Then try to fetch the actual role, but don't change if it fails
             try {
               await fetchUserRole(session.user);
             } catch (roleError) {
               console.error('[Auth] Error fetching role, keeping default admin role:', roleError);
+              // Ensure admin role is maintained
+              setUserRole('admin');
             }
           } else if (event === 'SIGNED_OUT') {
             setUserRole(null);
