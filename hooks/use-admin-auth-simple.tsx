@@ -72,8 +72,22 @@ export function useAdminAuthSimple() {
     // Initialize loading state based on current path
     if (typeof window !== 'undefined') {
       if (window.location.pathname.includes('/admin/dashboard')) {
-        // For dashboard, keep loading until we have user data
-        console.log('[Auth] On dashboard page, keeping loading state');
+        // For dashboard, check if we already have a session
+        console.log('[Auth] On dashboard page, checking for existing session');
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            console.log('[Auth] Found existing session on dashboard');
+            setUser(session.user);
+            setUserRole('admin');
+            setLoading(false);
+          } else {
+            console.log('[Auth] No existing session on dashboard');
+            setLoading(false);
+          }
+        }).catch(() => {
+          console.log('[Auth] Error checking session, setting loading to false');
+          setLoading(false);
+        });
       } else {
         // For other pages, set loading to false immediately
         setLoading(false);
@@ -102,6 +116,11 @@ export function useAdminAuthSimple() {
               // Ensure admin role is maintained
               setUserRole('admin');
             }
+          } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+            console.log('[Auth] Token refreshed, updating user state');
+            setUser(session.user);
+            setUserRole('admin');
+            setLoading(false);
           } else if (event === 'SIGNED_OUT') {
             console.log('[Auth] Clearing user data for SIGNED_OUT');
             setUser(null);

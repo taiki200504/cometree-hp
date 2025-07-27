@@ -104,6 +104,18 @@ export default function AdminDashboard() {
     console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
   }, [loading, user, userRole, router])
 
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">認証状態を確認中...</p>
+        </div>
+      </div>
+    )
+  }
+
   // ローディング中または認証エラーの場合はローディング画面を表示
   if (loading || !user || userRole !== 'admin') {
     return (
