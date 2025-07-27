@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [statsError, setStatsError] = useState<string | null>(null)
+  const [isUpdatingStats, setIsUpdatingStats] = useState(false)
 
   // データ取得関数
   const fetchStats = useCallback(async () => {
@@ -101,33 +102,19 @@ export default function AdminDashboard() {
     }
   }, [loading, user, userRole, router])
 
-  if (loading) {
+  // ローディング中または認証エラーの場合はローディング画面を表示
+  if (loading || !user || userRole !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">読み込み中...</p>
+          <p className="text-gray-600">
+            {loading ? '読み込み中...' : '認証確認中...'}
+          </p>
         </div>
       </div>
     )
   }
-
-  if (!user) {
-    console.log('No user, showing loading')
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">認証確認中...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // 一時的に管理者権限チェックを無効化
-  console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
-
-  const [isUpdatingStats, setIsUpdatingStats] = useState(false)
 
   const handleSignOut = async () => {
     await signOut();
@@ -153,7 +140,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const menuItems = [
+  const menuItems = useMemo(() => [
     {
       title: 'ニュース管理',
       description: 'ニュース記事の作成・編集・削除',
@@ -238,7 +225,7 @@ export default function AdminDashboard() {
         { label: '分析レポート', icon: <Activity className="h-4 w-4" />, href: '/admin/analytics/reports' }
       ]
     }
-  ]
+  ], [stats])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
