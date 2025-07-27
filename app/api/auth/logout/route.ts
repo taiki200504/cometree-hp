@@ -5,7 +5,8 @@ import { logAccess } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   try {
     // Supabase Authを使用してログアウト

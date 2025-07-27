@@ -5,7 +5,8 @@ import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
 
 // GET handler for fetching news articles
 export async function GET(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   // Apply rate limiting
   const ip = request.ip || 'unknown'; // Get client IP address
@@ -59,7 +60,8 @@ export async function GET(request: NextRequest) {
 
 // POST handler for creating a new news article
 export async function POST(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   // Apply rate limiting
   const ip = request.ip || 'unknown'; // Get client IP address

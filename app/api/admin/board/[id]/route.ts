@@ -4,7 +4,8 @@ import { cookies } from 'next/headers'
 
 // GET a single board post by ID
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   const { data: post, error } = await supabase
@@ -23,7 +24,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 // PATCH (update) a board post
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   // Admin auth check
@@ -59,7 +61,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
 // DELETE a board post
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   // Admin auth check

@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   
   // signInWithPasswordはセッションを自動的にCookieに保存します
   const { data, error } = await supabase.auth.signInWithPassword({
