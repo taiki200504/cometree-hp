@@ -107,28 +107,15 @@ export default function Footer() {
                 </Link>
               ))}
             </div>
-            {/* 秘密の管理者ログインボタン - Twitterロゴの下に配置 */}
-            <div className="mt-2 flex justify-center">
+            {/* 管理者ログインボタン */}
+            <div className="mt-4">
               <Link
-                href="/admin"
-                className="group relative inline-block w-12 h-12 bg-gray-800 hover:bg-gray-600 transition-all duration-500 ease-in-out rounded-md border border-gray-600"
+                href="/admin/login"
+                className="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-md transition-all duration-200 border border-gray-600 hover:border-gray-500"
                 title="管理者ログイン"
-                style={{
-                  opacity: 0.2,
-                  transform: 'scale(0.9)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '1'
-                  e.currentTarget.style.transform = 'scale(1)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '0.2'
-                  e.currentTarget.style.transform = 'scale(0.9)'
-                }}
               >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Settings className="h-6 w-6 text-gray-600 group-hover:text-gray-400 transition-colors duration-300" />
-                </div>
+                <Settings className="h-4 w-4 mr-2" />
+                管理者ログイン
               </Link>
             </div>
           </div>
