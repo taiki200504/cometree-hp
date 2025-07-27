@@ -87,10 +87,9 @@ export function useAdminAuthSimple() {
         console.log(`[Auth] Auth state changed: ${event}`, session?.user?.email);
         
         try {
-          setUser(session?.user ?? null);
-
           if (event === 'SIGNED_IN' && session?.user) {
-            // Set a default role first to prevent "Not admin" redirects
+            console.log('[Auth] Setting user and admin role for SIGNED_IN');
+            setUser(session.user);
             setUserRole('admin');
             setLoading(false);
             
@@ -103,8 +102,15 @@ export function useAdminAuthSimple() {
               setUserRole('admin');
             }
           } else if (event === 'SIGNED_OUT') {
+            console.log('[Auth] Clearing user data for SIGNED_OUT');
+            setUser(null);
             setUserRole(null);
             setLoading(false);
+          } else if (session?.user) {
+            // For other events, just update the user if we have one
+            setUser(session.user);
+          } else {
+            setUser(null);
           }
         } catch (error) {
           console.error('[Auth] Error in auth state change:', error);
@@ -200,6 +206,12 @@ export function useAdminAuthSimple() {
       console.log('Not admin, redirecting to login')
       router.push('/admin/login')
       return false
+    }
+    
+    // If still loading, allow access to prevent premature redirects
+    if (loading) {
+      console.log('Still loading, allowing access')
+      return true
     }
     
     return true

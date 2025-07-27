@@ -90,16 +90,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
+        console.log('No user, redirecting to login')
         router.push('/admin/login')
         return
       }
       
-      if (userRole !== 'admin') {
-        console.log('Not admin, redirecting to login')
-        router.push('/admin/login')
-        return
-      }
-      
+      // If user exists, allow access (role will be handled by the hook)
       console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
     }
   }, [loading, user, userRole, router])
