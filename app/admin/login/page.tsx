@@ -31,17 +31,10 @@ export default function AdminLogin() {
 
   // 既にログインしている場合はダッシュボードにリダイレクト
   useEffect(() => {
-    if (!loading && user && userRole === 'admin') {
+    if (user && userRole === 'admin') {
       router.push('/admin/dashboard')
     }
-  }, [user, loading, userRole, router])
-
-  // ローディングが終了し、ユーザーがログインしていない場合はログインフォームを表示
-  useEffect(() => {
-    if (!loading && !user) {
-      // ログインフォームを表示する準備ができた
-    }
-  }, [loading, user])
+  }, [user, userRole, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,7 +80,7 @@ export default function AdminLogin() {
   }
 
   // ローディング中はスピナーを表示（タイムアウト付き）
-  if (loading) {
+  if (loading && !user) {
     console.log('[Login] Loading state, showing spinner');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
@@ -98,6 +91,11 @@ export default function AdminLogin() {
         </div>
       </div>
     )
+  }
+
+  // ユーザーが既にログインしている場合は何も表示しない（リダイレクト中）
+  if (user && userRole === 'admin') {
+    return null;
   }
 
   // 既にログインしている場合はダッシュボードにリダイレクト

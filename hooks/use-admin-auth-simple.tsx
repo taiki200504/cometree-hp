@@ -63,31 +63,11 @@ export function useAdminAuthSimple() {
       console.log('[Auth] Getting initial session...');
 
       try {
-        // Add a timeout to prevent hanging
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session fetch timeout')), 10000);
-        });
-
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        
-        if (!mounted) return;
-
-        if (error) {
-          console.error('[Auth] Error in getSession:', error);
-          setLoading(false);
-          return;
-        }
-
-        console.log('[Auth] Initial session user:', session?.user?.email);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          await fetchUserRole(session.user);
-        } else {
-          setUserRole(null);
-          setLoading(false);
-        }
+        // Skip session check on initial load to avoid timeouts
+        // We'll rely on the login API for authentication
+        console.log('[Auth] Skipping initial session check to avoid timeouts');
+        setLoading(false);
+        return;
       } catch (error) {
         console.error('[Auth] Exception in getSession:', error);
         if (mounted) {
@@ -96,7 +76,12 @@ export function useAdminAuthSimple() {
       }
     };
 
-    getSession();
+    // Only get session if we're not on the login page
+    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
+      getSession();
+    } else {
+      setLoading(false);
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
