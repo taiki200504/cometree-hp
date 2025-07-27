@@ -88,6 +88,7 @@ export default function AdminLogin() {
 
   // ローディング中はスピナーを表示
   if (loading) {
+    console.log('[Login] Loading state, showing spinner');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
         <div className="text-center">
@@ -100,6 +101,7 @@ export default function AdminLogin() {
 
   // 既にログインしている場合はダッシュボードにリダイレクト
   if (user && userRole === 'admin') {
+    console.log('[Login] User is admin, redirecting to dashboard');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
         <div className="text-center">
@@ -109,6 +111,9 @@ export default function AdminLogin() {
       </div>
     )
   }
+
+  // ログインフォームを表示
+  console.log('[Login] Showing login form', { user, userRole, loading });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">

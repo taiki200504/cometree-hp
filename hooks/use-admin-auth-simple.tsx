@@ -43,6 +43,7 @@ export function useAdminAuthSimple() {
         }
       } finally {
         if (mounted) {
+          console.log('[Auth] Setting loading to false in fetchUserRole');
           setLoading(false);
         }
       }
@@ -68,10 +69,10 @@ export function useAdminAuthSimple() {
           await fetchUserRole(session.user);
         } else {
           setUserRole(null);
+          setLoading(false);
         }
       } catch (error) {
         console.error('[Auth] Exception in getSession:', error);
-      } finally {
         if (mounted) {
           setLoading(false);
         }
@@ -92,9 +93,13 @@ export function useAdminAuthSimple() {
             await fetchUserRole(session.user);
           } else if (event === 'SIGNED_OUT') {
             setUserRole(null);
+            setLoading(false);
           }
         } catch (error) {
           console.error('[Auth] Error in auth state change:', error);
+          if (mounted) {
+            setLoading(false);
+          }
         }
       }
     );
