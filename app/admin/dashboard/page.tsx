@@ -387,30 +387,7 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-12">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
-              <Link href="/admin/news/create">
-                <FileText className="h-6 w-6" />
-                <span>ニュース作成</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
-              <Link href="/admin/events/create">
-                <Calendar className="h-6 w-6" />
-                <span>イベント作成</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-1" asChild>
-              <Link href="/admin/analytics">
-                <BarChart3 className="h-6 w-6" />
-                <span>統計確認</span>
-              </Link>
-            </Button>
-          </div>
-        </div>
+
       </main>
     </div>
   )

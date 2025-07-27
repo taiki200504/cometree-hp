@@ -26,20 +26,13 @@ export function useAdminAuthSimple() {
     const fetchUserRole = async (user: User) => {
       if (!mounted) return;
       console.log('[Auth] Fetching user role for:', user.id);
-      
-      // タイムアウトを設定 (increased for production)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Role fetch timeout')), 30000);
-      });
 
       try {
-        const rolePromise = supabase
+        const { data, error } = await supabase
           .from('users')
           .select('role')
           .eq('id', user.id)
           .single();
-
-        const { data, error } = await Promise.race([rolePromise, timeoutPromise]) as any;
 
         if (!mounted) return;
 
@@ -68,15 +61,9 @@ export function useAdminAuthSimple() {
     const getSession = async () => {
       if (!mounted) return;
       console.log('[Auth] Getting initial session...');
-      
-      // セッション取得のタイムアウトを設定 (increased for production)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Session fetch timeout')), 30000);
-      });
 
       try {
-        const sessionPromise = supabase.auth.getSession();
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
 

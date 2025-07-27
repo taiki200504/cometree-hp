@@ -31,18 +31,30 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit
 
   // 加盟団体と総数を取得
-  const { data: organizations, error, count } = await supabase
-    .from('organizations')
-    .select('id, name, category, region, is_active', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+  try {
+    const { data: organizations, error, count } = await supabase
+      .from('organizations')
+      .select('id, name, category, region, is_active', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
-  if (error) {
-    console.error('Error fetching organizations:', error)
-    return NextResponse.json({ error: `Failed to fetch organizations: ${error.message}` }, { status: 500 })
+    if (error) {
+      console.error('Error fetching organizations:', error)
+      return NextResponse.json({ 
+        error: `Failed to fetch organizations: ${error.message}`,
+        details: error,
+        code: error.code
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({ organizations, totalCount: count })
+  } catch (error) {
+    console.error('Exception in organizations fetch:', error)
+    return NextResponse.json({ 
+      error: 'Database connection error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
-
-  return NextResponse.json({ organizations, totalCount: count })
 }
 
 // POST handler for creating a new organization
