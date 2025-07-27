@@ -77,12 +77,14 @@ export default function AdminDashboard() {
     } finally {
       setIsLoadingStats(false)
     }
-  }, [])
+  }, []) // Empty dependency array to prevent re-creation
 
   // データ取得
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    if (user && userRole === 'admin') {
+      fetchStats()
+    }
+  }, [user, userRole, fetchStats])
 
   // 認証と権限チェックを統合
   useEffect(() => {

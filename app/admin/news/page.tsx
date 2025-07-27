@@ -29,7 +29,7 @@ export default function NewsManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 10 // 1ページあたりの表示件数
 
-  const { requireAdmin } = useAdminAuthSimple()
+  const { requireAdmin, user, userRole } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast() // Initialize useToast
 
@@ -46,20 +46,26 @@ export default function NewsManagementPage() {
       setTotalPages(Math.ceil(result.totalCount / itemsPerPage))
     } catch (err) {
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました。')
-      toast({
-        title: "エラー",
-        description: err instanceof Error ? err.message : 'ニュース記事の読み込み中に不明なエラーが発生しました。',
-        variant: 'destructive',
-      })
+      // Use toast without dependency to avoid re-renders
+      if (typeof window !== 'undefined') {
+        // Only show toast in browser environment
+        toast({
+          title: "エラー",
+          description: err instanceof Error ? err.message : 'ニュース記事の読み込み中に不明なエラーが発生しました。',
+          variant: 'destructive',
+        })
+      }
     } finally {
       setLoading(false)
     }
-  }, [currentPage, itemsPerPage, toast])
+  }, [currentPage, itemsPerPage])
 
   useEffect(() => {
-    if (!requireAdmin()) return
-    fetchArticles()
-  }, [requireAdmin, fetchArticles])
+    // Only fetch articles if we have a user and they are an admin
+    if (user && userRole === 'admin') {
+      fetchArticles()
+    }
+  }, [user, userRole, fetchArticles])
 
   const handleDelete = async (id: string) => {
     if (!confirm('本当にこの記事を削除しますか？この操作は元に戻せません。')) {

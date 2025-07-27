@@ -5,9 +5,9 @@ import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
 
 // GET handler for fetching partners
 export async function GET(request: NextRequest) {
-  // Apply rate limiting
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
-  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {
     return NextResponse.json(
@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies })
 
-  // Apply rate limiting
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
-  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {
     return NextResponse.json(

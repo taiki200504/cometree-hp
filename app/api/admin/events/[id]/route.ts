@@ -5,9 +5,9 @@ import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
 
 // GET a single event by ID
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  // Apply rate limiting
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
-  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {
     return NextResponse.json(
@@ -34,9 +34,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 // PATCH (update) an event
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  // Apply rate limiting
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
-  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {
     return NextResponse.json(
@@ -83,9 +83,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
 // DELETE an event
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  // Apply rate limiting
+  // Apply rate limiting (admin route)
   const ip = request.ip || 'unknown'; // Get client IP address
-  const { allowed, remaining, resetAfter } = checkRateLimit(ip);
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {
     return NextResponse.json(
