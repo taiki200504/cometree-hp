@@ -47,24 +47,31 @@ export function useAdminAuthSimple() {
     const getSession = async () => {
       if (!mounted) return;
       console.log('[Auth] Getting initial session...');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (!mounted) return;
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!mounted) return;
 
-      if (error) {
-        console.error('[Auth] Error in getSession:', error);
-        setLoading(false);
-        return;
+        if (error) {
+          console.error('[Auth] Error in getSession:', error);
+          setLoading(false);
+          return;
+        }
+
+        console.log('[Auth] Initial session user:', session?.user?.email);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchUserRole(session.user);
+        } else {
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error('[Auth] Exception in getSession:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-
-      console.log('[Auth] Initial session user:', session?.user?.email);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await fetchUserRole(session.user);
-      } else {
-        setUserRole(null);
-      }
-      setLoading(false);
     };
 
     getSession();
@@ -73,12 +80,17 @@ export function useAdminAuthSimple() {
       async (event, session) => {
         if (!mounted) return;
         console.log(`[Auth] Auth state changed: ${event}`, session?.user?.email);
-        setUser(session?.user ?? null);
+        
+        try {
+          setUser(session?.user ?? null);
 
-        if (event === 'SIGNED_IN' && session?.user) {
-          await fetchUserRole(session.user);
-        } else if (event === 'SIGNED_OUT') {
-          setUserRole(null);
+          if (event === 'SIGNED_IN' && session?.user) {
+            await fetchUserRole(session.user);
+          } else if (event === 'SIGNED_OUT') {
+            setUserRole(null);
+          }
+        } catch (error) {
+          console.error('[Auth] Error in auth state change:', error);
         }
       }
     );

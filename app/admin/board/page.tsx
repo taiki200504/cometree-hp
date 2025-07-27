@@ -48,8 +48,12 @@ export default function BoardManagementPage() {
   }, [currentPage, itemsPerPage])
 
   useEffect(() => {
-    if (!requireAdmin()) return
-    fetchPosts()
+    const checkAuthAndFetch = async () => {
+      if (requireAdmin()) {
+        await fetchPosts()
+      }
+    }
+    checkAuthAndFetch()
   }, [requireAdmin, fetchPosts])
 
   const handleDelete = async (id: string) => {

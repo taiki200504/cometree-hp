@@ -82,18 +82,21 @@ export default function AdminDashboard() {
     fetchStats()
   }, [])
 
+  // 認証と権限チェックを統合
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/admin/login')
-    }
-  }, [loading, user, router])
-
-  // 管理者権限チェック
-  useEffect(() => {
-    console.log('Dashboard auth check:', { loading, user: user?.email, userRole })
-    if (!loading && user && userRole !== 'admin') {
-      console.log('Not admin, redirecting to login')
-      router.push('/admin/login')
+    if (!loading) {
+      if (!user) {
+        router.push('/admin/login')
+        return
+      }
+      
+      if (userRole !== 'admin') {
+        console.log('Not admin, redirecting to login')
+        router.push('/admin/login')
+        return
+      }
+      
+      console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
     }
   }, [loading, user, userRole, router])
 
