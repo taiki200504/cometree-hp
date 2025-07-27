@@ -15,15 +15,31 @@ export function useAdminAuthSimple() {
   useEffect(() => {
     let mounted = true
 
+    // 強制的にローディング状態をリセットするフォールバック
+    const fallbackTimeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.log('[Auth] Fallback: Force setting loading to false after 20 seconds');
+        setLoading(false);
+      }
+    }, 20000);
+
     const fetchUserRole = async (user: User) => {
       if (!mounted) return;
       console.log('[Auth] Fetching user role for:', user.id);
+      
+      // タイムアウトを設定
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Role fetch timeout')), 10000);
+      });
+
       try {
-        const { data, error } = await supabase
+        const rolePromise = supabase
           .from('users')
           .select('role')
           .eq('id', user.id)
           .single();
+
+        const { data, error } = await Promise.race([rolePromise, timeoutPromise]) as any;
 
         if (!mounted) return;
 
@@ -52,8 +68,16 @@ export function useAdminAuthSimple() {
     const getSession = async () => {
       if (!mounted) return;
       console.log('[Auth] Getting initial session...');
+      
+      // セッション取得のタイムアウトを設定
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Session fetch timeout')), 15000);
+      });
+
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const sessionPromise = supabase.auth.getSession();
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
         if (!mounted) return;
 
         if (error) {
@@ -106,6 +130,7 @@ export function useAdminAuthSimple() {
 
     return () => {
       mounted = false;
+      clearTimeout(fallbackTimeout);
       console.log('[Auth] Unsubscribing from auth state changes.');
       subscription.unsubscribe();
     };

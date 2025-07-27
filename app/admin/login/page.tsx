@@ -86,7 +86,7 @@ export default function AdminLogin() {
     if (error) setError('')
   }
 
-  // ローディング中はスピナーを表示
+  // ローディング中はスピナーを表示（タイムアウト付き）
   if (loading) {
     console.log('[Login] Loading state, showing spinner');
     return (
@@ -94,6 +94,7 @@ export default function AdminLogin() {
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">読み込み中...</p>
+          <p className="text-sm text-gray-500 mt-2">長時間読み込みが続く場合は、ページを再読み込みしてください</p>
         </div>
       </div>
     )
