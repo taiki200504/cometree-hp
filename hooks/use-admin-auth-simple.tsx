@@ -15,14 +15,6 @@ export function useAdminAuthSimple() {
   useEffect(() => {
     let mounted = true
 
-    // 強制的にローディング状態をリセットするフォールバック
-    const fallbackTimeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.log('[Auth] Fallback: Force setting loading to false after 10 seconds');
-        setLoading(false);
-      }
-    }, 10000);
-
     const fetchUserRole = async (user: User) => {
       if (!mounted) return;
       console.log('[Auth] Fetching user role for:', user.id);
@@ -54,8 +46,7 @@ export function useAdminAuthSimple() {
         }
       } finally {
         if (mounted) {
-          console.log('[Auth] Setting loading to false in fetchUserRole');
-          setLoading(false);
+          console.log('[Auth] fetchUserRole completed');
         }
       }
     };
@@ -101,6 +92,7 @@ export function useAdminAuthSimple() {
             console.log('[Auth] Setting user and admin role for SIGNED_IN');
             setUser(session.user);
             setUserRole('admin');
+            setLoading(false);
             
             // Then try to fetch the actual role, but don't change if it fails
             try {
@@ -110,9 +102,6 @@ export function useAdminAuthSimple() {
               // Ensure admin role is maintained
               setUserRole('admin');
             }
-            
-            // Set loading to false after all state updates
-            setLoading(false);
           } else if (event === 'SIGNED_OUT') {
             console.log('[Auth] Clearing user data for SIGNED_OUT');
             setUser(null);
@@ -135,7 +124,6 @@ export function useAdminAuthSimple() {
 
     return () => {
       mounted = false;
-      clearTimeout(fallbackTimeout);
       console.log('[Auth] Unsubscribing from auth state changes.');
       subscription.unsubscribe();
     };
