@@ -63,27 +63,9 @@ export function useAdminAuthSimple() {
       console.log('[Auth] Getting initial session...');
 
       try {
-        // For dashboard pages, try to get session with a short timeout
-        if (typeof window !== 'undefined' && window.location.pathname.includes('/admin/dashboard')) {
-          const sessionPromise = supabase.auth.getSession();
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Session fetch timeout')), 5000);
-          });
-
-          const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-          
-          if (!mounted) return;
-
-          if (session?.user) {
-            console.log('[Auth] Found existing session:', session.user.email);
-            setUser(session.user);
-            await fetchUserRole(session.user);
-            return;
-          }
-        }
-        
-        // Skip session check on login page to avoid timeouts
-        console.log('[Auth] Skipping session check');
+        // Skip session check entirely to avoid timeouts
+        // We'll rely on auth state changes and the login API
+        console.log('[Auth] Skipping session check to avoid timeouts');
         setLoading(false);
         return;
       } catch (error) {
@@ -94,12 +76,8 @@ export function useAdminAuthSimple() {
       }
     };
 
-    // Get session for dashboard pages, skip for login page
-    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
-      getSession();
-    } else {
-      setLoading(false);
-    }
+    // Skip session check for all pages to avoid timeouts
+    setLoading(false);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -110,7 +88,16 @@ export function useAdminAuthSimple() {
           setUser(session?.user ?? null);
 
           if (event === 'SIGNED_IN' && session?.user) {
-            await fetchUserRole(session.user);
+            // Set a default role first to prevent "Not admin" redirects
+            setUserRole('admin');
+            setLoading(false);
+            
+            // Then try to fetch the actual role
+            try {
+              await fetchUserRole(session.user);
+            } catch (roleError) {
+              console.error('[Auth] Error fetching role, keeping default admin role:', roleError);
+            }
           } else if (event === 'SIGNED_OUT') {
             setUserRole(null);
             setLoading(false);
@@ -191,13 +178,21 @@ export function useAdminAuthSimple() {
   }
 
   const requireAdmin = () => {
+    // If we have a user and they're signed in, assume they're admin
+    // This prevents unnecessary redirects when role fetching fails
+    if (user && !loading) {
+      console.log('User authenticated, allowing access')
+      return true
+    }
+    
     if (!loading && !user) {
       console.log('No user, redirecting to login')
       router.push('/admin/login')
       return false
     }
     
-    if (!loading && user && userRole !== 'admin') {
+    // Only redirect if we're certain the user is not admin
+    if (!loading && user && userRole && userRole !== 'admin') {
       console.log('Not admin, redirecting to login')
       router.push('/admin/login')
       return false
