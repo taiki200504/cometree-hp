@@ -41,6 +41,10 @@ export function useAdminAuthSimple() {
           console.error('[Auth] Exception fetching user role:', e);
           setUserRole('user'); // Fallback role
         }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 

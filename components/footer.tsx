@@ -107,15 +107,25 @@ export default function Footer() {
                 </Link>
               ))}
             </div>
-            {/* 管理者ログインボタン */}
+            {/* 隠し管理者ログインボタン */}
             <div className="mt-4">
               <Link
                 href="/admin/login"
-                className="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-md transition-all duration-200 border border-gray-600 hover:border-gray-500"
+                className="block w-full h-8 bg-transparent hover:bg-gray-800/20 transition-all duration-300 rounded-md border border-transparent hover:border-gray-600/30"
                 title="管理者ログイン"
+                style={{
+                  opacity: 0.1,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.1';
+                }}
               >
-                <Settings className="h-4 w-4 mr-2" />
-                管理者ログイン
+                <div className="flex items-center justify-center h-full">
+                  <Settings className="h-3 w-3 text-gray-500" />
+                </div>
               </Link>
             </div>
           </div>

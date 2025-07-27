@@ -36,6 +36,13 @@ export default function AdminLogin() {
     }
   }, [user, loading, userRole, router])
 
+  // ローディングが終了し、ユーザーがログインしていない場合はログインフォームを表示
+  useEffect(() => {
+    if (!loading && !user) {
+      // ログインフォームを表示する準備ができた
+    }
+  }, [loading, user])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -79,13 +86,25 @@ export default function AdminLogin() {
     if (error) setError('')
   }
 
-  // ローディング中または既にログインしている場合は何も表示しない
-  if (loading || user) {
+  // ローディング中はスピナーを表示
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 既にログインしている場合はダッシュボードにリダイレクト
+  if (user && userRole === 'admin') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">ダッシュボードにリダイレクト中...</p>
         </div>
       </div>
     )
