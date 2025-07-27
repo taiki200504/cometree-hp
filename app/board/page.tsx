@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
@@ -19,12 +19,23 @@ import {
   SortAsc,
   Heart,
 } from "lucide-react"
+import { getBoardPosts } from "@/lib/api"
+import { BoardPost } from "@/types/board"
 
 export default function Board() {
   const [activeCategory, setActiveCategory] = useState("すべて")
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<"date" | "title" | "author">("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const [boardItems, setBoardItems] = useState<BoardPost[]>([])
+
+  useEffect(() => {
+    const fetchBoardPosts = async () => {
+      const posts = await getBoardPosts()
+      setBoardItems(posts)
+    }
+    fetchBoardPosts()
+  }, [])
 
   const categories = [
     {
@@ -71,105 +82,13 @@ export default function Board() {
     },
   ]
 
-  // モック掲示板データ
-  const boardItems = [
-    {
-      id: 1,
-      title: "第3回学生団体合同イベント開催のお知らせ",
-      excerpt:
-        "来月開催予定の学生団体合同イベントについてお知らせいたします。今回は「SDGs×学生の挑戦」をテーマに、環境問題に取り組む学生団体が集結します。持続可能な社会の実現に向けて、学生ができることを一緒に考えませんか？",
-      date: "2025年1月20日",
-      category: "イベント告知",
-      author: "UNION運営事務局",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["イベント", "SDGs", "環境", "合同開催"],
-    },
-    {
-      id: 2,
-      title: "プログラミング勉強会メンバー募集中！",
-      excerpt:
-        "初心者歓迎のプログラミング勉強会を開催します。Web開発の基礎から学べる内容となっており、経験豊富な先輩がサポートします。HTML、CSS、JavaScriptから始めて、最終的にはWebアプリケーションの作成を目指します。",
-      date: "2025年1月18日",
-      category: "メンバー募集",
-      author: "東京大学プログラミング研究会",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["プログラミング", "勉強会", "初心者歓迎", "Web開発"],
-    },
-    {
-      id: 3,
-      title: "国際交流イベントでのコラボ団体募集",
-      excerpt:
-        "3月に開催予定の国際交流イベントで、一緒に企画・運営を行ってくれる学生団体を募集しています。多文化理解を深める素晴らしい機会です。留学生との交流や文化体験ブースの運営など、様々な形で参加いただけます。",
-      date: "2025年1月15日",
-      category: "コラボ募集",
-      author: "早稲田大学国際交流サークル",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["国際交流", "コラボ", "多文化", "留学生"],
-    },
-    {
-      id: 4,
-      title: "デザイン思考ワークショップ開催",
-      excerpt:
-        "デザイン思考の基礎を学べるワークショップを開催します。問題解決のための新しいアプローチを身につけませんか？実際のケーススタディを用いて、アイデア発想から プロトタイプ作成まで体験できます。",
-      date: "2025年1月12日",
-      category: "スキルアップ",
-      author: "慶應義塾大学デザイン研究会",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["デザイン思考", "ワークショップ", "問題解決", "プロトタイプ"],
-    },
-    {
-      id: 5,
-      title: "就活体験談シェア会のお知らせ",
-      excerpt:
-        "内定を獲得した先輩たちが就活の体験談をシェアする会を開催します。ES添削や面接対策のコツも聞けます。IT、金融、コンサル、メーカーなど様々な業界の先輩が参加予定です。",
-      date: "2025年1月10日",
-      category: "就活・キャリア",
-      author: "明治大学キャリア支援団体",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["就活", "体験談", "キャリア", "面接対策"],
-    },
-    {
-      id: 6,
-      title: "ボランティア活動参加者募集",
-      excerpt:
-        "地域の清掃活動や高齢者施設でのボランティア活動に参加しませんか？社会貢献を通じて成長できる機会です。毎週土曜日の午前中に活動を行っており、都合の良い日だけの参加も可能です。",
-      date: "2025年1月8日",
-      category: "メンバー募集",
-      author: "立教大学ボランティア団体",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["ボランティア", "社会貢献", "地域活動", "高齢者支援"],
-    },
-    {
-      id: 7,
-      title: "起業アイデアピッチコンテスト開催",
-      excerpt:
-        "学生起業家を目指す皆さんのアイデアピッチコンテストを開催します。優秀なアイデアには賞金と起業支援プログラムへの参加権を提供します。",
-      date: "2025年1月5日",
-      category: "イベント告知",
-      author: "東京大学起業サークルTNK",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["起業", "ピッチ", "コンテスト", "賞金"],
-    },
-    {
-      id: 8,
-      title: "英語ディベート大会参加者募集",
-      excerpt:
-        "全国学生英語ディベート大会に向けて、チームメンバーを募集しています。英語力向上と論理的思考力の鍛錬を目指します。",
-      date: "2025年1月3日",
-      category: "メンバー募集",
-      author: "上智大学英語ディベート部",
-      image: "/placeholder.svg?height=300&width=400",
-      tags: ["英語", "ディベート", "大会", "論理的思考"],
-    },
-  ]
-
   const filteredItems = boardItems
     .filter((item) => {
       const matchesCategory = activeCategory === "すべて" || item.category === activeCategory
       const matchesSearch =
         searchTerm === "" ||
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
         item.author.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesCategory && matchesSearch
@@ -178,7 +97,7 @@ export default function Board() {
       let comparison = 0
       switch (sortBy) {
         case "date":
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime()
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
           break
         case "title":
           comparison = a.title.localeCompare(b.title)
@@ -321,7 +240,7 @@ export default function Board() {
                           id: item.id,
                           title: item.title,
                           category: item.category,
-                          date: item.date,
+                          date: item.created_at,
                           author: item.author,
                         }}
                       />
@@ -331,7 +250,7 @@ export default function Board() {
                   <div className="p-6">
                     <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {item.date}
+                      {new Date(item.created_at).toLocaleDateString()}
                       <span className="mx-2">•</span>
                       <span>{item.author}</span>
                     </div>
@@ -341,7 +260,7 @@ export default function Board() {
                     </h3>
 
                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 leading-relaxed">
-                      {item.excerpt}
+                      {item.content}
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">

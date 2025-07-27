@@ -1,3 +1,6 @@
+import { supabase } from './supabaseClient';
+import { BoardPost } from '../types/board';
+
 // APIとの連携用関数
 
 export interface CounterData {
@@ -72,4 +75,19 @@ export async function fetchCommunityCounterData(): Promise<CommunityCounterData>
       partnerCompanies: 10,
     }
   }
+}
+
+export async function getBoardPosts(): Promise<BoardPost[]> {
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching board posts:', error);
+    return [];
+  }
+
+  return data || [];
 }
