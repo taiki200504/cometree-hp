@@ -88,16 +88,20 @@ export default function AdminDashboard() {
 
   // 認証と権限チェックを統合
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        console.log('No user, redirecting to login')
-        router.push('/admin/login')
-        return
-      }
-      
-      // If user exists, allow access (role will be handled by the hook)
-      console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
+    // Wait for loading to complete before making any decisions
+    if (loading) {
+      console.log('Still loading, waiting for auth state...')
+      return
     }
+    
+    if (!user) {
+      console.log('No user, redirecting to login')
+      router.push('/admin/login')
+      return
+    }
+    
+    // If user exists, allow access (role will be handled by the hook)
+    console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
   }, [loading, user, userRole, router])
 
   // ローディング中または認証エラーの場合はローディング画面を表示

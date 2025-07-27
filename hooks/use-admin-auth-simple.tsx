@@ -78,8 +78,18 @@ export function useAdminAuthSimple() {
       }
     };
 
-    // Skip session check for all pages to avoid timeouts
-    setLoading(false);
+    // Initialize loading state based on current path
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname.includes('/admin/dashboard')) {
+        // For dashboard, keep loading until we have user data
+        console.log('[Auth] On dashboard page, keeping loading state');
+      } else {
+        // For other pages, set loading to false immediately
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -91,7 +101,6 @@ export function useAdminAuthSimple() {
             console.log('[Auth] Setting user and admin role for SIGNED_IN');
             setUser(session.user);
             setUserRole('admin');
-            setLoading(false);
             
             // Then try to fetch the actual role, but don't change if it fails
             try {
@@ -101,6 +110,9 @@ export function useAdminAuthSimple() {
               // Ensure admin role is maintained
               setUserRole('admin');
             }
+            
+            // Set loading to false after all state updates
+            setLoading(false);
           } else if (event === 'SIGNED_OUT') {
             console.log('[Auth] Clearing user data for SIGNED_OUT');
             setUser(null);
