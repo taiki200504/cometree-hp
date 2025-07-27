@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -54,33 +54,34 @@ export default function AdminDashboard() {
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [statsError, setStatsError] = useState<string | null>(null)
 
+  // データ取得関数
+  const fetchStats = useCallback(async () => {
+    try {
+      setStatsError(null); // Reset error on new fetch
+      const response = await fetch('/api/admin/stats')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.error) {
+          setStatsError(data.error);
+        } else {
+          setStats(data)
+        }
+      } else {
+        const errorData = await response.json();
+        setStatsError(errorData.error || '統計データの取得に失敗しました。');
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+      setStatsError(error instanceof Error ? error.message : '不明なエラーが発生しました。');
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }, [])
+
   // データ取得
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setStatsError(null); // Reset error on new fetch
-        const response = await fetch('/api/admin/stats')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.error) {
-            setStatsError(data.error);
-          } else {
-            setStats(data)
-          }
-        } else {
-          const errorData = await response.json();
-          setStatsError(errorData.error || '統計データの取得に失敗しました。');
-        }
-      } catch (error) {
-        console.error('Error fetching stats:', error)
-        setStatsError(error instanceof Error ? error.message : '不明なエラーが発生しました。');
-      } finally {
-        setIsLoadingStats(false)
-      }
-    }
-
     fetchStats()
-  }, [])
+  }, [fetchStats])
 
   // 認証と権限チェックを統合
   useEffect(() => {
@@ -127,6 +128,10 @@ export default function AdminDashboard() {
   console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
 
   const [isUpdatingStats, setIsUpdatingStats] = useState(false)
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const handleUpdateStats = async () => {
     setIsUpdatingStats(true);
