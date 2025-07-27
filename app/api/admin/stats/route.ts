@@ -31,9 +31,15 @@ export async function GET(request: NextRequest) {
       supabase.from('users').select('*', { count: 'exact', head: true }),
     ]);
 
-    // Since board_posts and page_views tables don't exist, their counts are 0.
-    const boardPostsCount = 0;
-    const viewsCount = 0;
+    // Count board_posts and page_views
+    const [
+      { count: boardPostsCount },
+      { count: viewsCount }
+    ] = await Promise.all([
+      supabase.from('board_posts').select('*', { count: 'exact', head: true }),
+      // For now, we'll use board_posts view_count as a proxy for page views
+      supabase.from('board_posts').select('view_count', { count: 'exact', head: true })
+    ]);
 
     return NextResponse.json({
       news: newsCount ?? 0,

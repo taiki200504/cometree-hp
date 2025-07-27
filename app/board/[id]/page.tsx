@@ -1,11 +1,14 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import FavoriteButton from "@/components/favorite-button"
 import { Calendar, User, Tag, ArrowLeft, Share2, ExternalLink } from "lucide-react"
+import { getBoardPostById } from "@/lib/api"
+import { BoardPost } from "@/types/board"
 
 interface BoardItemDetailProps {
   params: {
@@ -13,106 +16,19 @@ interface BoardItemDetailProps {
   }
 }
 
-// モック記事データ（実際はAPIから取得）
-const getBoardItem = (id: string) => {
-  const boardItems = [
-    {
-      id: 1,
-      title: "第3回学生団体合同イベント開催のお知らせ",
-      content: `
-        <h2>イベント概要</h2>
-        <p>来月開催予定の学生団体合同イベントについてお知らせいたします。今回は「SDGs×学生の挑戦」をテーマに、環境問題に取り組む学生団体が集結します。</p>
-        
-        <h3>開催詳細</h3>
-        <ul>
-          <li><strong>日時：</strong>2025年2月15日（土）13:00-17:00</li>
-          <li><strong>場所：</strong>東京国際フォーラム ホールE</li>
-          <li><strong>参加費：</strong>無料</li>
-          <li><strong>定員：</strong>300名</li>
-        </ul>
-        
-        <h3>プログラム内容</h3>
-        <p>持続可能な社会の実現に向けて、学生ができることを一緒に考えませんか？以下のようなプログラムを予定しています：</p>
-        <ul>
-          <li>基調講演：「Z世代が描く持続可能な未来」</li>
-          <li>パネルディスカッション：学生団体の環境への取り組み</li>
-          <li>ワークショップ：アクションプラン作成</li>
-          <li>ネットワーキングタイム</li>
-        </ul>
-        
-        <h3>参加申込</h3>
-        <p>参加をご希望の方は、以下のフォームからお申し込みください。</p>
-        <p><a href="https://forms.gle/example" target="_blank" rel="noopener noreferrer">申込フォームはこちら</a></p>
-        
-        <h3>お問い合わせ</h3>
-        <p>ご質問等ございましたら、gakusei.union226@gmail.com までお気軽にお問い合わせください。</p>
-      `,
-      date: "2025年1月20日",
-      category: "イベント告知",
-      author: "UNION運営事務局",
-      image: "/placeholder.svg?height=400&width=800",
-      tags: ["イベント", "SDGs", "環境", "合同開催"],
-      views: 245,
-      contact: "gakusei.union226@gmail.com",
-    },
-    {
-      id: 2,
-      title: "プログラミング勉強会メンバー募集中！",
-      content: `
-        <h2>勉強会について</h2>
-        <p>初心者歓迎のプログラミング勉強会を開催します。Web開発の基礎から学べる内容となっており、経験豊富な先輩がサポートします。</p>
-        
-        <h3>学習内容</h3>
-        <p>HTML、CSS、JavaScriptから始めて、最終的にはWebアプリケーションの作成を目指します。</p>
-        <ul>
-          <li>HTML/CSS基礎</li>
-          <li>JavaScript基礎</li>
-          <li>React入門</li>
-          <li>バックエンド開発（Node.js）</li>
-          <li>データベース（MongoDB）</li>
-        </ul>
-        
-        <h3>開催スケジュール</h3>
-        <ul>
-          <li><strong>頻度：</strong>毎週土曜日 14:00-17:00</li>
-          <li><strong>期間：</strong>3ヶ月間（全12回）</li>
-          <li><strong>場所：</strong>東京大学本郷キャンパス</li>
-        </ul>
-        
-        <h3>参加条件</h3>
-        <ul>
-          <li>プログラミング初心者歓迎</li>
-          <li>ノートPCを持参できる方</li>
-          <li>継続的に参加できる方</li>
-        </ul>
-        
-        <h3>申込方法</h3>
-        <p>参加をご希望の方は、以下の情報を記載してメールでお申し込みください：</p>
-        <ul>
-          <li>お名前</li>
-          <li>所属大学・学年</li>
-          <li>プログラミング経験</li>
-          <li>参加動機</li>
-        </ul>
-      `,
-      date: "2025年1月18日",
-      category: "メンバー募集",
-      author: "東京大学プログラミング研究会",
-      image: "/placeholder.svg?height=400&width=800",
-      tags: ["プログラミング", "勉強会", "初心者歓迎", "Web開発"],
-      views: 189,
-      contact: "programming@example.com",
-    },
-  ]
-
-  return boardItems.find((item) => item.id === Number.parseInt(id))
-}
-
 export default function BoardItemDetail({ params }: BoardItemDetailProps) {
-  const item = getBoardItem(params.id)
+  const [item, setItem] = useState<BoardPost | null>(null)
+
+  useEffect(() => {
+    const fetchBoardPost = async () => {
+      const post = await getBoardPostById(params.id)
+      setItem(post)
+    }
+    fetchBoardPost()
+  }, [params.id])
 
   if (!item) {
-    notFound()
+    return notFound()
   }
 
   return (
@@ -139,7 +55,7 @@ export default function BoardItemDetail({ params }: BoardItemDetailProps) {
             </span>
             <div className="flex items-center text-sm text-gray-500">
               <Calendar className="h-4 w-4 mr-1" />
-              {item.date}
+              {new Date(item.created_at).toLocaleDateString()}
             </div>
             <div className="flex items-center text-sm text-gray-500">
               <User className="h-4 w-4 mr-1" />
@@ -164,7 +80,7 @@ export default function BoardItemDetail({ params }: BoardItemDetailProps) {
                   id: item.id,
                   title: item.title,
                   category: item.category,
-                  date: item.date,
+                  date: item.created_at,
                   author: item.author,
                 }}
               />

@@ -77,17 +77,107 @@ export async function fetchCommunityCounterData(): Promise<CommunityCounterData>
   }
 }
 
-export async function getBoardPosts(): Promise<BoardPost[]> {
-  const { data, error } = await supabase
-    .from('board_posts')
-    .select('*')
-    .eq('status', 'published')
-    .order('created_at', { ascending: false });
+// Board posts API functions
+export async function getBoardPosts(options: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+} = {}): Promise<{ posts: BoardPost[]; pagination: any }> {
+  try {
+    const params = new URLSearchParams();
+    if (options.page) params.append('page', options.page.toString());
+    if (options.limit) params.append('limit', options.limit.toString());
+    if (options.category) params.append('category', options.category);
+    if (options.search) params.append('search', options.search);
+    if (options.sortBy) params.append('sortBy', options.sortBy);
+    if (options.sortOrder) params.append('sortOrder', options.sortOrder);
 
-  if (error) {
+    const response = await fetch(`/api/board?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch board posts');
+    }
+    return await response.json();
+  } catch (error) {
     console.error('Error fetching board posts:', error);
-    return [];
+    return { posts: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };
   }
+}
 
-  return data || [];
+export async function getBoardPostById(id: string): Promise<BoardPost | null> {
+  try {
+    const response = await fetch(`/api/board/${id}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch board post');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching board post by id:', error);
+    return null;
+  }
+}
+
+export async function createBoardPost(data: {
+  title: string;
+  content: string;
+  category?: string;
+}): Promise<BoardPost | null> {
+  try {
+    const response = await fetch('/api/board', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create board post');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating board post:', error);
+    return null;
+  }
+}
+
+export async function updateBoardPost(id: string, data: Partial<BoardPost>): Promise<BoardPost | null> {
+  try {
+    const response = await fetch(`/api/board/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update board post');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating board post:', error);
+    return null;
+  }
+}
+
+export async function deleteBoardPost(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/board/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete board post');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting board post:', error);
+    return false;
+  }
 }
