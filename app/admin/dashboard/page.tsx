@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const menuItems = useMemo(() => [
+  const menuItems = [
     {
       title: 'ニュース管理',
       description: 'ニュース記事の作成・編集・削除',
@@ -225,7 +225,7 @@ export default function AdminDashboard() {
         { label: '分析レポート', icon: <Activity className="h-4 w-4" />, href: '/admin/analytics/reports' }
       ]
     }
-  ], [stats])
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
