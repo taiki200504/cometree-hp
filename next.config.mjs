@@ -42,7 +42,16 @@ const nextConfig = {
         ],
       },
       {
-        source: '/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))',
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/(.*)',
         headers: [
           {
             key: 'Cache-Control',
@@ -65,7 +74,6 @@ const nextConfig = {
   },
   // 本運用向け実験的機能
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
   // バンドル分析
