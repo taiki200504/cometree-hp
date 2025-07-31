@@ -12,12 +12,14 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
+  console.log('[API] Login request received')
 
   // Apply rate limiting
   const ip = request.ip || 'unknown'; // Get client IP address
   const { allowed, remaining, resetAfter } = checkRateLimit(ip);
 
   if (!allowed) {
+    console.log('[API] Rate limit exceeded for IP:', ip)
     return NextResponse.json(
       { error: 'Too many requests', retryAfter: resetAfter / 1000 },
       { status: 429, headers: { 'Retry-After': `${resetAfter / 1000}` } }
@@ -25,9 +27,12 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
+  console.log('[API] Request body:', { email: body.email, password: body.password ? '***' : 'empty' })
+  
   const parsed = loginSchema.safeParse(body);
 
   if (!parsed.success) {
+    console.log('[API] Validation failed:', parsed.error.flatten().fieldErrors)
     return NextResponse.json(
       { error: 'Invalid input', issues: parsed.error.flatten().fieldErrors },
       { status: 400 }
@@ -35,6 +40,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { email, password } = parsed.data;
+  console.log('[API] Processing login for:', email)
 
   const cookieStore = await cookies()
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
@@ -57,8 +63,10 @@ export async function POST(request: NextRequest) {
 
   // テスト用の管理者認証（開発環境のみ）
   const isTestAdmin = email === 'admin@union.example.com' && password === 'admin123'
+  console.log('[API] Test admin check:', { email, isTestAdmin })
   
   if (isTestAdmin) {
+    console.log('[API] Test admin authentication successful')
     const responseTime = Date.now() - startTime
     await logAccess('test-admin', '/api/auth/login', 'POST', 200, responseTime)
     

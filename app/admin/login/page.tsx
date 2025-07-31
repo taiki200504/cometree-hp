@@ -68,6 +68,7 @@ export default function AdminLogin() {
 
     try {
       console.log('[Login] Attempting login with:', formData.email)
+      console.log('[Login] Form data:', { email: formData.email, password: formData.password ? '***' : 'empty' })
       
       const { error } = await signIn(formData.email, formData.password)
       
