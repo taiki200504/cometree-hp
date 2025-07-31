@@ -8,39 +8,37 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
+  
   const supabase = createAdminSupabaseClient()
+  
   try {
-    // Correctly count rows from existing tables
+    // Count all tables safely
     const [
       { count: newsCount },
       { count: eventsCount },
       { count: usersCount },
       { count: organizationsCount },
       { count: partnersCount },
-      // 'members' table does not exist, so we count from 'users' as a proxy or return 0
-      // Let's assume 'members' refers to 'users' for now.
-      { count: membersCount }, 
-      // 'board_posts' table does not exist, return 0
-      // 'page_views' table does not exist, return 0
+      { count: membersCount },
+      { count: supportersCount },
+      { count: boardPostsCount }
     ] = await Promise.all([
       supabase.from('news').select('*', { count: 'exact', head: true }),
       supabase.from('events').select('*', { count: 'exact', head: true }),
       supabase.from('users').select('*', { count: 'exact', head: true }),
       supabase.from('organizations').select('*', { count: 'exact', head: true }),
       supabase.from('partners').select('*', { count: 'exact', head: true }),
-      // Assuming 'members' are the 'users' in the users table
-      supabase.from('users').select('*', { count: 'exact', head: true }),
+      supabase.from('members').select('*', { count: 'exact', head: true }),
+      supabase.from('supporters').select('*', { count: 'exact', head: true }),
+      supabase.from('board_posts').select('*', { count: 'exact', head: true })
     ]);
 
-    // Count board_posts and page_views
-    const [
-      { count: boardPostsCount },
-      { count: viewsCount }
-    ] = await Promise.all([
-      supabase.from('board_posts').select('*', { count: 'exact', head: true }),
-      // For now, we'll use board_posts view_count as a proxy for page views
-      supabase.from('board_posts').select('view_count', { count: 'exact', head: true })
-    ]);
+    // Calculate total views from board_posts
+    const { data: boardPosts } = await supabase
+      .from('board_posts')
+      .select('view_count')
+    
+    const totalViews = boardPosts?.reduce((sum, post) => sum + (post.view_count || 0), 0) || 0
 
     return NextResponse.json({
       news: newsCount ?? 0,
@@ -48,9 +46,10 @@ export async function GET(request: NextRequest) {
       users: usersCount ?? 0,
       organizations: organizationsCount ?? 0,
       partners: partnersCount ?? 0,
-      members: membersCount ?? 0, // Using users count for members
-      boardPosts: boardPostsCount,
-      views: viewsCount,
+      members: membersCount ?? 0,
+      supporters: supportersCount ?? 0,
+      boardPosts: boardPostsCount ?? 0,
+      views: totalViews,
     });
 
   } catch (error) {
@@ -63,9 +62,10 @@ export async function GET(request: NextRequest) {
       organizations: 0,
       partners: 0,
       members: 0,
+      supporters: 0,
       boardPosts: 0,
       views: 0,
-      error: `Failed to load stats: ${errorMessage}` // Add a specific error message
+      error: `Failed to load stats: ${errorMessage}`
     }, { status: 500 });
   }
 }

@@ -59,6 +59,7 @@ interface Stats {
   organizations: number
   partners: number
   members: number
+  supporters: number
   views: number
   boardPosts: number
 }
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
     organizations: 0,
     partners: 0,
     members: 0,
+    supporters: 0,
     views: 0,
     boardPosts: 0
   })
