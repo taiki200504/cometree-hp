@@ -110,7 +110,7 @@ export default function AdminLogin() {
   }
 
   // ローディング中はスピナーを表示
-  if (loading && !user) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black text-green-400 font-mono">
         <div className="flex items-center justify-center h-screen">

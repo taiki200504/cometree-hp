@@ -77,12 +77,16 @@ const nextConfig = {
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
   // バンドル分析
-  webpack: (config, { isServer }) => {
+  webpack: (config, { dev, isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
       };
+    }
+    // 開発環境でより詳細なエラー情報を表示
+    if (dev) {
+      config.devtool = 'eval-source-map';
     }
     return config;
   },

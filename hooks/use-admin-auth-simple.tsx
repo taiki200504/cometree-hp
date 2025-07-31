@@ -207,9 +207,9 @@ export function useAdminAuthSimple() {
   }
 
   return {
-    user,
-    loading,
-    userRole,
+    user: user || null,
+    loading: loading || false,
+    userRole: userRole || null,
     signIn,
     signOut,
     requireAuth,
