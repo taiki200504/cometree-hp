@@ -149,7 +149,9 @@ export function useAdminAuthSimple() {
         setLoading(false)
         
         // Force redirect to dashboard
-        window.location.href = '/admin/dashboard'
+        if (typeof window !== 'undefined') {
+          window.location.href = '/admin/dashboard'
+        }
         return { error: null }
       } else {
         console.error('[Auth] Login failed - invalid response:', data)

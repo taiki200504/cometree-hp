@@ -44,7 +44,7 @@ import {
   Signal,
   Battery,
   HardDrive,
-  Memory,
+
   Cpu as CpuIcon,
   Heart
 } from 'lucide-react'
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
                   <p className="text-xs opacity-75">MEMORY</p>
                   <p className={`text-2xl font-bold ${getStatusColor(systemMetrics.memory)}`}>{systemMetrics.memory.toFixed(1)}%</p>
                 </div>
-                <Memory className="h-8 w-8 text-green-400" />
+                <HardDrive className="h-8 w-8 text-green-400" />
               </div>
               {getStatusIcon(systemMetrics.memory)}
             </CardContent>
