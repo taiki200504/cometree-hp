@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createAdminSupabaseClient } from '@/lib/supabaseServer'
+import { requireAdmin } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  try {
+    await requireAdmin(request)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
 
-  // Admin auth check
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-  }
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
-    .single()
-  if (userError || user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const supabase = createAdminSupabaseClient()
 
   try {
     // 各テーブルの最新の件数を取得
@@ -46,7 +38,7 @@ export async function POST(request: NextRequest) {
         partner_count: partnersCount || 0,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', '70d8dd7c-05b2-4d8e-bd55-77617129e8bd')
+      .eq('id', '70d8dd7c-05b2-4d8e-bd55-77617129e8bd') // このIDは固定
       .select()
       .single()
 

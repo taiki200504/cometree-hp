@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { z } from 'zod'
 import { logAccess } from '@/lib/auth' // logAccessは引き続き使用
 import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
@@ -18,14 +24,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { email, password } = await request.json()
+  const body = await request.json()
+  const parsed = loginSchema.safeParse(body);
 
-  if (!email || !password) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Email and password are required' },
+      { error: 'Invalid input', issues: parsed.error.flatten().fieldErrors },
       { status: 400 }
     )
   }
+
+  const { email, password } = parsed.data;
 
   const cookieStore = await cookies()
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore })

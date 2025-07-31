@@ -111,11 +111,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const { title, content, category } = await request.json()
+    const postSchema = z.object({
+      title: z.string().min(1, { message: "Title is required" }).max(255),
+      content: z.string().min(1, { message: "Content is required" }),
+      category: z.string().optional(),
+    });
 
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
+    const body = await request.json();
+    const parsed = postSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', issues: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      )
     }
+
+    const { title, content, category } = parsed.data;
 
     const { data: newPost, error: insertError } = await supabase
       .from('board_posts')

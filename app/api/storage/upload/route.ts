@@ -4,7 +4,8 @@ import { cookies } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   // Admin auth check
   const { data: { session } } = await supabase.auth.getSession()

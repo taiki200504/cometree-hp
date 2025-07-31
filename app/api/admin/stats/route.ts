@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-// Important: Use service_role_key for admin-level access
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createAdminSupabaseClient } from '@/lib/supabaseServer'
+import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
+  try {
+    await requireAdmin(request)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
+  const supabase = createAdminSupabaseClient()
   try {
     // Correctly count rows from existing tables
     const [

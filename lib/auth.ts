@@ -5,7 +5,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 
 // Supabaseクライアントの作成
 
-
 const createAdminSupabaseClient = () => {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +30,8 @@ export interface User {
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
@@ -62,12 +62,11 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-
-
 // サインアップ
 export async function signUp(email: string, password: string, name?: string) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -88,8 +87,6 @@ export async function signUp(email: string, password: string, name?: string) {
     return { success: false, error: error instanceof Error ? error.message : 'Sign up failed' }
   }
 }
-
-
 
 // 認証が必要なミドルウェア
 export async function requireAuth(request: NextRequest) {

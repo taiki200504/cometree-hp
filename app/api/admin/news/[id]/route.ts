@@ -15,7 +15,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       { status: 429, headers: { 'Retry-After': `${resetAfter / 1000}` } }
     );
   }
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   const { data: article, error } = await supabase
@@ -44,7 +45,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       { status: 429, headers: { 'Retry-After': `${resetAfter / 1000}` } }
     );
   }
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   // Admin auth check
@@ -98,7 +100,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       { status: 429, headers: { 'Retry-After': `${resetAfter / 1000}` } }
     );
   }
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   const { id } = params
 
   // Admin auth check
