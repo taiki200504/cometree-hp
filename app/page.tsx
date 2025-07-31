@@ -5,6 +5,8 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import StatsSection from "@/components/stats-section"
 import AnimatedSection from "@/components/animated-section"
+import OpeningAnimation from "@/components/opening-animation"
+import { useFirstVisit } from "@/hooks/use-first-visit"
 import { ArrowRight, Users, Building, Star, CheckCircle, Handshake, Mic, Calendar, TrendingUp, Play, Camera, Newspaper, Mail } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -12,6 +14,8 @@ import Image from "next/image"
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [showAnimation, setShowAnimation] = useState(false)
+  const { isFirstVisit, isLoading } = useFirstVisit()
 
   // モック学生ニュースデータ
   const newsItems = [
@@ -117,8 +121,22 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [slides.length])
 
+  // 初回訪問時にアニメーションを表示
+  useEffect(() => {
+    if (!isLoading && isFirstVisit) {
+      setShowAnimation(true)
+    }
+  }, [isLoading, isFirstVisit])
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false)
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      {showAnimation && (
+        <OpeningAnimation onComplete={handleAnimationComplete} />
+      )}
       <Header />
 
       {/* ヒーローセクション */}

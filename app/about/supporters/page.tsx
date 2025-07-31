@@ -8,68 +8,21 @@ import { Heart, Building2, Users, Award, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-const supporters = [
-  {
-    id: 1,
-    name: "株式会社テックイノベーション",
-    type: "プラチナスポンサー",
-    logo: "/placeholder.svg?height=80&width=200&text=TechInnovation",
-    description: "学生の技術力向上を支援し、次世代のエンジニア育成に貢献しています。",
-    supportType: "financial",
-    amount: "年間100万円",
-    since: "2022年4月",
-  },
-  {
-    id: 2,
-    name: "一般社団法人学生支援機構",
-    type: "ゴールドスポンサー",
-    logo: "/placeholder.svg?height=80&width=200&text=StudentSupport",
-    description: "全国の学生団体の活動を支援し、学生の社会参画を促進しています。",
-    supportType: "financial",
-    amount: "年間50万円",
-    since: "2021年10月",
-  },
-  {
-    id: 3,
-    name: "株式会社メディアパートナーズ",
-    type: "メディアパートナー",
-    logo: "/placeholder.svg?height=80&width=200&text=MediaPartners",
-    description: "学生の声を社会に届けるメディア支援を行っています。",
-    supportType: "media",
-    amount: "番組制作支援",
-    since: "2023年1月",
-  },
-  {
-    id: 4,
-    name: "NPO法人ユースエンパワーメント",
-    type: "協力団体",
-    logo: "/placeholder.svg?height=80&width=200&text=YouthEmpowerment",
-    description: "若者の社会参画と能力開発を支援する非営利団体です。",
-    supportType: "collaboration",
-    amount: "プログラム連携",
-    since: "2022年8月",
-  },
-  {
-    id: 5,
-    name: "株式会社キャリアサポート",
-    type: "シルバースポンサー",
-    logo: "/placeholder.svg?height=80&width=200&text=CareerSupport",
-    description: "学生のキャリア形成と就職活動を支援しています。",
-    supportType: "financial",
-    amount: "年間30万円",
-    since: "2023年4月",
-  },
-  {
-    id: 6,
-    name: "個人支援者の皆様",
-    type: "個人サポーター",
-    logo: "/placeholder.svg?height=80&width=200&text=Individual",
-    description: "多くの個人の方々からもご支援をいただいています。",
-    supportType: "individual",
-    amount: "月額1,000円〜",
-    since: "2021年設立時より",
-  },
-]
+interface Supporter {
+  id: string
+  name: string
+  type: string
+  logo_url?: string
+  description: string
+  support_type: 'financial' | 'media' | 'collaboration' | 'individual'
+  amount: string
+  since: string
+  website_url?: string
+  contact_email?: string
+  is_active: boolean
+  display_order: number
+  created_at: string
+}
 
 const supportTypes = {
   financial: {
@@ -94,7 +47,26 @@ const supportTypes = {
   },
 }
 
-export default function SupportersPage() {
+async function getSupporters(): Promise<Supporter[]> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/supporters`, {
+      cache: 'no-store'
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch supporters')
+    }
+    const data = await response.json()
+    return data.supporters || []
+  } catch (error) {
+    console.error('Error fetching supporters:', error)
+    return []
+  }
+}
+
+export default async function SupportersPage() {
+  const supporters = await getSupporters()
+  const activeSupporters = supporters.filter(s => s.is_active)
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <Header />
@@ -138,7 +110,7 @@ export default function SupportersPage() {
                 <div className="w-16 h-16 bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Building2 className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">12</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{activeSupporters.length}</div>
                 <div className="text-gray-600 dark:text-gray-300">企業・団体</div>
               </div>
             </AnimatedSection>
@@ -177,10 +149,10 @@ export default function SupportersPage() {
           </AnimatedSection>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-            {supporters.map((supporter, index) => {
-              const SupportIcon = supportTypes[supporter.supportType as keyof typeof supportTypes].icon
-              const supportColor = supportTypes[supporter.supportType as keyof typeof supportTypes].color
-              const supportLabel = supportTypes[supporter.supportType as keyof typeof supportTypes].label
+            {activeSupporters.map((supporter, index) => {
+              const SupportIcon = supportTypes[supporter.support_type].icon
+              const supportColor = supportTypes[supporter.support_type].color
+              const supportLabel = supportTypes[supporter.support_type].label
 
               return (
                 <AnimatedSection key={supporter.id} animation="fadeInUp" delay={index * 100}>
@@ -196,13 +168,15 @@ export default function SupportersPage() {
                           <Badge variant="outline">{supporter.type}</Badge>
                         </div>
                       </div>
-                      <Image
-                        src={supporter.logo || "/placeholder.svg"}
-                        alt={`${supporter.name}のロゴ`}
-                        width={100}
-                        height={40}
-                        className="ml-4"
-                      />
+                      {supporter.logo_url && (
+                        <Image
+                          src={supporter.logo_url}
+                          alt={`${supporter.name}のロゴ`}
+                          width={100}
+                          height={40}
+                          className="ml-4"
+                        />
+                      )}
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-6">{supporter.description}</p>
                     <div className="grid grid-cols-2 gap-4 text-sm">

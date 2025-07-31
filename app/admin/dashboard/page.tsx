@@ -45,7 +45,8 @@ import {
   Battery,
   HardDrive,
   Memory,
-  Cpu as CpuIcon
+  Cpu as CpuIcon,
+  Heart
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -314,6 +315,18 @@ export default function AdminDashboard() {
       actions: [
         { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/members/create' },
         { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/members' }
+      ]
+    },
+    {
+      title: '支援者管理',
+      description: '支援者の管理',
+      icon: <Heart className="h-6 w-6" />,
+      href: '/admin/supporters',
+      color: 'from-red-500 to-red-600',
+      count: 0, // TODO: Add supporters count to stats
+      actions: [
+        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/supporters/create' },
+        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/supporters' }
       ]
     },
     {
