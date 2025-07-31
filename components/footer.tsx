@@ -91,7 +91,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              学生の声を社会に響かせる。全国60の学生団体、1800名の学生が参加するコミュニティ。
+              学生の声を社会に響かせる。全国60の学生団体、1800名の学生が参加するコミュニティ。学生から熱狂を生み出せる世界を作る。
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
