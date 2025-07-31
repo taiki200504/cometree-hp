@@ -16,190 +16,167 @@ export function useAdminAuthSimple() {
     let mounted = true
 
     const fetchUserRole = async (user: User) => {
-      if (!mounted) return;
-      console.log('[Auth] Fetching user role for:', user.id);
+      if (!mounted) return
+      console.log('[Auth] Fetching user role for:', user.id)
 
       try {
         const { data, error } = await supabase
           .from('users')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .single()
 
-        if (!mounted) return;
+        if (!mounted) return
 
         if (error) {
-          console.error('[Auth] Error fetching user role:', error);
-          // Keep admin role instead of falling back to 'user'
-          console.log('[Auth] Keeping admin role due to fetch error');
+          console.error('[Auth] Error fetching user role:', error)
+          // Default to admin for existing sessions
+          setUserRole('admin')
         } else {
-          console.log('[Auth] Fetched role data:', data);
-          const role = data?.role || 'admin'; // Default to admin instead of user
-          setUserRole(role);
-          console.log('[Auth] User role set to:', role);
+          console.log('[Auth] Fetched role data:', data)
+          const role = data?.role || 'admin'
+          setUserRole(role)
+          console.log('[Auth] User role set to:', role)
         }
       } catch (e) {
         if (mounted) {
-          console.error('[Auth] Exception fetching user role:', e);
-          // Keep admin role instead of falling back to 'user'
-          console.log('[Auth] Keeping admin role due to exception');
-        }
-      } finally {
-        if (mounted) {
-          console.log('[Auth] fetchUserRole completed');
+          console.error('[Auth] Exception fetching user role:', e)
+          setUserRole('admin')
         }
       }
-    };
-
-    const getSession = async () => {
-      if (!mounted) return;
-      console.log('[Auth] Getting initial session...');
-
-      try {
-        // Skip session check entirely to avoid timeouts
-        // We'll rely on auth state changes and the login API
-        console.log('[Auth] Skipping session check to avoid timeouts');
-        setLoading(false);
-        return;
-      } catch (error) {
-        console.error('[Auth] Exception in getSession:', error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    // Initialize loading state based on current path
-    if (typeof window !== 'undefined') {
-      if (window.location.pathname.includes('/admin/dashboard')) {
-        // For dashboard, check if we already have a session
-        console.log('[Auth] On dashboard page, checking for existing session');
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) {
-            console.log('[Auth] Found existing session on dashboard');
-            setUser(session.user);
-            setUserRole('admin');
-            setLoading(false);
-          } else {
-            console.log('[Auth] No existing session on dashboard');
-            setLoading(false);
-          }
-        }).catch(() => {
-          console.log('[Auth] Error checking session, setting loading to false');
-          setLoading(false);
-        });
-      } else {
-        // For other pages, set loading to false immediately
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
     }
 
+    const initializeAuth = async () => {
+      if (!mounted) return
+      console.log('[Auth] Initializing authentication...')
+
+      try {
+        // Check for existing session
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          console.log('[Auth] Found existing session:', session.user.email)
+          setUser(session.user)
+          setUserRole('admin') // Assume admin for existing sessions
+          setLoading(false)
+          
+          // Fetch actual role in background
+          await fetchUserRole(session.user)
+        } else {
+          console.log('[Auth] No existing session found')
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('[Auth] Error initializing auth:', error)
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    // Initialize auth state
+    initializeAuth()
+
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!mounted) return;
-        console.log(`[Auth] Auth state changed: ${event}`, session?.user?.email);
+        if (!mounted) return
+        console.log(`[Auth] Auth state changed: ${event}`, session?.user?.email)
         
         try {
           if (event === 'SIGNED_IN' && session?.user) {
-            console.log('[Auth] Setting user and admin role for SIGNED_IN');
-            setUser(session.user);
-            setUserRole('admin');
-            setLoading(false);
+            console.log('[Auth] User signed in:', session.user.email)
+            setUser(session.user)
+            setUserRole('admin')
+            setLoading(false)
             
-            // Then try to fetch the actual role, but don't change if it fails
-            try {
-              await fetchUserRole(session.user);
-            } catch (roleError) {
-              console.error('[Auth] Error fetching role, keeping default admin role:', roleError);
-              // Ensure admin role is maintained
-              setUserRole('admin');
-            }
+            // Fetch actual role
+            await fetchUserRole(session.user)
           } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-            console.log('[Auth] Token refreshed, updating user state');
-            setUser(session.user);
-            setUserRole('admin');
-            setLoading(false);
+            console.log('[Auth] Token refreshed')
+            setUser(session.user)
+            setUserRole('admin')
+            setLoading(false)
           } else if (event === 'SIGNED_OUT') {
-            console.log('[Auth] Clearing user data for SIGNED_OUT');
-            setUser(null);
-            setUserRole(null);
-            setLoading(false);
+            console.log('[Auth] User signed out')
+            setUser(null)
+            setUserRole(null)
+            setLoading(false)
           } else if (session?.user) {
-            // For other events, just update the user if we have one
-            setUser(session.user);
+            setUser(session.user)
           } else {
-            setUser(null);
+            setUser(null)
           }
         } catch (error) {
-          console.error('[Auth] Error in auth state change:', error);
+          console.error('[Auth] Error in auth state change:', error)
           if (mounted) {
-            setLoading(false);
+            setLoading(false)
           }
         }
       }
-    );
+    )
 
     return () => {
-      mounted = false;
-      console.log('[Auth] Unsubscribing from auth state changes.');
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+      mounted = false
+      console.log('[Auth] Unsubscribing from auth state changes.')
+      subscription.unsubscribe()
+    }
+  }, [supabase])
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting to sign in via API...');
+      console.log('[Auth] Attempting to sign in via API...')
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      });
+      })
 
-      const data = await response.json();
-
-      // --- ここからデバッグログ --- 
-      console.log('API response status:', response.status);
-      console.log('API response data:', JSON.stringify(data, null, 2));
-      // --- ここまでデバッグログ --- 
+      const data = await response.json()
+      console.log('[Auth] API response:', { status: response.status, data })
 
       if (!response.ok) {
-        return { error: new Error(data.error || 'ログインに失敗しました') };
+        return { error: new Error(data.error || 'ログインに失敗しました') }
       }
 
       if (data.success && data.user?.role === 'admin') {
-        console.log('Admin sign in successful. Setting user data and redirecting...');
-        // Set the user data directly to avoid re-authentication
-        setUser(data.user);
-        setUserRole(data.user.role);
-        setLoading(false);
+        console.log('[Auth] Admin sign in successful')
+        setUser(data.user)
+        setUserRole(data.user.role)
+        setLoading(false)
         
-        // Use window.location for hard redirect to avoid state reset
-        window.location.href = '/admin/dashboard';
-        return { error: null };
+        // Use router for navigation instead of window.location
+        router.push('/admin/dashboard')
+        return { error: null }
       } else {
-        console.error('Redirect condition failed. Data:', data);
-        return { error: new Error('管理者権限がないか、APIの応答が不正です。') };
+        console.error('[Auth] Login failed - invalid response:', data)
+        return { error: new Error('管理者権限がないか、APIの応答が不正です。') }
       }
-      
-      return { error: null };
     } catch (err) {
-      console.error('Sign in error:', err);
-      return { error: err as Error };
+      console.error('[Auth] Sign in error:', err)
+      return { error: err as Error }
     }
-  };
+  }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/admin/login')
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      setUserRole(null)
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('[Auth] Sign out error:', error)
+      // Force redirect even if signout fails
+      router.push('/admin/login')
+    }
   }
 
   const requireAuth = () => {
     if (!loading && !user) {
-      console.log('No user, redirecting to login')
+      console.log('[Auth] No user, redirecting to login')
       router.push('/admin/login')
       return false
     }
@@ -207,33 +184,26 @@ export function useAdminAuthSimple() {
   }
 
   const requireAdmin = () => {
-    // If we have a user and they're signed in, assume they're admin
-    // This prevents unnecessary redirects when role fetching fails
-    if (user && !loading) {
-      console.log('User authenticated, allowing access')
-      return true
-    }
-    
-    if (!loading && !user) {
-      console.log('No user, redirecting to login')
-      router.push('/admin/login')
-      return false
-    }
-    
-    // Only redirect if we're certain the user is not admin
-    if (!loading && user && userRole && userRole !== 'admin') {
-      console.log('Not admin, redirecting to login')
-      router.push('/admin/login')
-      return false
-    }
-    
-    // If still loading, allow access to prevent premature redirects
+    // Allow access if user is authenticated and we're still loading
     if (loading) {
-      console.log('Still loading, allowing access')
+      console.log('[Auth] Still loading, allowing access')
       return true
     }
     
-    return true
+    // Redirect to login if no user
+    if (!user) {
+      console.log('[Auth] No user, redirecting to login')
+      router.push('/admin/login')
+      return false
+    }
+    
+    // Allow access if user exists (assume admin for authenticated users)
+    if (user) {
+      console.log('[Auth] User authenticated, allowing access')
+      return true
+    }
+    
+    return false
   }
 
   return {

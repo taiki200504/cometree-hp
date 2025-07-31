@@ -91,7 +91,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              学生の声を社会に響かせる。全国85の学生団体、1200名の学生が参加するコミュニティ。
+              学生の声を社会に響かせる。全国60の学生団体、1800名の学生が参加するコミュニティ。
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
@@ -212,7 +212,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-300 text-sm mb-4 md:mb-0">
-              © 2024 学生団体連合UNION. All rights reserved.
+              © 2025 学生団体連合UNION. All rights reserved.
             </div>
             <div className="flex space-x-6">
               <Link
