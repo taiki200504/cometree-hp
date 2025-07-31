@@ -49,25 +49,25 @@ export default function Footer() {
 
   const socialLinks = [
     {
-      href: "https://twitter.com/UNION_gakusei26",
+      href: "https://x.com/UNION_gakusei26",
       icon: Twitter,
-      label: "Twitter",
+      label: "X",
       color: "hover:text-blue-400",
     },
     {
-      href: "https://www.instagram.com/union_gakusei/",
+      href: "https://www.instagram.com/gakusei.union/",
       icon: Instagram,
       label: "Instagram",
       color: "hover:text-pink-400",
     },
     {
-      href: "https://www.youtube.com/@union_gakusei",
+      href: "https://www.youtube.com/@%E5%AD%A6%E7%94%9F%E5%9B%A3%E4%BD%93%E9%80%A3%E5%90%88UNION/videos",
       icon: Youtube,
       label: "YouTube",
       color: "hover:text-red-500",
     },
     {
-      href: "mailto:info@union-gakusei.org",
+      href: "mailto:gakusei.union226@gmail.com",
       icon: Mail,
       label: "Email",
       color: "hover:text-green-400",
