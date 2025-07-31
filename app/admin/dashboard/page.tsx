@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { 
   Loader2, 
   FileText, 
@@ -74,6 +76,7 @@ interface SystemMetrics {
 export default function AdminDashboard() {
   const { user, loading, signOut, userRole } = useAdminAuthSimple()
   const router = useRouter()
+  const { toast } = useToast()
   const [stats, setStats] = useState<Stats>({
     news: 0,
     events: 0,
@@ -229,6 +232,31 @@ export default function AdminDashboard() {
       console.error('Error updating stats:', error)
     } finally {
       setIsUpdatingStats(false)
+    }
+  }
+
+  const handleAddTestData = async (type: 'members' | 'supporters' | 'news') => {
+    try {
+      const response = await fetch(`/api/admin/${type}/test-data`, {
+        method: 'POST',
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'テストデータの追加に失敗しました。')
+      }
+      const result = await response.json()
+      toast({
+        title: "テストデータ追加完了",
+        description: result.message,
+      })
+      fetchStats()
+    } catch (error) {
+      console.error('Error adding test data:', error)
+      toast({
+        title: "エラー",
+        description: error instanceof Error ? error.message : 'テストデータの追加中にエラーが発生しました。',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -409,10 +437,30 @@ export default function AdminDashboard() {
                 UNION Operations Center - {currentTime.toLocaleString()}
               </p>
             </div>
-            <Button onClick={handleUpdateStats} disabled={isUpdatingStats} className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-              {isUpdatingStats && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              UPDATE STATS
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button onClick={handleUpdateStats} disabled={isUpdatingStats} className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
+                {isUpdatingStats && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                UPDATE STATS
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="border-blue-400/30 text-blue-400 hover:bg-blue-400/10">
+                    ADD TEST DATA
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-black/90 border-green-400/30">
+                  <DropdownMenuItem onClick={() => handleAddTestData('members')} className="text-green-400 hover:bg-green-400/10">
+                    メンバーデータ追加
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAddTestData('supporters')} className="text-green-400 hover:bg-green-400/10">
+                    サポーターデータ追加
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAddTestData('news')} className="text-green-400 hover:bg-green-400/10">
+                    ニュースデータ追加
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 

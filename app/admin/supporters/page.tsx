@@ -82,9 +82,16 @@ export default function SupportersManagementPage() {
   })
   const itemsPerPage = 10
 
-  const { requireAdmin, user, userRole } = useAdminAuthSimple()
+  const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
+
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading && !requireAdmin()) {
+      return
+    }
+  }, [authLoading, requireAdmin])
 
   const fetchSupporters = useCallback(async () => {
     try {

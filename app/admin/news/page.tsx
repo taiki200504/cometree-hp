@@ -71,9 +71,16 @@ export default function NewsManagementPage() {
   })
   const itemsPerPage = 10
 
-  const { requireAdmin, user, userRole } = useAdminAuthSimple()
+  const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
+
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading && !requireAdmin()) {
+      return
+    }
+  }, [authLoading, requireAdmin])
 
   const fetchArticles = useCallback(async () => {
     try {
