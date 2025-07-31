@@ -340,6 +340,18 @@ export default function AdminDashboard() {
         { label: '統計表示', icon: <TrendingUp className="h-4 w-4" />, href: '/admin/analytics' },
         { label: '統計データ', icon: <Activity className="h-4 w-4" />, href: '/admin/stats' }
       ]
+    },
+    {
+      title: '加盟団体管理',
+      description: '加盟団体の情報とイベント申請を管理',
+      icon: <Building className="h-6 w-6" />,
+      href: '/admin/organizations',
+      color: 'from-purple-500 to-purple-600',
+      count: stats.organizations,
+      actions: [
+        { label: '団体一覧', icon: <Eye className="h-4 w-4" />, href: '/admin/organizations' },
+        { label: 'ダッシュボード', icon: <Database className="h-4 w-4" />, href: '/admin/organizations/dashboard' }
+      ]
     }
   ]
 

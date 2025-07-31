@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import StatsSection from "@/components/stats-section"
@@ -128,9 +128,10 @@ export default function Home() {
     }
   }, [isLoading, isFirstVisit])
 
-  const handleAnimationComplete = () => {
+  const handleAnimationComplete = useCallback(() => {
+    console.log('Animation completed, transitioning to main content')
     setShowAnimation(false)
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

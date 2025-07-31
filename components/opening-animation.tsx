@@ -131,8 +131,11 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
 
     // 7.5秒後: アニメーション完了
     timers.push(setTimeout(() => {
+      console.log('Animation sequence completed, starting fade out')
       setIsVisible(false)
+      // フェードアウト完了後にonCompleteを呼び出し
       setTimeout(() => {
+        console.log('Fade out completed, calling onComplete')
         onComplete()
       }, 1200)
     }, 7500))
@@ -142,9 +145,23 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
     }
   }, [onComplete])
 
+  // アニメーション完了時の処理を確実に実行
+  useEffect(() => {
+    if (!isVisible && currentStep >= 5) {
+      console.log('Animation visibility changed, ensuring completion')
+      const timer = setTimeout(() => {
+        console.log('Backup completion triggered')
+        onComplete()
+      }, 1200)
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible, currentStep, onComplete])
+
   const handleSkip = () => {
+    console.log('Skip button clicked, completing animation')
     setIsVisible(false)
     setTimeout(() => {
+      console.log('Skip fade out completed, calling onComplete')
       onComplete()
     }, 1200)
   }
