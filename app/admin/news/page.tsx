@@ -62,13 +62,13 @@ export default function NewsManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all')
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     totalArticles: 0,
     publishedArticles: 0,
     draftArticles: 0,
     totalViews: 0,
     averageViews: 0
-  })
+  }))
   const itemsPerPage = 10
 
   const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()

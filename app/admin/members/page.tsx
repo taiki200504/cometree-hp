@@ -69,13 +69,13 @@ export default function MembersManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState<'all' | 'core' | 'advisor' | 'staff'>('all')
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     totalMembers: 0,
     coreMembers: 0,
     advisors: 0,
     staffMembers: 0,
     representatives: 0
-  })
+  }))
   const itemsPerPage = 10
 
   const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()

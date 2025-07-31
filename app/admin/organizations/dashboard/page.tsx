@@ -92,14 +92,14 @@ export default function OrganizationDashboardPage() {
   const [recentEvents, setRecentEvents] = useState<OrganizationEvent[]>([])
   const [recentReports, setRecentReports] = useState<OrganizationReport[]>([])
   const [recentApplications, setRecentApplications] = useState<OrganizationApplication[]>([])
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     totalOrganizations: 0,
     activeOrganizations: 0,
     pendingApplications: 0,
     approvedEvents: 0,
     totalMembers: 0,
     verifiedOrganizations: 0
-  })
+  }))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

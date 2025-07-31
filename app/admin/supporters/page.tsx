@@ -72,14 +72,14 @@ export default function SupportersManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterSupportType, setFilterSupportType] = useState<'all' | 'financial' | 'media' | 'collaboration' | 'individual'>('all')
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     totalSupporters: 0,
     activeSupporters: 0,
     financialSupporters: 0,
     mediaSupporters: 0,
     collaborationSupporters: 0,
     individualSupporters: 0
-  })
+  }))
   const itemsPerPage = 10
 
   const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()

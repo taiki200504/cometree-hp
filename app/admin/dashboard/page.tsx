@@ -58,7 +58,7 @@ interface SystemMetrics {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<Stats>(() => ({
     news: 0,
     events: 0,
     users: 0,
@@ -68,8 +68,8 @@ export default function AdminDashboard() {
     supporters: 0,
     views: 0,
     boardPosts: 0
-  })
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  }))
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     cpu: 45,
     memory: 62,
     network: 78,
@@ -77,11 +77,11 @@ export default function AdminDashboard() {
     uptime: '24日 12時間 34分',
     activeConnections: 156,
     responseTime: 120
-  })
+  }))
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [statsError, setStatsError] = useState<string | null>(null)
   const [isUpdatingStats, setIsUpdatingStats] = useState(false)
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(() => new Date())
 
   // リアルタイムシステムメトリクス更新
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
     if (user && userRole === 'admin') {
       fetchStats()
     }
-  }, [user, userRole, fetchStats])
+  }, [user, userRole])
 
   // 認証と権限チェックを統合
   useEffect(() => {

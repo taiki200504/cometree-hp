@@ -69,14 +69,14 @@ interface SystemMetrics {
 
 export default function OrganizationsManagementPage() {
   const [organizations, setOrganizations] = useState<Organization[]>([])
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
     totalOrganizations: 0,
     activeOrganizations: 0,
     verifiedOrganizations: 0,
     totalMembers: 0,
     pendingApplications: 0,
     approvedEvents: 0
-  })
+  }))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)

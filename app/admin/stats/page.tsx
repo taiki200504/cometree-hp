@@ -26,7 +26,7 @@ export default function AdminStats() {
   const [timeRange, setTimeRange] = useState('30d')
 
   // サンプルデータ
-  const [stats] = useState({
+  const [stats] = useState(() => ({
     overview: {
       totalViews: 12470,
       totalUsers: 345,
@@ -63,7 +63,7 @@ export default function AdminStats() {
       { type: 'user', action: 'ログイン', title: 'gakusei.union226@gmail.com', time: '6時間前' },
       { type: 'stats', action: '統計更新', title: '日次統計データ', time: '1日前' }
     ]
-  })
+  }))
 
   if (loading) {
     return (
