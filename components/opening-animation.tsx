@@ -214,27 +214,12 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
         />
       </div>
 
-      <div className="absolute bottom-8 right-8 z-30 flex flex-col gap-2">
-        <button 
-          onClick={handleSkip}
-          className="px-4 py-2 bg-white/10 text-white border border-white/30 rounded-full text-sm backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-        >
-          SKIP ALL
-        </button>
-        <button 
-          onClick={() => {
-            console.log('Quick skip clicked, completing animation immediately')
-            setIsVisible(false)
-            setTimeout(() => {
-              console.log('Quick skip fade out completed, calling onComplete')
-              onComplete()
-            }, 500)
-          }}
-          className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-400/30 rounded-full text-sm backdrop-blur-sm hover:bg-red-400/30 transition-all duration-300"
-        >
-          SKIP 5S
-        </button>
-      </div>
+      <button 
+        onClick={handleSkip}
+        className="absolute bottom-8 right-8 z-30 px-4 py-2 bg-white/10 text-white border border-white/30 rounded-full text-sm backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
+      >
+        SKIP
+      </button>
     </div>
   )
 } 
