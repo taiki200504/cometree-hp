@@ -45,11 +45,11 @@ export default function AdminLogin() {
     const interval = setInterval(() => {
       setSystemStatus(prev => ({
         ...prev,
-        database: Math.random() > 0.1 ? 'online' : 'warning',
-        api: Math.random() > 0.05 ? 'online' : 'warning',
-        auth: Math.random() > 0.02 ? 'online' : 'warning'
+        database: Math.random() > 0.05 ? 'online' : 'warning',
+        api: Math.random() > 0.02 ? 'online' : 'warning',
+        auth: Math.random() > 0.01 ? 'online' : 'warning'
       }))
-    }, 5000)
+    }, 10000) // 10秒間隔に変更
     return () => clearInterval(interval)
   }, [])
 
@@ -67,9 +67,12 @@ export default function AdminLogin() {
     setError('')
 
     try {
+      console.log('[Login] Attempting login with:', formData.email)
+      
       const { error } = await signIn(formData.email, formData.password)
       
       if (error) {
+        console.error('[Login] Login failed:', error.message)
         setError(error.message)
         toast({
           title: "アクセス拒否",
@@ -77,17 +80,19 @@ export default function AdminLogin() {
           variant: "destructive"
         })
       } else {
+        console.log('[Login] Login successful, redirecting...')
         toast({
           title: "アクセス許可",
           description: "認証成功。ダッシュボードにリダイレクトしています...",
         })
       }
     } catch (err) {
-      console.error('Login error:', err)
-      setError('認証中にエラーが発生しました')
+      console.error('[Login] Unexpected error:', err)
+      const errorMessage = err instanceof Error ? err.message : '認証中にエラーが発生しました'
+      setError(errorMessage)
       toast({
         title: "システムエラー",
-        description: "認証中にエラーが発生しました",
+        description: errorMessage,
         variant: "destructive"
       })
     } finally {
@@ -158,15 +163,15 @@ export default function AdminLogin() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-blue-900/20"></div>
         <div className="absolute top-0 left-0 w-full h-full">
-          {[...Array(50)].map((_, i) => (
+          {[...Array(20)].map((_, i) => ( // 50から20に削減
             <div
               key={i}
-              className="absolute w-1 h-1 bg-green-400 opacity-30 animate-pulse"
+              className="absolute w-1 h-1 bg-green-400 opacity-20 animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 2}s`
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${3 + Math.random() * 3}s`
               }}
             />
           ))}

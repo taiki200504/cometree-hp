@@ -148,8 +148,8 @@ export function useAdminAuthSimple() {
         setUserRole(data.user.role)
         setLoading(false)
         
-        // Use router for navigation instead of window.location
-        router.push('/admin/dashboard')
+        // Force redirect to dashboard
+        window.location.href = '/admin/dashboard'
         return { error: null }
       } else {
         console.error('[Auth] Login failed - invalid response:', data)

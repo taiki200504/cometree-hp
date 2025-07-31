@@ -102,7 +102,6 @@ export default function AboutPage() {
         title="About UNION"
         subtitle="私たちについて"
         description="学生の声を社会に響かせる。学生団体連合UNIONについてご紹介します"
-        backgroundImage="/images/logo.icon.png"
       />
 
       <main className="py-16">

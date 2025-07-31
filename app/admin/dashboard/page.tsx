@@ -110,7 +110,7 @@ export default function AdminDashboard() {
         activeConnections: Math.max(100, Math.min(200, prev.activeConnections + Math.floor((Math.random() - 0.5) * 20))),
         responseTime: Math.max(80, Math.min(200, prev.responseTime + (Math.random() - 0.5) * 30))
       }))
-    }, 3000)
+    }, 5000) // 3秒から5秒に変更
     return () => clearInterval(interval)
   }, [])
 
