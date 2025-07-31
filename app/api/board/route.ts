@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { z } from 'zod'
 
 // GET handler for fetching public board posts
 export async function GET(request: NextRequest) {
