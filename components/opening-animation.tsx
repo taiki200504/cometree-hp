@@ -15,7 +15,7 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
   const particlesRef = useRef<any[]>([])
   const router = useRouter()
 
-  console.log('OpeningAnimation component mounted')
+
 
   // パーティクルアニメーション
   useEffect(() => {

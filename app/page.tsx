@@ -123,22 +123,14 @@ export default function Home() {
 
   // 初回訪問時にアニメーションを表示
   useEffect(() => {
-    console.log('Animation display logic:', { isLoading, isFirstVisit, showAnimation })
     if (!isLoading && isFirstVisit) {
-      console.log('Setting showAnimation to true')
       setShowAnimation(true)
     }
   }, [isLoading, isFirstVisit])
 
   const handleAnimationComplete = useCallback(() => {
-    console.log('Animation completed, transitioning to main content')
     setShowAnimation(false)
   }, [])
-
-  // デバッグ用：アニメーション状態の監視
-  useEffect(() => {
-    console.log('Animation state changed:', { showAnimation, isFirstVisit, isLoading })
-  }, [showAnimation, isFirstVisit, isLoading])
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

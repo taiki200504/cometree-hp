@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useFirstVisit() {
   const [isFirstVisit, setIsFirstVisit] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    // ページリロード時は常にアニメーションを表示
-    setIsFirstVisit(true)
-    setIsLoading(false)
+    // 一度だけ初期化する
+    if (!hasInitialized.current) {
+      setIsFirstVisit(true)
+      setIsLoading(false)
+      hasInitialized.current = true
+    }
   }, [])
 
   return { isFirstVisit, isLoading }

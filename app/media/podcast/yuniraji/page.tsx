@@ -19,9 +19,9 @@ export default function YunirajiPage() {
     fullDescription: "双子MCが学生団体の活動を深掘り取材する人気ポッドキャスト。学生のリアルな声を社会に届け、学生団体の活動をより多くの人に知ってもらうことを目指しています。",
     cover: "/images/podcast/yuniraji.JPG",
     color: "from-blue-400 to-blue-600",
-    totalEpisodes: 45,
-    startDate: "2023年4月",
-    hosts: ["田中太郎", "田中花子"],
+    totalEpisodes: 29,
+    startDate: "2024年7月",
+    hosts: ["小池杏奈", "小池凜奈"],
     externalLinks: {
       youtube: "https://www.youtube.com/playlist?list=PLTtd12wBPw0TF7cUSGN_QSK56pnV4Ryld",
       spotify: "https://open.spotify.com/episode/06ZEBrT8NzRk02jSkcx2pl?si=04931c607b524a2f",
