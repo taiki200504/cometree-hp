@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Target, Eye, Heart, Lightbulb, Users, Building2, Handshake, ArrowRight, Star, Zap, Globe, Mic, MessageCircle, Users2 } from "lucide-react"
+import { Target, Eye, Heart, Lightbulb, Users, Building2, Handshake, ArrowRight, Star, Zap, Globe, Mic, MessageCircle, Users2, TrendingUp, Award, Compass } from "lucide-react"
 import { ModernHero } from "@/components/modern-hero"
 import { AnimatedSection } from "@/components/animated-section"
 import Header from "@/components/header"
@@ -10,33 +10,41 @@ export default function AboutPage() {
   const pmvv = [
     {
       icon: Target,
-      title: "Purpose（目的）",
-      content: "学生団体同士の連携を促進し、学生の成長と社会への貢献を支援する",
+      title: "Purpose（存在意義）",
+      content: "学生から熱狂を生み出せる世界を作る。今の日本社会は自分の行動で、国や社会を変えられると思うことができる若者が少ない。そんな社会の中で、学生団体は社会を動かすタネを秘めていると思う。しかし課題として、情報伝達手段がない。そこで我々UNIONが学生活動の『インフラ』(旗振り役・広告塔)として、学生のサポートを行うことで、『学生から変えようとする空気感・世界観を作り出す』未来を目指す。",
       color: "from-blue-500 to-blue-600",
       bgColor: "from-blue-50 to-blue-100",
     },
     {
       icon: Eye,
       title: "Mission（使命）",
-      content: "学生団体の活動を通じて、次世代のリーダーを育成し、社会課題の解決に取り組む",
+      content: "学生の声を社会に響かせる。学生団体連合UNIONは、このMissionを通して、学生・学生団体同士の連携を強化し、情報共有や共同イベントの開催、人材育成を促進します。また、学生・学生団体の影響力を集約し、イベントの告知や広報を我々のメディアを通して行うことで学生の声を多くの人に届けます。",
       color: "from-purple-500 to-purple-600",
       bgColor: "from-purple-50 to-purple-100",
     },
     {
       icon: Heart,
       title: "Vision（展望）",
-      content: "学生団体が社会に与える影響を最大化し、持続可能な未来を創造する",
+      content: "大ゴール(10年)：学生発のムーブメントが、世の中を動かす『時代』をつくる。中ゴール(5年)：学生の挑戦が、社会の中で当たり前に受け入れられる『文化』をつくる。小ゴール(1年)：学生同士がつながり、互いに影響を与え合う『場』をつくる。",
       color: "from-pink-500 to-pink-600",
       bgColor: "from-pink-50 to-pink-100",
     },
     {
       icon: Lightbulb,
       title: "Values（価値観）",
-      content: "協働・革新・成長・多様性を重視し、学生一人ひとりの可能性を引き出す",
+      content: "Collaboration：学生団体同士の連携を深め、共に成長し合う環境を作ります。Impact：学生の声を広く届けることで、社会にポジティブな変化をもたらします。Synergy：活躍する若者や団体が集い「熱狂」が生まれる場所を創出する。",
       color: "from-yellow-500 to-yellow-600",
       bgColor: "from-yellow-50 to-yellow-100",
     },
   ]
+
+  const culture = {
+    icon: Compass,
+    title: "Culture（カルチャー）",
+    content: "Getting out of your comfort zone。固定概念に囚われない発想で活動する。自分自身で仕事を作っていく姿勢が望ましい。自分たちは学生の「可能性」を信じ、「可能性」広げ、「可能性」を売る。",
+    color: "from-green-500 to-green-600",
+    bgColor: "from-green-50 to-green-100",
+  }
 
   const coreBusinesses = [
     {
@@ -87,7 +95,7 @@ export default function AboutPage() {
       <ModernHero
         title="About UNION"
         subtitle="私たちについて"
-        description="学生団体の連携と成長を支援する学生団体連合UNIONについてご紹介します"
+        description="学生の声を社会に響かせる。学生団体連合UNIONについてご紹介します"
         backgroundImage="/images/logo.icon.png"
       />
 
@@ -102,16 +110,16 @@ export default function AboutPage() {
               </div>
               <h2 className="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
                 UNIONの
-                <span className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] bg-clip-text text-transparent">4つの柱</span>
+                <span className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] bg-clip-text text-transparent">5つの柱</span>
             </h2>
               <p className="text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                学生の成長と社会への貢献を支える、私たちの目的・使命・展望・価値観
+                学生の成長と社会への貢献を支える、私たちの目的・使命・展望・価値観・カルチャー
               </p>
             </div>
         </AnimatedSection>
 
           {/* PMVV カード - より大きなサイズとインパクト */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
             {pmvv.map((item, index) => (
               <AnimatedSection key={index} delay={index * 0.1}>
                 <div className={`bg-gradient-to-br ${item.bgColor} dark:from-gray-800 dark:to-gray-700 rounded-3xl p-10 shadow-2xl hover:shadow-3xl transition-all duration-500 border border-gray-100 dark:border-gray-600 transform hover:scale-105`}>
@@ -121,11 +129,26 @@ export default function AboutPage() {
                 </div>
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{item.title}</h3>
                   </div>
-                  <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">{item.content}</p>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">{item.content}</p>
                 </div>
               </AnimatedSection>
             ))}
           </div>
+
+          {/* Culture セクション */}
+          <AnimatedSection>
+            <div className="mb-24">
+              <div className={`bg-gradient-to-br ${culture.bgColor} dark:from-gray-800 dark:to-gray-700 rounded-3xl p-12 shadow-2xl border border-gray-100 dark:border-gray-600`}>
+                <div className="flex items-center mb-8">
+                  <div className={`flex items-center justify-center w-24 h-24 bg-gradient-to-r ${culture.color} rounded-3xl mr-8 shadow-xl`}>
+                    <culture.icon className="h-12 w-12 text-white" />
+                  </div>
+                  <h3 className="text-4xl font-bold text-gray-900 dark:text-white">{culture.title}</h3>
+                </div>
+                <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">{culture.content}</p>
+              </div>
+            </div>
+          </AnimatedSection>
 
           {/* 主な事業 */}
           <AnimatedSection>
@@ -189,8 +212,8 @@ export default function AboutPage() {
             <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-3xl p-12 text-center text-white">
               <h2 className="text-5xl font-bold mb-8">一緒に未来を創りませんか？</h2>
               <p className="text-2xl opacity-90 mb-10 max-w-4xl mx-auto leading-relaxed">
-                UNIONでは、学生団体の連携と成長を支援する仲間を募集しています。
-                あなたも私たちと一緒に、学生コミュニティの未来を創造しましょう。
+                UNIONでは、学生の声を社会に響かせる仲間を募集しています。
+                あなたも私たちと一緒に、学生から熱狂を生み出せる世界を創造しましょう。
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link
