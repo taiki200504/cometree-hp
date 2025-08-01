@@ -1,6 +1,6 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { PageHeader } from "@/components/page-header"
+import { ModernHero } from "@/components/modern-hero"
 import { AnimatedSection } from "@/components/animated-section"
 import { FileText, Users, Calendar, Mic, Building, Award, ArrowRight } from "lucide-react"
 import Link from "next/link"
@@ -87,26 +87,31 @@ export default function ServicesPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16">
-        <PageHeader
+      <main>
+        <ModernHero
           title="提供サービス申し込み一覧"
-          description="学生団体連合UNIONが提供する各種サービスの申し込みページです"
-          breadcrumbs={[
-            { label: "ホーム", href: "/" },
-            { label: "お問い合わせ", href: "/contact" },
-            { label: "提供サービス申し込み一覧", href: "/contact/services" },
-          ]}
+          subtitle="学生団体向けサービス"
+          description="学生団体連合UNIONが提供する各種サービスの申し込みページです。学生団体の皆様の活動をサポートする多様なサービスをご用意しています。"
+          primaryAction={{
+            text: "お問い合わせ",
+            href: "/contact",
+          }}
+          secondaryAction={{
+            text: "サービス詳細",
+            href: "/services",
+          }}
+          variant="gradient"
         />
 
         {/* サービス一覧 */}
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">提供サービス</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+              <h2 className="text-3xl font-bold mb-4">提供サービス</h2>
+              <p className="text-lg text-muted-foreground">
                 学生団体の皆様にご利用いただける各種サービスをご紹介します
               </p>
             </AnimatedSection>
@@ -114,16 +119,16 @@ export default function ServicesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service, index) => (
                 <AnimatedSection key={index}>
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                  <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-lg border-0 p-6 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                     <div className="text-[#066ff2] mb-4">{service.icon}</div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{service.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">{service.description}</p>
+                    <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+                    <p className="text-muted-foreground mb-4">{service.description}</p>
 
                     <div className="mb-4">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">サービス内容：</h4>
+                      <h4 className="font-semibold mb-2">サービス内容：</h4>
                       <ul className="space-y-1">
                         {service.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="text-sm text-gray-600 dark:text-gray-300 flex items-center">
+                          <li key={featureIndex} className="text-sm text-muted-foreground flex items-center">
                             <div className="w-1.5 h-1.5 bg-[#066ff2] rounded-full mr-2 flex-shrink-0" />
                             {feature}
                           </li>
@@ -133,12 +138,12 @@ export default function ServicesPage() {
 
                     <div className="mb-6 space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">料金：</span>
+                        <span className="text-sm font-medium text-muted-foreground">料金：</span>
                         <span className="text-sm font-bold text-[#066ff2]">{service.price}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">所要時間：</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">{service.duration}</span>
+                        <span className="text-sm font-medium text-muted-foreground">所要時間：</span>
+                        <span className="text-sm text-muted-foreground">{service.duration}</span>
                       </div>
                     </div>
 
@@ -159,23 +164,23 @@ export default function ServicesPage() {
         </section>
 
         {/* 申込プロセス */}
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <section className="py-20 bg-gradient-to-r from-[#066ff2]/5 to-[#ec4faf]/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">申込プロセス</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300">サービス申込から実施までの流れ</p>
+              <h2 className="text-3xl font-bold mb-4">申込プロセス</h2>
+              <p className="text-lg text-muted-foreground">サービス申込から実施までの流れ</p>
             </AnimatedSection>
 
             <div className="space-y-8">
               {applicationProcess.map((process, index) => (
                 <AnimatedSection key={index}>
-                  <div className="flex items-start bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6">
+                  <div className="flex items-start bg-white/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border-0">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white rounded-full flex items-center justify-center text-xl font-bold mr-6 flex-shrink-0">
                       {process.step}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{process.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-300">{process.description}</p>
+                      <h3 className="text-xl font-bold mb-2">{process.title}</h3>
+                      <p className="text-muted-foreground">{process.description}</p>
                     </div>
                   </div>
                 </AnimatedSection>
@@ -188,9 +193,9 @@ export default function ServicesPage() {
         <section className="py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">ご利用にあたっての注意事項</h3>
-                <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+              <div className="bg-yellow-50/50 backdrop-blur-sm border border-yellow-200 rounded-xl p-8">
+                <h3 className="text-xl font-bold mb-4">ご利用にあたっての注意事項</h3>
+                <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start">
                     <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-3 mt-2 flex-shrink-0" />
                     サービスの提供は、学生団体連合UNION加盟団体を優先いたします
@@ -214,11 +219,11 @@ export default function ServicesPage() {
         </section>
 
         {/* お問い合わせ */}
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <section className="py-20 bg-gradient-to-r from-[#066ff2]/5 to-[#ec4faf]/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <AnimatedSection>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">ご不明な点がございましたら</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+              <h2 className="text-3xl font-bold mb-6">ご不明な点がございましたら</h2>
+              <p className="text-lg text-muted-foreground mb-8">
                 サービスに関するご質問やご相談がございましたら、 お気軽にお問い合わせください。
               </p>
               <Link

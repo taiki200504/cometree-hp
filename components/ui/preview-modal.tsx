@@ -134,9 +134,11 @@ export function PreviewModal({ isOpen, onClose, data, onPublish }: PreviewModalP
       {/* Featured Image */}
       {data.featuredImage && (
         <div className="aspect-video overflow-hidden rounded-lg">
-          <img
+          <Image
             src={data.featuredImage}
             alt={data.title}
+            width={800}
+            height={450}
             className="w-full h-full object-cover"
           />
         </div>
@@ -240,9 +242,11 @@ export function PreviewModal({ isOpen, onClose, data, onPublish }: PreviewModalP
       {/* Featured Image */}
       {data.featuredImage && (
         <div className="aspect-video overflow-hidden rounded-lg">
-          <img
+          <Image
             src={data.featuredImage}
             alt={data.title}
+            width={800}
+            height={450}
             className="w-full h-full object-cover"
           />
         </div>

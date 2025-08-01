@@ -183,11 +183,13 @@ export default function NewsDetail() {
           {/* Featured Image */}
           {newsData.featuredImage && (
             <div className="relative">
-              <img
-                src={newsData.featuredImage}
-                alt={newsData.title}
-                className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
-              />
+              <Image
+                    src={news.featured_image}
+                    alt={news.title}
+                    width={800}
+                    height={450}
+                    className="w-full h-full object-cover"
+                  />
             </div>
           )}
 

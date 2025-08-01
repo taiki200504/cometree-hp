@@ -277,9 +277,11 @@ export default function MediaPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                       <div className="flex items-start space-x-4 mb-6">
                         <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <img
+                          <Image
                             src={show.image}
                             alt={show.name}
+                            width={100}
+                            height={100}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -308,7 +310,7 @@ export default function MediaPage() {
                 <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-3xl p-12 text-white text-center">
                   <h2 className="text-3xl font-bold mb-6">UNION Weekly News</h2>
                   <p className="text-xl opacity-90 mb-8 max-w-3xl mx-auto">
-                    学生の"今"を、学生の"声"で届けるUNION Weekly News。毎週3〜5件の活動ニュースを収集し、
+                    学生の&quot;今&quot;を、学生の&quot;声&quot;で届けるUNION Weekly News。毎週3〜5件の活動ニュースを収集し、
                     縦型ショート動画としてTikTok、Instagram、YouTubeで配信しています。
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -348,9 +350,11 @@ export default function MediaPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                       <div className="flex items-start space-x-4 mb-6">
                         <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <img
+                          <Image
                             src={show.image}
                             alt={show.name}
+                            width={100}
+                            height={100}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -409,7 +413,7 @@ export default function MediaPage() {
               <AnimatedSection animation="fadeInUp" className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">UNION Weekly News</h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  学生の"今"を、学生の"声"で届ける縦型ショート動画ニュース番組
+                  学生の&quot;今&quot;を、学生の&quot;声&quot;で届ける縦型ショート動画ニュース番組
                 </p>
               </AnimatedSection>
 

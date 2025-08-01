@@ -79,7 +79,7 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
     <div className="space-y-4">
       {previewUrl && (
         <div className="relative w-48 h-48 rounded-md overflow-hidden">
-          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+          <Image src={previewUrl} alt="Preview" width={192} height={192} className="w-full h-full object-cover" />
           <Button
             type="button"
             variant="destructive"

@@ -287,7 +287,7 @@ export default function StudentsPage() {
                       <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
                     ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 italic">"{testimonial.comment}"</p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 italic">{`&quot;${testimonial.comment}&quot;`}</p>
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <p className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.university}</p>

@@ -107,9 +107,11 @@ export default function PodcastPage() {
               >
                 {/* アートカバー */}
                 <div className="aspect-square overflow-hidden">
-                  <img
+                  <Image
                     src={show.cover}
                     alt={show.name}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-cover"
                   />
                 </div>

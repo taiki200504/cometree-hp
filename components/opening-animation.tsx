@@ -207,9 +207,11 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
           currentStep >= 4 ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <img 
+        <Image 
           src="/images/header-logo-dark.png"
           alt="UNION Logo"
+          width={450}
+          height={150}
           className="w-[90%] max-w-[450px] h-auto drop-shadow-[0_0_25px_rgba(100,150,255,0.7)] animate-subtle-pulse"
         />
       </div>

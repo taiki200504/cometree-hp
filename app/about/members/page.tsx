@@ -96,7 +96,7 @@ export default async function MembersPage() {
               <div className="text-center mb-20">
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium mb-6 border border-red-100 dark:border-red-800">
                   <Crown className="w-4 h-4 mr-2" />
-                  Representative's Message
+                  Representative&apos;s Message
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">代表の声</h2>
                 <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
