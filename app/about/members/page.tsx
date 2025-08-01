@@ -6,6 +6,8 @@ import { Users, Award, Heart, Lightbulb, Crown, MessageSquare, Quote, Star, Spar
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "運営メンバー紹介 | UNION 学生団体連合",
   description:

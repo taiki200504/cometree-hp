@@ -208,7 +208,7 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
         }`}
       >
         <img 
-          src="/images/header-logo.png"
+          src="/images/header-logo-dark.png"
           alt="UNION Logo"
           className="w-[90%] max-w-[450px] h-auto drop-shadow-[0_0_25px_rgba(100,150,255,0.7)] animate-subtle-pulse"
         />

@@ -8,6 +8,8 @@ import { Heart, Building2, Users, Award, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic';
+
 interface Supporter {
   id: string
   name: string

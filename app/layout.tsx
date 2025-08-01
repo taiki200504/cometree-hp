@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
     generator: 'v0.dev'
 }
@@ -70,7 +70,6 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
         <meta name="theme-color" content="#066ff2" />
-        <meta name="google-site-verification" content="1s8j1z01g_G6djWRT6GnRRXiGbfw4n6sIJA0-vvGHUk" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-7W2ZE4GST3"></script>
         <script dangerouslySetInnerHTML={{
           __html: `
