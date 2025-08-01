@@ -21,6 +21,7 @@ import {
   Camera 
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function MediaPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "podcast" | "news" | "board">("overview")

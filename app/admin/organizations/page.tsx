@@ -126,7 +126,7 @@ export default function OrganizationsManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [currentPage, itemsPerPage, searchTerm, filterStatus, filterVerification, toast])
+  }, [currentPage, itemsPerPage, searchTerm, filterStatus, filterVerification, toast, systemMetrics])
 
   useEffect(() => {
     if (user && userRole === 'admin') {

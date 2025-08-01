@@ -57,7 +57,7 @@ describe('lib/auth.ts', () => {
         role: 'admin',
         organization_id: 'org-123',
       });
-      expect(createRouteHandlerClient).toHaveBeenCalledWith({ cookies });
+      expect(createRouteHandlerClient).toHaveBeenCalledWith({ cookies: expect.any(Function) });
       expect(mockFrom).toHaveBeenCalledWith('users');
       expect(mockEq).toHaveBeenCalledWith('id', '123');
     });

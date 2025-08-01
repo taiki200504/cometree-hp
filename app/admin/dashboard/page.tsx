@@ -129,7 +129,7 @@ export default function AdminDashboard() {
     if (user && userRole === 'admin') {
       fetchStats()
     }
-  }, [user, userRole])
+  }, [user, userRole, fetchStats])
 
   // 認証と権限チェックを統合
   useEffect(() => {

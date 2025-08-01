@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/hooks/use-auth"
 import { FavoritesProvider } from "@/context/favorites-context"
 
+import Script from 'next/script'
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -70,15 +72,6 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
         <meta name="theme-color" content="#066ff2" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7W2ZE4GST3"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-7W2ZE4GST3');
-          `,
-        }} />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
@@ -88,6 +81,17 @@ export default function RootLayout({
             </FavoritesProvider>
           </AuthProvider>
         </ThemeProvider>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-7W2ZE4GST3"></Script>
+        <Script id="gtag-init">
+          {
+            `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-7W2ZE4GST3');
+            `
+          }
+        </Script>
       </body>
     </html>
   )

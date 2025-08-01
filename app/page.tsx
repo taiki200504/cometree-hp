@@ -383,7 +383,7 @@ export default function Home() {
                 },
                 {
                   name: "キャリアみっけ隊",
-                  description: &apos;キャリアは、&quot;つくる&quot;もの。&apos;,
+                  description: "キャリアは、「つくる」もの。",
                   image: "/images/podcast/career.png",
                   link: "/media/podcast/career",
                   color: "from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30",

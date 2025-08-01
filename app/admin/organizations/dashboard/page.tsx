@@ -157,7 +157,7 @@ export default function OrganizationDashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [toast])
+  }, [toast, systemMetrics])
 
   useEffect(() => {
     if (user && userRole === 'admin') {
