@@ -5,19 +5,21 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
 import AnimatedSection from "@/components/animated-section"
-import { Mic } from "lucide-react"
-import { Play } from "lucide-react"
-import { Newspaper } from "lucide-react"
-import { MessageSquare } from "lucide-react"
-import { Users } from "lucide-react"
-import { TrendingUp } from "lucide-react"
-import { Heart } from "lucide-react"
-import { ArrowRight } from "lucide-react"
-import { CheckCircle } from "lucide-react"
-import { Search } from "lucide-react"
-import { Filter } from "lucide-react"
-import { ExternalLink } from "lucide-react"
-import { Camera } from "lucide-react"
+import { 
+  Mic, 
+  Play, 
+  Newspaper, 
+  MessageSquare, 
+  Users, 
+  TrendingUp, 
+  Heart, 
+  ArrowRight, 
+  CheckCircle, 
+  Search, 
+  Filter, 
+  ExternalLink, 
+  Camera 
+} from "lucide-react"
 import Link from "next/link"
 
 export default function MediaPage() {
