@@ -7,7 +7,7 @@ import ModernHero from "@/components/modern-hero"
 import AnimatedSection from "@/components/animated-section"
 import { Mic, Play, Clock, Users, ExternalLink, ArrowLeft, Calendar, Tag } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 
 export default function GenepoliPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "episodes" | "team">("overview")
@@ -111,7 +111,7 @@ export default function GenepoliPage() {
               <div className="lg:col-span-1">
                 <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg">
                   <div className="aspect-square bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl mb-6 overflow-hidden">
-                    <Image
+                    <NextImage
                       src={showInfo.cover}
                       alt={showInfo.name}
                       width={300}
@@ -353,7 +353,7 @@ export default function GenepoliPage() {
                     <div key={index} className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg">
                       <div className="flex items-start space-x-4">
                         <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden flex-shrink-0">
-                          <Image
+                          <NextImage
                             src={member.image}
                             alt={member.name}
                             width={80}

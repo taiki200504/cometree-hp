@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 import { ChevronDown, Menu, X, Grid3X3 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
@@ -255,7 +255,7 @@ export default function Header() {
             {/* ロゴエリア */}
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center" onClick={closeMenu}>
-                <Image
+                <NextImage
                   src={mounted && isDarkMode ? "/images/header-logo-dark.png" : "/images/header-logo.png"}
                   alt="UNION 学生団体連合"
                   width={120}

@@ -4,6 +4,8 @@ import { ModernHero } from "@/components/modern-hero"
 import { AnimatedSection } from "@/components/animated-section"
 import { Mic, Play, ArrowRight, CheckCircle, Users, Calendar, Mail } from "lucide-react"
 import Header from "@/components/header"
+
+
 import Footer from "@/components/footer"
 
 export const metadata: Metadata = {

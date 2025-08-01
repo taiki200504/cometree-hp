@@ -7,7 +7,7 @@ import ModernHero from "@/components/modern-hero"
 import AnimatedSection from "@/components/animated-section"
 import { Users, Building, Handshake, MessageSquare, ExternalLink, ArrowRight, CheckCircle, Clock, Calendar, MapPin, Star, Globe, Heart } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 import { useStats } from "@/hooks/use-stats"
 
 export default function CommunityPage() {
@@ -345,7 +345,7 @@ export default function CommunityPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center space-x-4 mb-4">
                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                          <Image
+                          <NextImage
                             src={org.logo}
                             alt={org.name}
                             width={64}
@@ -413,7 +413,7 @@ export default function CommunityPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center space-x-4 mb-4">
                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                  <Image
+                  <NextImage
                             src={partner.logo}
                             alt={partner.name}
                             width={64}

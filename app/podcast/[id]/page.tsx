@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabaseServer"
 import { notFound } from "next/navigation"
-import Image from "next/image"
+import NextImage from "next/image"
 import { CalendarDays, Clock, PlayCircle } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"

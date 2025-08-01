@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 import { Twitter, Instagram, Youtube, Mail, ExternalLink, Settings } from "lucide-react"
 
 export default function Footer() {
@@ -82,7 +82,7 @@ export default function Footer() {
           {/* ブランド情報 */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center mb-4">
-              <Image
+              <NextImage
                 src="/images/footer-logo.png"
                 alt="UNION 学生団体連合"
                 width={120}
