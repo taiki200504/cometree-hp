@@ -9,7 +9,7 @@ import OpeningAnimation from "@/components/opening-animation"
 import { useFirstVisit } from "@/hooks/use-first-visit"
 import { ArrowRight, Users, Building, Star, CheckCircle, Handshake, Mic, Calendar, TrendingUp, Play, Camera, Newspaper, Mail } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -185,7 +185,7 @@ export default function Home() {
             <AnimatedSection animation="fadeInRight" delay={300}>
               <div className="relative">
                 <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-pink-100 dark:from-blue-900/30 dark:to-pink-900/30 rounded-2xl overflow-hidden shadow-2xl">
-                  <Image
+                  <NextImage
                     src={slides[currentSlide].image || "/placeholder.svg"}
                     alt={slides[currentSlide].title}
                     width={800}
@@ -399,7 +399,7 @@ export default function Home() {
                     className={`bg-gradient-to-br ${program.color} rounded-2xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
                   >
                     <div className="aspect-square bg-white dark:bg-gray-800 rounded-xl mb-4 overflow-hidden">
-                      <Image
+                      <NextImage
                         src={program.image || "/placeholder.svg"}
                         alt={program.name}
                         width={200}

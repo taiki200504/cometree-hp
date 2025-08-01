@@ -6,7 +6,7 @@ import ModernHero from "@/components/modern-hero"
 import AnimatedSection from "@/components/animated-section"
 import { Clock, Users, Mic, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 
 export default function PodcastPage() {
   // ポッドキャスト番組データ
@@ -108,7 +108,7 @@ export default function PodcastPage() {
               >
                 {/* アートカバー */}
                 <div className="aspect-square overflow-hidden">
-                  <Image
+                  <NextImage
                     src={show.cover}
                     alt={show.name}
                     width={200}

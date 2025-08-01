@@ -21,7 +21,7 @@ import {
   Camera 
 } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 
 export default function MediaPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "podcast" | "news" | "board">("overview")
@@ -278,7 +278,7 @@ export default function MediaPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                       <div className="flex items-start space-x-4 mb-6">
                         <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <Image
+                          <NextImage
                             src={show.image}
                             alt={show.name}
                             width={100}
@@ -351,7 +351,7 @@ export default function MediaPage() {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                       <div className="flex items-start space-x-4 mb-6">
                         <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <Image
+                          <NextImage
                             src={show.image}
                             alt={show.name}
                             width={100}
