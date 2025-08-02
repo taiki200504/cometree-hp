@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import ModernHero from "@/components/modern-hero"
+import { ModernHero } from "@/components/modern-hero"
 import { Calendar, Tag, Loader2 } from "lucide-react"
 import Link from "next/link"
 

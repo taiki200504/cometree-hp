@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import ModernHero from "@/components/modern-hero"
+import { ModernHero } from "@/components/modern-hero"
 import { Search, Filter, Users, MapPin, Calendar, ExternalLink, Loader2 } from "lucide-react"
 
 interface Organization {
