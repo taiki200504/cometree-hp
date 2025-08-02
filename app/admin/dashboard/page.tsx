@@ -52,9 +52,6 @@ interface SystemMetrics {
   memory: number
   network: number
   storage: number
-  uptime: string
-  activeConnections: number
-  responseTime: number
 }
 
 export default function AdminDashboard() {
@@ -73,10 +70,7 @@ export default function AdminDashboard() {
     cpu: 45,
     memory: 62,
     network: 78,
-    storage: 35,
-    uptime: '24日 12時間 34分',
-    activeConnections: 156,
-    responseTime: 120
+    storage: 35
   }))
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [statsError, setStatsError] = useState<string | null>(null)
@@ -92,9 +86,7 @@ export default function AdminDashboard() {
         cpu: Math.max(20, Math.min(90, prev.cpu + (Math.random() - 0.5) * 10)),
         memory: Math.max(30, Math.min(85, prev.memory + (Math.random() - 0.5) * 5)),
         network: Math.max(50, Math.min(95, prev.network + (Math.random() - 0.5) * 8)),
-        storage: Math.max(25, Math.min(60, prev.storage + (Math.random() - 0.5) * 3)),
-        activeConnections: Math.max(100, Math.min(200, prev.activeConnections + Math.floor((Math.random() - 0.5) * 20))),
-        responseTime: Math.max(80, Math.min(200, prev.responseTime + (Math.random() - 0.5) * 30))
+        storage: Math.max(25, Math.min(60, prev.storage + (Math.random() - 0.5) * 3))
       }))
     }, 5000)
     return () => clearInterval(interval)
@@ -500,47 +492,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Additional Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">稼働時間</CardTitle>
-                <Clock className="h-4 w-4 text-blue-400" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold text-white">{systemMetrics.uptime}</div>
-              <div className="text-xs text-blue-400">安定稼働中</div>
-            </CardContent>
-          </Card>
 
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">アクティブ接続</CardTitle>
-                <Users className="h-4 w-4 text-blue-400" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold text-white">{systemMetrics.activeConnections}</div>
-              <div className="text-xs text-blue-400">同時接続数</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">応答時間</CardTitle>
-                <TrendingUp className="h-4 w-4 text-blue-400" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold text-white">{systemMetrics.responseTime}ms</div>
-              <div className="text-xs text-blue-400">平均応答時間</div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Management Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

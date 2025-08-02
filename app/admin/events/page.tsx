@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, PlusCircle, Calendar, Edit, Trash2, Eye } from 'lucide-react'
+import { MoreHorizontal, PlusCircle, Calendar, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
@@ -29,9 +29,27 @@ export default function EventsManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 10 // 1ページあたりの表示件数
 
-  const { requireAdmin } = useAdminAuthSimple()
+  const { requireAdmin, loading: authLoading } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast() // Initialize useToast
+
+  // 認証チェック
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-green-400 font-mono">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
+            <div className="text-lg">LOADING...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const fetchEvents = useCallback(async () => {
     try {
