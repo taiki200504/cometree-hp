@@ -186,10 +186,10 @@ export function useAdminAuthSimple() {
   }
 
   const requireAdmin = () => {
-    // Allow access if user is authenticated and we're still loading
+    // If still loading, wait for auth state to be determined
     if (loading) {
-      console.log('[Auth] Still loading, allowing access')
-      return true
+      console.log('[Auth] Still loading, waiting for auth state')
+      return false
     }
     
     // Redirect to login if no user

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import dynamic from 'next/dynamic'
 import { useToast } from '@/components/ui/use-toast'
 import { ArrowLeft, Loader2 } from 'lucide-react'
+import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 
 const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor'), { ssr: false })
 
@@ -27,6 +28,25 @@ export default function CreateBoardPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const { requireAdmin, loading: authLoading } = useAdminAuthSimple()
+
+  // 認証チェック
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-green-400 font-mono">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
+            <div className="text-lg">LOADING...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const form = useForm<BoardFormValues>({
     resolver: zodResolver(boardFormSchema),

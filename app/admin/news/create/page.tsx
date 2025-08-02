@@ -33,7 +33,20 @@ export default function CreateNewsPage() {
   const { toast } = useToast()
 
   // 認証チェック
-  if (!authLoading && !requireAdmin()) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-green-400 font-mono">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
+            <div className="text-lg">LOADING...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!requireAdmin()) {
     return null
   }
 
