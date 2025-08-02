@@ -39,9 +39,11 @@ export default function AnimatedSection({
       observer.observe(ref.current)
     }
 
+    const currentRef = ref.current
+
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current)
+      if (currentRef) {
+        observer.unobserve(currentRef)
       }
     }
   }, [delay])

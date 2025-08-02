@@ -68,9 +68,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   // 本運用向け実験的機能
   experimental: {
@@ -88,6 +94,17 @@ const nextConfig = {
     if (dev) {
       config.devtool = 'eval-source-map';
     }
+    
+    // Image コンストラクタエラーの修正
+    config.module.rules.push({
+      test: /\.js$/,
+      resolve: {
+        alias: {
+          'Image': false,
+        },
+      },
+    });
+    
     return config;
   },
 }

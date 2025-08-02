@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -184,8 +185,8 @@ export default function NewsDetail() {
           {newsData.featuredImage && (
             <div className="relative">
               <Image
-                    src={news.featured_image}
-                    alt={news.title}
+                    src={newsData.featuredImage}
+                    alt={newsData.title}
                     width={800}
                     height={450}
                     className="w-full h-full object-cover"

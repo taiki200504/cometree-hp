@@ -1,5 +1,20 @@
 import { createServerSupabaseClient } from "@/lib/supabaseServer"
-import { notFound } from "next/navigation"
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import { supabase } from '@/lib/supabaseServer'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
+import { CalendarIcon, TagIcon } from 'lucide-react'
 import NextImage from "next/image"
 import { CalendarDays, Clock, PlayCircle } from "lucide-react"
 import { format } from "date-fns"

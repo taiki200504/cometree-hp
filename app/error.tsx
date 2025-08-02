@@ -13,6 +13,11 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
+    // Image コンストラクタエラーを特別に処理
+    if (error.message.includes('Failed to construct \'Image\'')) {
+      console.warn('Image constructor error detected, this is likely caused by a browser extension or third-party library')
+      return
+    }
     console.error(error)
   }, [error])
 

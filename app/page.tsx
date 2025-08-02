@@ -479,7 +479,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection animation="fadeInUp" className="text-center mb-16">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white text-sm font-medium mb-6">
-                UNION's Core Businesses
+                UNION&apos;s Core Businesses
               </div>
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">UNIONの3大事業</h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
