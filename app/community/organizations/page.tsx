@@ -1,123 +1,58 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
-import { Search, Filter, Users, MapPin, Calendar, ExternalLink } from "lucide-react"
+import { Search, Filter, Users, MapPin, Calendar, ExternalLink, Loader2 } from "lucide-react"
+
+interface Organization {
+  id: string
+  name: string
+  description: string
+  category: string
+  region: string
+  member_count: number
+  established_year?: number
+  activities: string[]
+  website_url?: string
+  contact_email?: string
+  logo_url?: string
+  status: string
+  created_at: string
+  updated_at: string
+}
 
 export default function Organizations() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("すべて")
   const [selectedRegion, setSelectedRegion] = useState("すべて")
 
-  // モック加盟団体データ
-  const organizations = [
-    {
-      id: 1,
-      name: "東京大学起業サークルTNK",
-      description: "学生起業家の育成と支援を目的とした団体。起業に関するセミナーやピッチイベントを定期開催。",
-      category: "起業・ビジネス",
-      region: "東京都",
-      memberCount: 45,
-      establishedYear: 2018,
-      activities: ["起業セミナー", "ピッチイベント", "メンタリング", "ネットワーキング"],
-      website: "https://example.com",
-      contact: "tnk@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 2,
-      name: "早稲田大学国際交流サークル",
-      description: "国際交流を通じて多文化理解を深める活動を行う団体。留学生との交流イベントや語学交換を実施。",
-      category: "国際交流",
-      region: "東京都",
-      memberCount: 78,
-      establishedYear: 2015,
-      activities: ["国際交流イベント", "語学交換", "文化体験", "留学支援"],
-      website: "https://example.com",
-      contact: "waseda-intl@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 3,
-      name: "慶應義塾大学ボランティア団体",
-      description: "地域社会への貢献を目指すボランティア活動を行う団体。環境保護や教育支援など幅広い分野で活動。",
-      category: "ボランティア・社会貢献",
-      region: "東京都",
-      memberCount: 62,
-      establishedYear: 2016,
-      activities: ["環境保護活動", "教育支援", "地域清掃", "高齢者支援"],
-      website: "https://example.com",
-      contact: "keio-volunteer@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 4,
-      name: "明治大学メディア研究会",
-      description: "映像制作、Webデザイン、SNS運用などメディア制作全般を学び実践する団体。",
-      category: "メディア・クリエイティブ",
-      region: "東京都",
-      memberCount: 34,
-      establishedYear: 2019,
-      activities: ["映像制作", "Webデザイン", "SNS運用", "イベント撮影"],
-      website: "https://example.com",
-      contact: "meiji-media@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 5,
-      name: "立教大学環境保護団体",
-      description: "持続可能な社会の実現を目指し、環境問題の啓発活動や実践的な環境保護活動を行う。",
-      category: "環境・エコロジー",
-      region: "東京都",
-      memberCount: 28,
-      establishedYear: 2017,
-      activities: ["環境啓発", "リサイクル活動", "植樹活動", "エコイベント"],
-      website: "https://example.com",
-      contact: "rikkyo-eco@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 6,
-      name: "青山学院大学文化祭実行委員会",
-      description: "大学祭の企画・運営を通じて、学生の交流促進と地域との連携を図る団体。",
-      category: "イベント・企画",
-      region: "東京都",
-      memberCount: 89,
-      establishedYear: 2014,
-      activities: ["文化祭企画", "イベント運営", "地域連携", "学生交流"],
-      website: "https://example.com",
-      contact: "aoyama-festival@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 7,
-      name: "上智大学国際協力団体",
-      description: "発展途上国支援や国際協力に関する活動を行う団体。フェアトレードの推進や募金活動を実施。",
-      category: "国際協力",
-      region: "東京都",
-      memberCount: 41,
-      establishedYear: 2016,
-      activities: ["発展途上国支援", "フェアトレード", "募金活動", "啓発イベント"],
-      website: "https://example.com",
-      contact: "sophia-aid@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-    {
-      id: 8,
-      name: "中央大学プログラミング研究会",
-      description: "プログラミング技術の向上と情報技術の普及を目的とした団体。勉強会やハッカソンを開催。",
-      category: "技術・IT",
-      region: "東京都",
-      memberCount: 56,
-      establishedYear: 2018,
-      activities: ["プログラミング勉強会", "ハッカソン", "技術セミナー", "アプリ開発"],
-      website: "https://example.com",
-      contact: "chuo-programming@example.com",
-      logo: "/placeholder.svg?height=80&width=80",
-    },
-  ]
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // APIから加盟団体データを取得
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/organizations')
+        if (!response.ok) {
+          throw new Error('加盟団体の取得に失敗しました')
+        }
+        const data = await response.json()
+        setOrganizations(data.organizations || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '不明なエラーが発生しました')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrganizations()
+  }, [])
+
 
   const categories = [
     "すべて",
@@ -162,8 +97,32 @@ export default function Organizations() {
         }}
       />
 
+      {/* ローディング状態 */}
+      {loading && (
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#066ff2]" />
+              <p className="text-gray-600 dark:text-gray-300">加盟団体データを読み込み中...</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* エラー状態 */}
+      {error && (
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+              <p className="text-red-600 dark:text-red-400">エラー: {error}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 検索・フィルター */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-800">
+      {!loading && !error && (
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -330,6 +289,7 @@ export default function Organizations() {
           )}
         </div>
       </section>
+      )}
 
       <Footer />
     </div>

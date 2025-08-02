@@ -11,54 +11,49 @@ import { ArrowRight, Users, Building, Star, CheckCircle, Handshake, Mic, Calenda
 import Link from "next/link"
 import NextImage from "next/image"
 
+interface NewsItem {
+  id: string
+  title: string
+  content: string
+  excerpt: string
+  category: string
+  is_published: boolean
+  published_at: string
+  created_at: string
+  updated_at: string
+  image_url?: string
+}
+
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
   const { isFirstVisit, isLoading } = useFirstVisit()
 
-  // モック学生ニュースデータ
-  const newsItems = [
-    {
-      id: 1,
-      title: "東京大学起業サークル、新たなスタートアップを設立",
-      excerpt:
-        "東京大学起業サークルTNKのメンバーが、AI技術を活用した学習支援アプリを開発し、正式にスタートアップ企業を設立しました。既に複数の投資家から関心を集めており、今後の展開が注目されています。",
-      date: "2025年1月18日",
-      category: "起業・ビジネス",
-      source: "東京大学起業サークルTNK",
-      image: "/placeholder.svg?height=200&width=300",
-      tags: ["起業", "AI", "学習支援", "投資"],
-      readTime: "3分",
-      type: "video",
-    },
-    {
-      id: 2,
-      title: "早稲田大学国際交流サークル、グローバル学生会議を開催",
-      excerpt:
-        "早稲田大学国際交流サークルが主催するグローバル学生会議が開催され、世界15カ国から100名以上の学生が参加しました。気候変動や教育格差などの社会課題について活発な議論が交わされました。",
-      date: "2025年1月15日",
-      category: "国際交流",
-      source: "早稲田大学国際交流サークル",
-      image: "/placeholder.svg?height=200&width=300",
-      tags: ["国際交流", "会議", "気候変動", "教育"],
-      readTime: "4分",
-      type: "podcast",
-    },
-    {
-      id: 3,
-      title: "慶應義塾大学ボランティア団体、地域清掃活動で表彰",
-      excerpt:
-        "慶應義塾大学のボランティア団体が継続的に行ってきた地域清掃活動が評価され、渋谷区から感謝状を授与されました。3年間で延べ500名以上の学生が参加し、地域環境の改善に貢献しています。",
-      date: "2025年1月12日",
-      category: "ボランティア・社会貢献",
-      source: "慶應義塾大学ボランティア団体",
-      image: "/placeholder.svg?height=200&width=300",
-      tags: ["ボランティア", "清掃", "表彰", "地域貢献"],
-      readTime: "2分",
-      type: "article",
-    },
-  ]
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // APIからニュースデータを取得
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/news?limit=3')
+        if (!response.ok) {
+          throw new Error('ニュースの取得に失敗しました')
+        }
+        const data = await response.json()
+        setNewsItems(data.news || [])
+      } catch (err) {
+        console.error('ニュース取得エラー:', err)
+        setNewsItems([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNews()
+  }, [])
 
   // 注目記事（最新3件）
   const featuredNews = newsItems.slice(0, 3)

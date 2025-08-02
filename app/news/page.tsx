@@ -1,78 +1,54 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
-import { Calendar, Tag } from "lucide-react"
+import { Calendar, Tag, Loader2 } from "lucide-react"
 import Link from "next/link"
+
+interface NewsItem {
+  id: string
+  title: string
+  content: string
+  excerpt: string
+  category: string
+  is_published: boolean
+  published_at: string
+  created_at: string
+  updated_at: string
+  image_url?: string
+}
 
 export default function News() {
   const [selectedCategory, setSelectedCategory] = useState("すべて")
   const [selectedYear, setSelectedYear] = useState("すべて")
   const [searchTerm, setSearchTerm] = useState("")
 
-  // モックニュースデータ（実際はCMSから取得）
-  const newsItems = [
-    {
-      id: 1,
-      title: "新たな加盟団体を迎えました",
-      excerpt:
-        "この度、新たに5つの学生団体がUNIONに加盟いたしました。多様な分野で活動する団体が加わることで、より豊かなコミュニティを築いていきます。",
-      date: "2025年1月15日",
-      year: "2025年",
-      category: "お知らせ",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 2,
-      title: "ユニラジ新シーズン開始のお知らせ",
-      excerpt:
-        "人気ポッドキャスト番組「ユニラジ」の新シーズンが開始されました。今シーズンも多彩なゲストをお迎えして、学生の声をお届けします。",
-      date: "2025年1月10日",
-      year: "2025年",
-      category: "メディア",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 3,
-      title: "企業パートナーシップ拡大について",
-      excerpt:
-        "UNIONの企業パートナーシップが拡大し、学生により多くの機会を提供できるようになりました。インターンシップやキャリア支援の充実を図ります。",
-      date: "2025年1月5日",
-      year: "2025年",
-      category: "パートナーシップ",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 4,
-      title: "年末年始の営業について",
-      excerpt:
-        "年末年始の営業スケジュールについてお知らせいたします。お問い合わせへの対応は1月4日より順次再開いたします。",
-      date: "2024年12月25日",
-      year: "2024年",
-      category: "お知らせ",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 5,
-      title: "学生団体合同イベント開催報告",
-      excerpt: "12月に開催された学生団体合同イベントの報告です。多くの学生が参加し、活発な交流が行われました。",
-      date: "2024年12月20日",
-      year: "2024年",
-      category: "イベント",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 6,
-      title: "Slackコミュニティ参加者1000人突破",
-      excerpt: "UNIONのSlackコミュニティの参加者が1000人を突破いたしました。学生同士の活発な交流に感謝いたします。",
-      date: "2024年12月15日",
-      year: "2024年",
-      category: "コミュニティ",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ]
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // APIからニュースデータを取得
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/news')
+        if (!response.ok) {
+          throw new Error('ニュースの取得に失敗しました')
+        }
+        const data = await response.json()
+        setNewsItems(data.news || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '不明なエラーが発生しました')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNews()
+  }, [])
 
   const categories = ["すべて", "お知らせ", "メディア", "パートナーシップ", "イベント", "コミュニティ"]
   const years = ["すべて", "2025年", "2024年"]
@@ -100,7 +76,24 @@ export default function News() {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row gap-8">
+        {/* ローディング状態 */}
+        {loading && (
+          <div className="text-center py-16">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#066ff2]" />
+            <p className="text-gray-600 dark:text-gray-300">ニュースデータを読み込み中...</p>
+          </div>
+        )}
+
+        {/* エラー状態 */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600 dark:text-red-400">エラー: {error}</p>
+          </div>
+        )}
+
+        {/* コンテンツ */}
+        {!loading && !error && (
+          <div className="flex flex-col md:flex-row gap-8">
           {/* サイドバー */}
           <aside className="md:w-64 w-full md:sticky md:top-24 mb-8 md:mb-0">
             {/* 検索バー */}
@@ -314,7 +307,7 @@ export default function News() {
             )}
           </section>
         </div>
-    </main>
+        )}
 
       <Footer />
     </div>
