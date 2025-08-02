@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { ModernHero } from "@/components/modern-hero"
+import ModernHero from "@/components/modern-hero"
 import { Search, Filter, Users, MapPin, Calendar, ExternalLink, Loader2 } from "lucide-react"
 
 interface Organization {
@@ -52,7 +52,6 @@ export default function Organizations() {
 
     fetchOrganizations()
   }, [])
-
 
   const categories = [
     "すべて",
@@ -123,172 +122,174 @@ export default function Organizations() {
       {/* 検索・フィルター */}
       {!loading && !error && (
         <section className="py-16 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* 検索バー */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="団体名・活動内容で検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-              </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* 検索バー */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="団体名・活動内容で検索..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  />
+                </div>
 
-              {/* カテゴリーフィルター */}
-              <div>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* カテゴリーフィルター */}
+                <div>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* 地域フィルター */}
-              <div>
-                <select
-                  value={selectedRegion}
-                  onChange={(e) => setSelectedRegion(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
-                  {regions.map((region) => (
-                    <option key={region} value={region}>
-                      {region}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                <Filter className="h-4 w-4 mr-2" />
-                {filteredOrganizations.length}件の団体が見つかりました
-              </div>
-              <button
-                onClick={() => {
-                  setSearchTerm("")
-                  setSelectedCategory("すべて")
-                  setSelectedRegion("すべて")
-                }}
-                className="text-sm text-[#066ff2] hover:text-[#ec4faf] font-medium"
-              >
-                フィルターをリセット
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 団体一覧 */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredOrganizations.map((org) => (
-              <div
-                key={org.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                        {org.name.slice(0, 2)}
-                      </span>
-                    </div>
-                    <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-medium">
-                      {org.category}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{org.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{org.description}</p>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {org.region}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <Users className="h-4 w-4 mr-2" />
-                      {org.member_count}名
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {org.established_year}年設立
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">主な活動</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {(org.activities || []).slice(0, 3).map((activity, index) => (
-                        <span
-                          key={index}
-                          className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs"
-                        >
-                          {activity}
-                        </span>
-                      ))}
-                      {(org.activities || []).length > 3 && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">+{(org.activities || []).length - 3}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <a
-                      href={`mailto:${org.contact_email}`}
-                      className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium"
-                    >
-                      お問い合わせ
-                    </a>
-                    <a
-                      href={org.website_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
+                {/* 地域フィルター */}
+                <div>
+                  <select
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#066ff2] focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {regions.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {filteredOrganizations.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-12 w-12 text-gray-400" />
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <Filter className="h-4 w-4 mr-2" />
+                  {filteredOrganizations.length}件の団体が見つかりました
+                </div>
+                <button
+                  onClick={() => {
+                    setSearchTerm("")
+                    setSelectedCategory("すべて")
+                    setSelectedRegion("すべて")
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-[#066ff2] dark:hover:text-[#066ff2] ml-2"
+                >
+                  フィルターをリセット
+                </button>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                該当する団体が見つかりませんでした
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">検索条件を変更してもう一度お試しください。</p>
-              <button
-                onClick={() => {
-                  setSearchTerm("")
-                  setSelectedCategory("すべて")
-                  setSelectedRegion("すべて")
-                }}
-                className="bg-[#066ff2] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-300"
-              >
-                すべての団体を表示
-              </button>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
+
+      {/* 団体一覧 */}
+      {!loading && !error && (
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredOrganizations.map((org) => (
+                <div
+                  key={org.id}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                          {org.name.slice(0, 2)}
+                        </span>
+                      </div>
+                      <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-medium">
+                        {org.category}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{org.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{org.description}</p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {org.region}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Users className="h-4 w-4 mr-2" />
+                        {org.member_count}名
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {org.established_year}年設立
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">主な活動</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {(org.activities || []).slice(0, 3).map((activity, index) => (
+                          <span
+                            key={index}
+                            className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs"
+                          >
+                            {activity}
+                          </span>
+                        ))}
+                        {(org.activities || []).length > 3 && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">+{(org.activities || []).length - 3}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <a
+                        href={`mailto:${org.contact_email}`}
+                        className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium"
+                      >
+                        お問い合わせ
+                      </a>
+                      <a
+                        href={org.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredOrganizations.length === 0 && (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+                  該当する団体が見つかりませんでした
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">検索条件を変更してもう一度お試しください。</p>
+                <button
+                  onClick={() => {
+                    setSearchTerm("")
+                    setSelectedCategory("すべて")
+                    setSelectedRegion("すべて")
+                  }}
+                  className="bg-[#066ff2] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-300"
+                >
+                  すべての団体を表示
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
       )}
 
       <Footer />
