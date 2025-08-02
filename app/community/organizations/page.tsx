@@ -87,11 +87,11 @@ export default function Organizations() {
         subtitle="Member Organizations"
         title="加盟団体一覧"
         description="UNIONに加盟している学生団体をご紹介します。多様な分野で活動する団体が集まり、共に成長しています。"
-        primaryCTA={{
+        primaryAction={{
           text: "加盟申請する",
           href: "https://docs.google.com/forms/d/e/1FAIpQLSffY_V_buYyNzGK2gg5cWV-0j0s_BMQqIjBi7ZucTdD_l2uEQ/viewform?usp=sf_link",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "コミュニティに戻る",
           href: "/community",
         }}
