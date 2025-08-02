@@ -447,7 +447,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.cpu}%</div>
+              <div className="text-2xl font-bold text-white">{systemMetrics.cpu.toFixed(1)}%</div>
               <div className={`text-xs ${getStatusColor(systemMetrics.cpu)}`}>
                 {getStatusIcon(systemMetrics.cpu)} {systemMetrics.cpu >= 80 ? '高負荷' : systemMetrics.cpu >= 60 ? '注意' : '正常'}
               </div>
@@ -462,7 +462,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.memory}%</div>
+              <div className="text-2xl font-bold text-white">{systemMetrics.memory.toFixed(1)}%</div>
               <div className={`text-xs ${getStatusColor(systemMetrics.memory)}`}>
                 {getStatusIcon(systemMetrics.memory)} {systemMetrics.memory >= 80 ? '高負荷' : systemMetrics.memory >= 60 ? '注意' : '正常'}
               </div>
@@ -477,7 +477,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.network}%</div>
+              <div className="text-2xl font-bold text-white">{systemMetrics.network.toFixed(1)}%</div>
               <div className={`text-xs ${getStatusColor(systemMetrics.network)}`}>
                 {getStatusIcon(systemMetrics.network)} {systemMetrics.network >= 80 ? '高負荷' : systemMetrics.network >= 60 ? '注意' : '正常'}
               </div>
@@ -492,7 +492,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.storage}%</div>
+              <div className="text-2xl font-bold text-white">{systemMetrics.storage.toFixed(1)}%</div>
               <div className={`text-xs ${getStatusColor(systemMetrics.storage)}`}>
                 {getStatusIcon(systemMetrics.storage)} {systemMetrics.storage >= 80 ? '高負荷' : systemMetrics.storage >= 60 ? '注意' : '正常'}
               </div>
