@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import ModernHero from "@/components/modern-hero"
+import { ModernHero } from "@/components/modern-hero"
 import AnimatedSection from "@/components/animated-section"
 import {
   Mic,
@@ -25,6 +25,11 @@ import {
   Zap,
   Megaphone,
   MessageCircle,
+  Globe,
+  BookOpen,
+  Coffee,
+  Lightbulb,
+  Radio,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -48,6 +53,58 @@ export default function Services() {
     window.history.replaceState({}, '', url.toString())
   }
 
+  // 学生向け情報・サービス
+  const studentInfo = [
+    {
+      icon: Users,
+      title: "UNIONメンバー募集",
+      description: "学生団体の連携と成長を支援する活動に参加しませんか？",
+      features: [
+        "様々な学生団体との交流機会",
+        "企業との連携プロジェクト参加",
+        "リーダーシップスキルの向上",
+        "全国の学生とのネットワーク構築",
+      ],
+      cta: "メンバー募集詳細",
+      link: "/join",
+      color: "from-blue-500 to-purple-600",
+    },
+    {
+      icon: MessageSquare,
+      title: "掲示板コミュニティ",
+      description: "学生同士で情報交換や相談ができるオンライン掲示板",
+      features: ["学生団体の活動情報共有", "イベント・セミナー告知", "質問・相談の投稿", "お気に入り機能で情報管理"],
+      cta: "掲示板を見る",
+      link: "/board",
+      color: "from-green-500 to-teal-600",
+    },
+    {
+      icon: Heart,
+      title: "UNION Match",
+      description: "あなたにぴったりの学生団体や活動を見つけるマッチングサービス",
+      features: [
+        "興味・関心に基づくマッチング",
+        "学生団体の詳細情報閲覧",
+        "活動体験の申し込み",
+        "メンバーとの直接連絡",
+      ],
+      cta: "マッチングを試す",
+      link: "https://union-match-lp.vercel.app/",
+      color: "from-pink-500 to-rose-600",
+      isExternal: true,
+    },
+    {
+      icon: Radio,
+      title: "メディア＆コミュニティ",
+      description: "ポッドキャストやSlackコミュニティで学生生活をより豊かに",
+      features: ["ポッドキャスト番組の視聴", "Slackコミュニティ参加", "週刊ニュースレター購読", "学生向けイベント情報"],
+      cta: "メディア一覧",
+      link: "/media",
+      color: "from-orange-500 to-red-600",
+    },
+  ]
+
+  // 学生向けサービス（現在のサービス）
   const studentServices = [
     {
       icon: <GraduationCap className="h-8 w-8 text-[#066ff2]" />,
@@ -119,6 +176,53 @@ export default function Services() {
       briefDescription: "スタートアップ中心に案件を厳選。Slack内#intern-channelで案内。",
       link: "/services",
       features: ["厳選されたスタートアップ案件", "Slack内での情報共有", "学生に適した条件", "継続的な案件更新"],
+    },
+  ]
+
+  const communityFeatures = [
+    {
+      icon: Globe,
+      title: "全国ネットワーク",
+      description: "全国の大学から1000人以上の学生が参加",
+    },
+    {
+      icon: BookOpen,
+      title: "学習支援",
+      description: "勉強会や資格取得支援プログラム",
+    },
+    {
+      icon: Coffee,
+      title: "交流イベント",
+      description: "オンライン・オフラインでの定期交流会",
+    },
+    {
+      icon: Lightbulb,
+      title: "アイデア共有",
+      description: "新しいプロジェクトやアイデアの相談・実現",
+    },
+  ]
+
+  const testimonials = [
+    {
+      name: "田中さん",
+      university: "早稲田大学 3年",
+      comment:
+        "UNIONの掲示板で他大学の学生と交流でき、視野が広がりました。様々な活動情報も得られて、学生生活がより充実しています。",
+      rating: 5,
+    },
+    {
+      name: "佐藤さん",
+      university: "慶應義塾大学 2年",
+      comment:
+        "UNION Matchで自分にぴったりの学生団体を見つけることができました。今では団体の中心メンバーとして活動しています。",
+      rating: 5,
+    },
+    {
+      name: "山田さん",
+      university: "東京大学 4年",
+      comment:
+        "Slackコミュニティでは就活情報や業界研究の情報交換ができて、とても助かりました。同じ目標を持つ仲間とも出会えました。",
+      rating: 5,
     },
   ]
 
@@ -198,72 +302,7 @@ export default function Services() {
       name: "SNS投稿協賛",
       price: "¥5,000〜",
       description: "学生団体連合UNIONの公式SNS(Instagram、X (旧Twitter) など)を活用した、企業様に関する投稿枠。",
-      features: [
-        "企業紹介、商品・サービス紹介投稿(1回)",
-        "投稿デザイン・文面は基本的にUNION側で作成(事前確認あり)",
-        "投稿後のリーチ・エンゲージメント報告",
-      ],
-    },
-    {
-      name: "タイトル協賛",
-      price: "¥100,000〜",
-      description: "イベントそのものに企業名を冠する形での協賛枠。ブランディングやPR効果が高い協賛形式。",
-      features: [
-        "イベント名に企業名を冠する(例:「○○株式会社Presents○○フェス」)",
-        "各種媒体(チラシ、HP、SNS等)でのロゴ・社名の最上位掲載",
-        "主催挨拶時などでの紹介、登壇・出展含む全特典",
-      ],
-    },
-    {
-      name: "企業主催",
-      price: "¥50,000",
-      description: "企業様主催でのイベント開催をサポートいたします。",
-      features: ["イベント企画・運営サポート", "学生集客支援", "会場手配サポート"],
-    },
-  ]
-
-  const snsPricing = [
-    { name: "企業告知(フィード投稿)", price: "¥2,000" },
-    { name: "企業告知(リール投稿)", price: "¥5,000" },
-    { name: "イベント告知(フィード投稿)", price: "¥2,000" },
-    { name: "イベント告知(リール投稿)", price: "¥5,000" },
-  ]
-
-  // UNION Matchの特徴
-  const unionMatchFeatures = [
-    {
-      icon: <Target className="h-8 w-8 text-[#066ff2]" />,
-      title: "厳選された学生人材",
-      description: "学生団体で実際に活動している、実践経験豊富な学生のみが登録",
-    },
-    {
-      icon: <Heart className="h-8 w-8 text-[#ec4faf]" />,
-      title: "マッチング精度の高さ",
-      description: "企業の求める人材像と学生の希望を詳細にマッチング",
-    },
-    {
-      icon: <Zap className="h-8 w-8 text-[#f59e0b]" />,
-      title: "迅速な対応",
-      description: "申し込みから面談まで、最短1週間で実現",
-    },
-  ]
-
-  // 学生向け申請プロセス
-  const applicationProcess = [
-    {
-      step: "1",
-      title: "サービス選択",
-      description: "利用したいサービスを選択",
-    },
-    {
-      step: "2",
-      title: "申請フォーム送信",
-      description: "必要事項を入力して申請",
-    },
-    {
-      step: "3",
-      title: "承認・案内",
-      description: "承認後、専用資料と日程をご案内",
+      features: ["Instagram投稿", "X (旧Twitter) 投稿", "ハッシュタグ付き投稿", "リポスト・リツイート対応"],
     },
   ]
 
@@ -272,234 +311,348 @@ export default function Services() {
       <Header />
 
       <ModernHero
-        subtitle="Our Services"
-        title="提供サービス"
-        description="学生と企業、それぞれのニーズに応じた多様なサービスを提供しています"
-        primaryAction={{
-          text: "お問い合わせ",
-          href: "/contact",
-        }}
-        secondaryAction={{
-          text: "Slackに参加",
-          href: "/community/slack",
-        }}
+        title={activeTab === "student" ? "学生向け情報・サービス" : "企業向けサービス"}
+        subtitle={activeTab === "student" ? "For Students" : "For Corporations"}
+        description={
+          activeTab === "student"
+            ? "UNIONが提供する学生向け情報・サービスで、あなたの学生生活をより豊かにしませんか？"
+            : "UNIONの企業向けサービスで、優秀な学生人材との出会いを創出しませんか？"
+        }
       />
 
       {/* タブ切り替え */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-800">
+      <div className="bg-gray-50 dark:bg-gray-800 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center mb-12">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-2 shadow-lg">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleTabChange("student")}
-                  className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                    activeTab === "student"
-                      ? "bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white shadow-lg"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  }`}
-                >
-                  学生向けサービス
-                </button>
-                <button
-                  onClick={() => handleTabChange("corporate")}
-                  className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                    activeTab === "corporate"
-                      ? "bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white shadow-lg"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  }`}
-                >
-                  企業向けサービス
-                </button>
-                  </div>
-            </div>
+          <div className="flex space-x-1 bg-white dark:bg-gray-700 rounded-lg p-1 max-w-md mx-auto">
+            <button
+              onClick={() => handleTabChange("student")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === "student"
+                  ? "bg-[#066ff2] text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              学生向け
+            </button>
+            <button
+              onClick={() => handleTabChange("corporate")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === "corporate"
+                  ? "bg-[#066ff2] text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              企業向け
+            </button>
           </div>
-
-          {activeTab === "student" && (
-            <AnimatedSection>
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">学生向けサービス</h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  UNIONは学生一人ひとりの挑戦を6つのサービスで支援します。すべて無料・申請制です。
-                    </p>
-                        </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                {studentServices.map((service, index) => (
-                  <AnimatedSection key={index} animation="fadeInUp" delay={index * 100}>
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-start space-x-4 mb-6">
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-3 flex-shrink-0">
-                          {service.icon}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">{service.briefDescription}</p>
-                        </div>
-                        </div>
-
-                      <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">{service.description}</p>
-
-                      <div className="mb-6">
-                        <ul className="space-y-2">
-                          {service.features.map((feature, featureIndex) => (
-                            <li key={featureIndex} className="flex items-start space-x-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
-                      </li>
-                          ))}
-                    </ul>
-                      </div>
-
-                      <div className="mt-auto">
-                        {service.isExternal ? (
-                          <a
-                            href={service.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-[#066ff2] hover:text-[#ec4faf] font-medium transition-colors duration-300"
-                          >
-                            詳細を見る
-                            <ExternalLink className="ml-2 h-4 w-4" />
-                          </a>
-                        ) : (
-                    <Link
-                            href={service.link}
-                            className="inline-flex items-center text-[#066ff2] hover:text-[#ec4faf] font-medium transition-colors duration-300"
-                    >
-                            詳細を見る
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                        )}
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                ))}
-              </div>
-
-              {/* 申請プロセス */}
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">申請プロセス</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {applicationProcess.map((process, index) => (
-                    <AnimatedSection key={index} animation="fadeInUp" delay={index * 200}>
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-white font-bold text-xl">{process.step}</span>
-                  </div>
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{process.title}</h4>
-                        <p className="text-gray-600 dark:text-gray-300">{process.description}</p>
-                  </div>
-                    </AnimatedSection>
-                  ))}
-                </div>
-                  </div>
-            </AnimatedSection>
-          )}
-
-          {activeTab === "corporate" && (
-            <AnimatedSection>
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">企業向けサービス</h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  全国1,000人の学生と50団体と共創し、Z世代に響く未来をつくる。UNIONは学生コミュニティ発のストーリーテリングで、企業のブランド価値と採用力を底上げします。
-                </p>
-                        </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                {corporateServices.map((service, index) => (
-                  <AnimatedSection key={index} animation="fadeInUp" delay={index * 100}>
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-start space-x-4 mb-6">
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-3 flex-shrink-0">
-                          {service.icon}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">{service.briefDescription}</p>
-                        </div>
-                        </div>
-
-                      <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">{service.description}</p>
-
-                      <div className="mb-6">
-                        <ul className="space-y-2">
-                          {service.features.map((feature, featureIndex) => (
-                            <li key={featureIndex} className="flex items-start space-x-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
-                      </li>
-                          ))}
-                    </ul>
-                      </div>
-
-                      <div className="mt-auto">
-                        {service.isExternal ? (
-                          <a
-                            href={service.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-[#066ff2] hover:text-[#ec4faf] font-medium transition-colors duration-300"
-                          >
-                            詳細を見る
-                            <ExternalLink className="ml-2 h-4 w-4" />
-                          </a>
-                        ) : (
-                    <Link
-                            href={service.link}
-                            className="inline-flex items-center text-[#066ff2] hover:text-[#ec4faf] font-medium transition-colors duration-300"
-                    >
-                            詳細を見る
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                        )}
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                ))}
-              </div>
-
-              {/* 料金表 */}
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">協賛料金表</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {eventPricing.map((item, index) => (
-                    <AnimatedSection key={index} animation="fadeInUp" delay={index * 100}>
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-                        <div className="text-2xl font-bold text-[#066ff2] mb-2">{item.price}</div>
-                        <h4 className="font-bold text-gray-900 dark:text-white mb-2">{item.name}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{item.description}</p>
-                        <ul className="space-y-1">
-                          {item.features.map((feature, featureIndex) => (
-                            <li key={featureIndex} className="text-xs text-gray-500 dark:text-gray-400">
-                              • {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </AnimatedSection>
-                  ))}
-                </div>
-              </div>
-
-              {/* SNS料金表 */}
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">SNS投稿料金</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {snsPricing.map((item, index) => (
-                    <AnimatedSection key={index} animation="fadeInUp" delay={index * 100}>
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
-                        <div className="text-lg font-bold text-[#066ff2] mb-1">{item.price}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">{item.name}</div>
-                  </div>
-                    </AnimatedSection>
-                  ))}
-                </div>
-              </div>
-        </AnimatedSection>
-          )}
         </div>
-          </section>
+      </div>
+
+      {activeTab === "student" ? (
+        <main className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* 学生向け情報 */}
+            <AnimatedSection>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                  UNIONで始める新しい学生生活
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  学生団体への参加から情報交換まで、あなたの成長をサポートする4つの情報・サービス
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+              {studentInfo.map((info, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+                    <div className={`bg-gradient-to-r ${info.color} p-6`}>
+                      <div className="flex items-center space-x-4 text-white">
+                        <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-lg">
+                          <info.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">{info.title}</h3>
+                          <p className="opacity-90">{info.description}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <ul className="space-y-3 mb-6">
+                        {info.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-full" />
+                            <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link
+                        href={info.link}
+                        target={info.isExternal ? "_blank" : undefined}
+                        className={`inline-flex items-center space-x-2 bg-gradient-to-r ${info.color} text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity w-full justify-center`}
+                      >
+                        <span>{info.cta}</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* UNIONコミュニティの特徴 */}
+            <AnimatedSection>
+              <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-2xl p-8 mb-20 text-white">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold mb-4">UNIONコミュニティの特徴</h2>
+                  <p className="text-lg opacity-90 max-w-2xl mx-auto">
+                    1000人以上の学生が参加するSlackコミュニティで、新しいつながりを見つけよう
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {communityFeatures.map((feature, index) => (
+                    <div key={index} className="text-center">
+                      <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mx-auto mb-4">
+                        <feature.icon className="h-8 w-8" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                      <p className="text-sm opacity-90">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-center mt-8">
+                  <Link
+                    href="/community"
+                    className="inline-flex items-center space-x-2 bg-white text-[#066ff2] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    <span>コミュニティに参加</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </AnimatedSection>
+
+            {/* 学生向けサービス */}
+            <AnimatedSection>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                  学生向けサービス
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  学生生活をより充実させるための具体的なサービスをご提供
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+              {studentServices.map((service, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+                    <div className="p-6">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                          {service.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{service.title}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{service.briefDescription}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 dark:text-gray-300 mb-6">{service.description}</p>
+
+                      <ul className="space-y-3 mb-6">
+                        {service.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center space-x-3">
+                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link
+                        href={service.link}
+                        target={service.isExternal ? "_blank" : undefined}
+                        className="inline-flex items-center space-x-2 bg-[#066ff2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full justify-center"
+                      >
+                        <span>詳細を見る</span>
+                        {service.isExternal ? <ExternalLink className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* 学生の声 */}
+            <AnimatedSection>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">学生の声</h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  UNIONのサービスを利用している学生からの声をご紹介します
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+              {testimonials.map((testimonial, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 italic">{`"${testimonial.comment}"`}</p>
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                      <p className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.university}</p>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* CTA セクション */}
+            <AnimatedSection>
+              <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-2xl p-8 text-center text-white">
+                <Zap className="h-16 w-16 mx-auto mb-6" />
+                <h2 className="text-3xl font-bold mb-4">今すぐUNIONを始めよう！</h2>
+                <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+                  学生生活をより充実させる第一歩を踏み出しませんか？ UNIONのサービスは全て無料でご利用いただけます。
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/board"
+                    className="inline-flex items-center justify-center space-x-2 bg-white text-[#066ff2] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span>掲示板を見る</span>
+                  </Link>
+                  <Link
+                    href="/join"
+                    className="inline-flex items-center justify-center space-x-2 border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-[#066ff2] transition-colors"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>メンバー募集</span>
+                  </Link>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+        </main>
+      ) : (
+        // 企業向けサービスの既存コード
+        <main className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                  企業向けサービス
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  優秀な学生人材との出会いを創出し、企業の成長をサポートするサービスをご提供
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+              {corporateServices.map((service, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+                    <div className="p-6">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                          {service.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{service.title}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{service.briefDescription}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 dark:text-gray-300 mb-6">{service.description}</p>
+
+                      <ul className="space-y-3 mb-6">
+                        {service.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center space-x-3">
+                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link
+                        href={service.link}
+                        target={service.isExternal ? "_blank" : undefined}
+                        className="inline-flex items-center space-x-2 bg-[#066ff2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full justify-center"
+                      >
+                        <span>詳細を見る</span>
+                        {service.isExternal ? <ExternalLink className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* 料金表 */}
+            <AnimatedSection>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">料金表</h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  イベント協賛やメディア掲載の料金プランをご紹介
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+              {eventPricing.map((plan, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
+                      <div className="text-3xl font-bold text-[#066ff2] mb-4">{plan.price}</div>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">{plan.description}</p>
+                      <ul className="space-y-2">
+                        {plan.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* CTA セクション */}
+            <AnimatedSection>
+              <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-2xl p-8 text-center text-white">
+                <Handshake className="h-16 w-16 mx-auto mb-6" />
+                <h2 className="text-3xl font-bold mb-4">企業様との連携をお待ちしています</h2>
+                <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+                  優秀な学生人材との出会いを創出し、企業の成長をサポートいたします。
+                </p>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center space-x-2 bg-white text-[#066ff2] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  <span>お問い合わせ</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </AnimatedSection>
+          </div>
+        </main>
+      )}
 
       <Footer />
     </div>
