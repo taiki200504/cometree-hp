@@ -31,8 +31,13 @@ export default function Board() {
 
   useEffect(() => {
     const fetchBoardPosts = async () => {
-      const posts = await getBoardPosts()
-      setBoardItems(posts)
+      try {
+        const result = await getBoardPosts()
+        setBoardItems(result.posts || [])
+      } catch (error) {
+        console.error('Error fetching board posts:', error)
+        setBoardItems([])
+      }
     }
     fetchBoardPosts()
   }, [])
@@ -89,7 +94,7 @@ export default function Board() {
         searchTerm === "" ||
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.tags && Array.isArray(item.tags) && item.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
         item.author.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesCategory && matchesSearch
     })
@@ -264,7 +269,7 @@ export default function Board() {
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {item.tags.slice(0, 3).map((tag, index) => (
+                      {item.tags && Array.isArray(item.tags) && item.tags.slice(0, 3).map((tag, index) => (
                         <span
                           key={index}
                           className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-lg text-xs font-medium"
