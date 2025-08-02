@@ -124,6 +124,10 @@ export default function AdminDashboard() {
     }
   }, [])
 
+  const { requireAdmin, user, userRole, loading } = useAdminAuthSimple()
+  const router = useRouter()
+  const { toast } = useToast()
+
   // データ取得
   useEffect(() => {
     if (user && userRole === 'admin') {
@@ -146,10 +150,6 @@ export default function AdminDashboard() {
     
     console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
   }, [loading, user, userRole, router])
-
-  const { requireAdmin, user, userRole, loading } = useAdminAuthSimple()
-  const router = useRouter()
-  const { toast } = useToast()
 
   // ローディング中の表示
   if (loading) {
