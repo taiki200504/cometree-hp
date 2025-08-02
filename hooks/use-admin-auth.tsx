@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
@@ -12,41 +12,60 @@ export function useAdminAuth() {
   const supabase = createClientComponentClient()
   const router = useRouter()
 
+  const checkAdminRole = useCallback(async (user: User) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching user role:', error)
+        return false
+      }
+      
+      return data?.role === 'admin'
+    } catch (error) {
+      console.error('Error in checkAdminRole:', error)
+      return false
+    }
+  }, [supabase])
+
   useEffect(() => {
-    // Get initial session
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
       
-      if (session?.user) {
-        // 一時的に認証されたユーザーを管理者として扱う
-        setIsAdmin(true)
-        console.log('User authenticated:', session.user.email)
+      if (currentUser) {
+        const isAdminUser = await checkAdminRole(currentUser)
+        setIsAdmin(isAdminUser)
+      } else {
+        setIsAdmin(false)
       }
+      setLoading(false)
     }
 
     getSession()
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
-        setUser(session?.user ?? null)
-        setLoading(false)
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
         
-        if (session?.user) {
-          // 一時的に認証されたユーザーを管理者として扱う
-          setIsAdmin(true)
-          console.log('User authenticated:', session.user.email)
+        if (currentUser) {
+          const isAdminUser = await checkAdminRole(currentUser)
+          setIsAdmin(isAdminUser)
         } else {
           setIsAdmin(false)
         }
+        setLoading(false)
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase, checkAdminRole])
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -56,16 +75,11 @@ export function useAdminAuth() {
       })
       
       if (!error) {
-        console.log('Sign in successful, redirecting to dashboard...')
-        // 少し遅延を入れてからリダイレクト
-        setTimeout(() => {
-          router.push('/admin/dashboard')
-        }, 1000)
+        router.push('/admin/dashboard')
       }
       
       return { error }
     } catch (err) {
-      console.error('Sign in error:', err)
       return { error: err as Error }
     }
   }
@@ -75,20 +89,27 @@ export function useAdminAuth() {
     router.push('/admin/login')
   }
 
-  const requireAuth = () => {
-    if (!loading && !user) {
-      console.log('No user, redirecting to login')
+  const requireAuth = useCallback(() => {
+    if (loading) return true // Don't redirect while loading
+
+    if (!user) {
       router.push('/admin/login')
       return false
     }
-    // 一時的に管理者チェックを無効化
-    // if (!loading && !isAdmin) {
-    //   console.log('User is not admin, redirecting to login')
-    //   router.push('/admin/login')
-    //   return false
-    // }
+    if (!isAdmin) {
+      router.push('/') // Or a dedicated "unauthorized" page
+      return false
+    }
     return true
-  }
+  }, [loading, user, isAdmin, router])
+
+  // Automatically run requireAuth on loading state change
+  useEffect(() => {
+    if(!loading) {
+        requireAuth();
+    }
+  }, [loading, requireAuth])
+
 
   return {
     user,

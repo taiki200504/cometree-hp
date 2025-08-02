@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import dynamic from 'next/dynamic'
 import { useToast } from '@/components/ui/use-toast'
 import { ArrowLeft, Loader2 } from 'lucide-react'
-import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
+import { useAdminAuth } from '@/hooks/use-admin-auth'
 
 const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor'), { ssr: false })
 
@@ -28,7 +28,7 @@ export default function CreateBoardPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const { requireAdmin, loading: authLoading } = useAdminAuthSimple()
+  const { user, loading: authLoading, requireAuth } = useAdminAuth()
 
   // 認証チェック
   if (authLoading) {

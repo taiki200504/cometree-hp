@@ -44,18 +44,9 @@ export default function AnalyticsPage() {
     fetchAnalyticsData()
   }, [requireAdmin])
 
-  if (loading) {
-    return (
-      <div className="p-8 flex justify-center items-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="ml-2">アナリティクスデータを読み込み中...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return <div className="p-8 text-red-500">エラー: {error}</div>
-  }
+    useEffect(() => {
+    requireAuth()
+  }, [requireAuth])
 
   // 最新のデータ（今日）を取得
   const todayData = analyticsData[analyticsData.length - 1]

@@ -129,10 +129,10 @@ export default function NewsManagementPage() {
   }, [currentPage, itemsPerPage, searchTerm, filterStatus, toast])
 
   useEffect(() => {
-    if (user && userRole === 'admin') {
+    if (isAdmin) {
       fetchArticles()
     }
-  }, [user, userRole, fetchArticles])
+  }, [isAdmin, fetchArticles])
 
   const handleDelete = async (id: string) => {
     if (!confirm('この記事を削除しますか？この操作は元に戻せません。')) {

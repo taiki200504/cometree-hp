@@ -21,7 +21,7 @@ export default function GenepoliPage() {
     color: "from-purple-400 to-purple-600",
     totalEpisodes: 28,
     startDate: "2023年8月",
-    hosts: ["高橋リナ", "中村大輔"],
+    hosts: ["東坂", "中村大輔"],
     externalLinks: {
       youtube: "https://www.youtube.com/playlist?list=PLTtd12wBPw0QxkWwZKDNVKnQRHn6D22OD",
       spotify: "https://open.spotify.com/show/51ymNzm9X9UnSevjnH7uOZ?si=ac400f16f51d4495",
