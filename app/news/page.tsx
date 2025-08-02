@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
@@ -51,12 +51,26 @@ export default function News() {
   }, [])
 
   const categories = ["すべて", "お知らせ", "メディア", "パートナーシップ", "イベント", "コミュニティ"]
-  const years = ["すべて", "2025年", "2024年"]
+  
+  // 年号を動的に生成
+  const years = useMemo(() => {
+    const yearSet = new Set<string>()
+    yearSet.add("すべて")
+    newsItems.forEach(item => {
+      const year = new Date(item.published_at).getFullYear().toString() + "年"
+      yearSet.add(year)
+    })
+    return Array.from(yearSet).sort((a, b) => {
+      if (a === "すべて") return -1
+      if (b === "すべて") return 1
+      return b.localeCompare(a)
+    })
+  }, [newsItems])
 
   // フィルタリング処理
   const filteredItems = newsItems.filter((item) => {
     const matchesCategory = selectedCategory === "すべて" || item.category === selectedCategory
-    const matchesYear = selectedYear === "すべて" || item.year === selectedYear
+    const matchesYear = selectedYear === "すべて" || new Date(item.published_at).getFullYear().toString() + "年" === selectedYear
     const matchesSearch =
       searchTerm === "" ||
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -227,7 +241,13 @@ export default function News() {
                         <span className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded">
                           {item.category}
                         </span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">{item.date}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {new Date(item.published_at).toLocaleDateString('ja-JP', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </span>
                       </div>
                       <h3 className="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">
                         {item.title}

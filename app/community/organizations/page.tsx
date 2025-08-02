@@ -73,7 +73,7 @@ export default function Organizations() {
       searchTerm === "" ||
       org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       org.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.activities.some((activity) => activity.toLowerCase().includes(searchTerm.toLowerCase()))
+      (org.activities || []).some((activity) => activity.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesCategory = selectedCategory === "すべて" || org.category === selectedCategory
     const matchesRegion = selectedRegion === "すべて" || org.region === selectedRegion
     return matchesSearch && matchesCategory && matchesRegion
@@ -220,18 +220,18 @@ export default function Organizations() {
                     </div>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <Users className="h-4 w-4 mr-2" />
-                      {org.memberCount}名
+                      {org.member_count}名
                     </div>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <Calendar className="h-4 w-4 mr-2" />
-                      {org.establishedYear}年設立
+                      {org.established_year}年設立
                     </div>
                   </div>
 
                   <div className="mb-4">
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">主な活動</h4>
                     <div className="flex flex-wrap gap-1">
-                      {org.activities.slice(0, 3).map((activity, index) => (
+                      {(org.activities || []).slice(0, 3).map((activity, index) => (
                         <span
                           key={index}
                           className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs"
@@ -239,21 +239,21 @@ export default function Organizations() {
                           {activity}
                         </span>
                       ))}
-                      {org.activities.length > 3 && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">+{org.activities.length - 3}</span>
+                      {(org.activities || []).length > 3 && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">+{(org.activities || []).length - 3}</span>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <a
-                      href={`mailto:${org.contact}`}
+                      href={`mailto:${org.contact_email}`}
                       className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium"
                     >
                       お問い合わせ
                     </a>
                     <a
-                      href={org.website}
+                      href={org.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
