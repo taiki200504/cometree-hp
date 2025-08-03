@@ -14,52 +14,56 @@ export function useAdminAuthSimple() {
   const router = useRouter()
   const mountedRef = useRef(true)
   const authCheckedRef = useRef(false)
+  const adminCheckRef = useRef<Promise<boolean> | null>(null)
 
-  const checkAdminRole = useCallback(async (user: User) => {
+  const checkAdminRole = useCallback(async (user: User): Promise<boolean> => {
     if (!mountedRef.current) return false
     
-    try {
-      console.log('[Auth] Checking admin role for user:', user.id)
-      
-      // タイムアウトを設定（5秒）
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database query timeout')), 5000)
-      })
+    // 既にチェック中の場合はその結果を待つ
+    if (adminCheckRef.current) {
+      return adminCheckRef.current
+    }
 
-      const queryPromise = supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
-
-      if (error) {
-        console.error('[Auth] Error fetching user role:', error)
-        // エラーが発生した場合、デフォルトで管理者として扱う（開発環境）
+    // 新しいチェックを開始
+    adminCheckRef.current = (async () => {
+      try {
+        console.log('[Auth] Checking admin role for user:', user.id)
+        
+        // 開発環境では常に管理者として扱う
         if (process.env.NODE_ENV === 'development') {
           console.log('[Auth] Development mode: treating as admin')
           return true
         }
+
+        // 本番環境でのみデータベースチェック
+        const { data, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if (error) {
+          console.error('[Auth] Error fetching user role:', error)
+          return false
+        }
+        
+        const isAdminUser = data?.role === 'admin'
+        console.log('[Auth] User role check result:', { 
+          role: data?.role, 
+          isAdmin: isAdminUser,
+          userId: user.id
+        })
+        return isAdminUser
+      } catch (error) {
+        console.error('[Auth] Error in checkAdminRole:', error)
         return false
+      } finally {
+        // チェック完了後はリファレンスをクリア
+        adminCheckRef.current = null
       }
-      
-      const isAdminUser = data?.role === 'admin'
-      console.log('[Auth] User role check result:', { 
-        role: data?.role, 
-        isAdmin: isAdminUser,
-        userId: user.id
-      })
-      return isAdminUser
-    } catch (error) {
-      console.error('[Auth] Error in checkAdminRole:', error)
-      // タイムアウトやエラーの場合、開発環境では管理者として扱う
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Auth] Development mode: treating as admin due to error')
-        return true
-      }
-      return false
-    }
+    })()
+
+    return adminCheckRef.current
   }, [supabase])
 
   useEffect(() => {

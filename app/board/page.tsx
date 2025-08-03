@@ -244,9 +244,9 @@ export default function Board() {
                         item={{
                           id: item.id,
                           title: item.title,
-                          category: item.category,
-                          date: item.created_at,
-                          author: item.author,
+                          category: item.category ?? "",
+                          date: item.created_at ?? "",
+                          author: item.author ?? "",
                         }}
                       />
                     </div>
