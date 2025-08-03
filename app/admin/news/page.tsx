@@ -71,7 +71,7 @@ export default function NewsManagementPage() {
   }))
   const itemsPerPage = 10
 
-  const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()
+  const { requireAdmin, user, userRole, loading: authLoading, isAdmin } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
 

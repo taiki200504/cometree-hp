@@ -116,7 +116,7 @@ export default function AdminDashboard() {
     }
   }, [])
 
-    const { user, loading: authLoading, requireAuth, signOut } = useAdminAuthSimple()
+    const { user, loading: authLoading, requireAuth, signOut, isAdmin } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
 
