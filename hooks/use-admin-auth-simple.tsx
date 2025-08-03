@@ -9,11 +9,14 @@ export function useAdminAuthSimple() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClientComponentClient()
   const router = useRouter()
 
   const checkAdminRole = useCallback(async (user: User) => {
     try {
+      console.log('[Auth] Checking admin role for user:', user.id)
+      
       const { data, error } = await supabase
         .from('users')
         .select('role')
@@ -21,37 +24,34 @@ export function useAdminAuthSimple() {
         .single()
 
       if (error) {
-        console.error('Error fetching user role:', error)
+        console.error('[Auth] Error fetching user role:', error)
         return false
       }
       
-      return data?.role === 'admin'
+      const isAdminUser = data?.role === 'admin'
+      console.log('[Auth] User role check result:', { role: data?.role, isAdmin: isAdminUser })
+      return isAdminUser
     } catch (error) {
-      console.error('Error in checkAdminRole:', error)
+      console.error('[Auth] Error in checkAdminRole:', error)
       return false
     }
   }, [supabase])
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      const currentUser = session?.user ?? null
-      setUser(currentUser)
-      
-      if (currentUser) {
-        const isAdminUser = await checkAdminRole(currentUser)
-        setIsAdmin(isAdminUser)
-      } else {
-        setIsAdmin(false)
-      }
-      setLoading(false)
-    }
+      try {
+        console.log('[Auth] Getting session...')
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('[Auth] Session error:', sessionError)
+          setError(sessionError.message)
+          setLoading(false)
+          return
+        }
 
-    getSession()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
         const currentUser = session?.user ?? null
+        console.log('[Auth] Current user:', currentUser ? currentUser.id : 'null')
         setUser(currentUser)
         
         if (currentUser) {
@@ -61,6 +61,34 @@ export function useAdminAuthSimple() {
           setIsAdmin(false)
         }
         setLoading(false)
+      } catch (error) {
+        console.error('[Auth] Error in getSession:', error)
+        setError(error instanceof Error ? error.message : 'Unknown error')
+        setLoading(false)
+      }
+    }
+
+    getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('[Auth] Auth state changed:', event)
+        try {
+          const currentUser = session?.user ?? null
+          setUser(currentUser)
+          
+          if (currentUser) {
+            const isAdminUser = await checkAdminRole(currentUser)
+            setIsAdmin(isAdminUser)
+          } else {
+            setIsAdmin(false)
+          }
+          setLoading(false)
+        } catch (error) {
+          console.error('[Auth] Error in auth state change:', error)
+          setError(error instanceof Error ? error.message : 'Unknown error')
+          setLoading(false)
+        }
       }
     )
 
@@ -69,37 +97,50 @@ export function useAdminAuthSimple() {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('[Auth] Attempting sign in for:', email)
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       
       if (!error) {
+        console.log('[Auth] Sign in successful')
         router.push('/admin/dashboard')
+      } else {
+        console.error('[Auth] Sign in error:', error)
       }
       
       return { error }
     } catch (err) {
+      console.error('[Auth] Unexpected sign in error:', err)
       return { error: err as Error }
     }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/admin/login')
+    try {
+      console.log('[Auth] Signing out...')
+      await supabase.auth.signOut()
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('[Auth] Sign out error:', error)
+    }
   }
 
   const requireAuth = useCallback(() => {
     if (loading) return true // Don't redirect while loading
 
     if (!user) {
+      console.log('[Auth] No user, redirecting to login')
       router.push('/admin/login')
       return false
     }
     if (!isAdmin) {
+      console.log('[Auth] User is not admin, redirecting to home')
       router.push('/') // Or a dedicated "unauthorized" page
       return false
     }
+    console.log('[Auth] User is authenticated and is admin')
     return true
   }, [loading, user, isAdmin, router])
 
@@ -114,6 +155,7 @@ export function useAdminAuthSimple() {
     user,
     loading,
     isAdmin,
+    error,
     signIn,
     signOut,
     requireAuth,

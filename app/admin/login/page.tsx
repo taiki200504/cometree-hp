@@ -24,7 +24,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 
 export default function AdminLogin() {
-    const { signIn, user, loading, isAdmin } = useAdminAuthSimple()
+    const { signIn, user, loading, isAdmin, error: authError } = useAdminAuthSimple()
   const { toast } = useToast()
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -60,6 +60,48 @@ export default function AdminLogin() {
       router.push('/admin/dashboard')
     }
   }, [user, isAdmin, router])
+
+  // 認証エラーがある場合は表示
+  useEffect(() => {
+    if (authError) {
+      console.error('[Login] Auth error:', authError)
+      setError(authError)
+      toast({
+        title: "認証エラー",
+        description: authError,
+        variant: "destructive"
+      })
+    }
+  }, [authError, toast])
+
+  // ローディングタイムアウト（30秒）
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('[Login] Loading timeout reached')
+        setError('認証システムの初期化に時間がかかっています。ページを再読み込みしてください。')
+      }
+    }, 30000)
+
+    return () => clearTimeout(timeout)
+  }, [loading])
+
+  // 環境変数のチェック（開発環境のみ）
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const requiredEnvVars = [
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+      ]
+      
+      const missingVars = requiredEnvVars.filter(varName => !process.env[varName])
+      
+      if (missingVars.length > 0) {
+        console.error('[Login] Missing environment variables:', missingVars)
+        setError(`環境変数が設定されていません: ${missingVars.join(', ')}`)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,6 +179,17 @@ export default function AdminLogin() {
                 <span>Auth Service: {systemStatus.auth}</span>
               </div>
             </div>
+            {error && (
+              <div className="mt-4 p-3 bg-red-900/20 border border-red-400/30 rounded-md">
+                <p className="text-sm text-red-400">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-2 text-xs text-red-400 hover:text-red-300 underline"
+                >
+                  ページを再読み込み
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

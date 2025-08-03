@@ -120,8 +120,8 @@ export default function Board() {
 
       <ModernHero
         subtitle="Student Community Board"
-        title="学生団体をつなぐ情報の場にする"
-        description="UNION掲示板は学生団体の情報交換・交流のプラットフォームです。"
+        title="UNION掲示板"
+        description="学生団体をつなぐ情報の場にする。UNION掲示板は学生団体の情報交換・交流のプラットフォームです。"
         primaryCTA={{
           text: "投稿を依頼する",
           href: "https://forms.gle/9czvypxEcyi7BxS1A",
