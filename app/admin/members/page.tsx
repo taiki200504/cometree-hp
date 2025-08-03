@@ -96,10 +96,6 @@ export default function MembersManagementPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true)
@@ -136,10 +132,18 @@ export default function MembersManagementPage() {
   }, [currentPage, itemsPerPage, searchTerm, filterCategory, toast])
 
   useEffect(() => {
-    if (user && userRole === 'admin') {
+    if (user) {
       fetchMembers()
     }
-  }, [user, userRole, fetchMembers])
+  }, [user])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('このメンバーを削除しますか？この操作は元に戻せません。')) {

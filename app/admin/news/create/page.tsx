@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,22 +33,9 @@ export default function CreateNewsPage() {
   const { toast } = useToast()
 
   // 認証チェック
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!requireAdmin()) {
-    return null
-  }
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

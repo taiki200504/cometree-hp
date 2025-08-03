@@ -116,35 +116,25 @@ export default function AdminDashboard() {
     }
   }, [])
 
-  const { requireAdmin, user, userRole, loading } = useAdminAuthSimple()
+    const { user, loading: authLoading, requireAuth, signOut } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
 
   // データ取得
   useEffect(() => {
-    if (user && userRole === 'admin') {
+    if (user && isAdmin) {
       fetchStats()
     }
-  }, [user, userRole, fetchStats])
+  }, [user, isAdmin])
 
-  // 認証と権限チェックを統合
   useEffect(() => {
-    if (loading) {
-      console.log('Still loading, waiting for auth state...')
-      return
+    if (!authLoading) {
+      requireAuth()
     }
-    
-    if (!user) {
-      console.log('No user, redirecting to login')
-      router.push('/admin/login')
-      return
-    }
-    
-    console.log('Dashboard access granted for user:', user.email, 'Role:', userRole)
-  }, [loading, user, userRole, router])
+  }, [authLoading, requireAuth])
 
   // ローディング中の表示
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white font-mono">
         <div className="flex items-center justify-center h-screen">

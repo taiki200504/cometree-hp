@@ -21,7 +21,7 @@ export default function GenepoliPage() {
     color: "from-purple-400 to-purple-600",
     totalEpisodes: 28,
     startDate: "2023年8月",
-    hosts: ["東坂", "中村大輔"],
+    hosts: ["東坂明憲", "中村大輔"],
     externalLinks: {
       youtube: "https://www.youtube.com/playlist?list=PLTtd12wBPw0QxkWwZKDNVKnQRHn6D22OD",
       spotify: "https://open.spotify.com/show/51ymNzm9X9UnSevjnH7uOZ?si=ac400f16f51d4495",
@@ -34,7 +34,7 @@ export default function GenepoliPage() {
         description: "従来の政治参加の枠を超えて、Z世代が実践する新しい社会参画の方法について議論します。SNSを活用した政治活動や、学生による政策提言の事例を紹介します。",
         date: "2025年1月10日",
         duration: "52分",
-        guests: ["高橋リナ（明治大学政治研究会）", "中村大輔（学生政治団体代表）"],
+        guests: ["東坂明憲（N高政治部）", "中村大輔（学生政治団体代表）"],
         tags: ["政治", "Z世代", "社会参画", "SNS"],
       },
       {

@@ -22,6 +22,23 @@ if [ ! -f .env.local ]; then
     exit 1
 fi
 
+# 必須環境変数の確認
+required_vars=(
+    "NEXT_PUBLIC_SUPABASE_URL"
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    "SUPABASE_SERVICE_ROLE_KEY"
+    "NEXT_PUBLIC_SITE_URL"
+)
+
+for var in "${required_vars[@]}"; do
+    if ! grep -q "^${var}=" .env.local; then
+        echo "❌ 必須環境変数 ${var} が設定されていません"
+        exit 1
+    fi
+done
+
+echo "✅ 環境変数の確認完了"
+
 # 3. ビルドテスト
 echo "🔨 ビルドテストを実行中..."
 pnpm build
@@ -43,7 +60,18 @@ else
     echo "⚠️  テストに失敗しましたが、デプロイを続行します"
 fi
 
-# 5. Vercelデプロイ
+# 5. 管理者アカウント作成の確認
+echo "👤 管理者アカウントの確認..."
+if [ -z "$ADMIN_EMAIL" ] || [ -z "$ADMIN_PASSWORD" ]; then
+    echo "⚠️  管理者アカウントの環境変数が設定されていません"
+    echo "ADMIN_EMAIL と ADMIN_PASSWORD を設定して管理者アカウントを作成してください"
+    echo "例: ADMIN_EMAIL=admin@union.example.com ADMIN_PASSWORD=securepassword node scripts/create-admin.js"
+else
+    echo "🔧 管理者アカウントを作成中..."
+    node scripts/create-admin.js
+fi
+
+# 6. Vercelデプロイ
 echo "🌐 Vercelにデプロイ中..."
 if command -v vercel &> /dev/null; then
     vercel --prod
@@ -59,4 +87,12 @@ echo "1. Vercelダッシュボードでドメインを設定"
 echo "2. SSL証明書を有効化"
 echo "3. Google Search Consoleでサイトを登録"
 echo "4. Google Analyticsでトラッキングを確認"
-echo "5. Sentryでエラー監視を確認" 
+echo "5. Sentryでエラー監視を確認"
+echo "6. 管理者アカウントでログインして動作確認"
+echo ""
+echo "🔍 デプロイ後の確認項目:"
+echo "- トップページの表示"
+echo "- 管理画面へのアクセス"
+echo "- 認証システムの動作"
+echo "- 画像アップロード機能"
+echo "- 各管理機能の動作" 

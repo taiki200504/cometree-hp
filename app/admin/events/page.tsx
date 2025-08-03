@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, PlusCircle, Calendar, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
-import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
+import { useAdminAuth } from '@/hooks/use-admin-auth'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast' // Import useToast
@@ -29,7 +29,7 @@ export default function EventsManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 10 // 1ページあたりの表示件数
 
-  const { requireAdmin, loading: authLoading } = useAdminAuthSimple()
+  const { user, loading: authLoading, requireAuth } = useAdminAuth()
   const router = useRouter()
   const { toast } = useToast() // Initialize useToast
 
@@ -45,10 +45,6 @@ export default function EventsManagementPage() {
         </div>
       </div>
     )
-  }
-
-  if (!requireAdmin()) {
-    return null
   }
 
   const fetchEvents = useCallback(async () => {
@@ -75,9 +71,16 @@ export default function EventsManagementPage() {
   }, [currentPage, itemsPerPage, toast])
 
   useEffect(() => {
-    if (!requireAdmin()) return
     fetchEvents()
-  }, [requireAdmin, fetchEvents])
+  }, [])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('本当にこのイベントを削除しますか？この操作は元に戻せません。')) {

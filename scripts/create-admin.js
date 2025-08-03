@@ -1,0 +1,93 @@
+#!/usr/bin/env node
+
+/**
+ * UNION HP 管理者アカウント作成スクリプト
+ * 使用方法: node scripts/create-admin.js
+ */
+
+const { createClient } = require('@supabase/supabase-js')
+require('dotenv').config({ path: '.env.local' })
+
+async function createAdminUser() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Supabase環境変数が設定されていません')
+    console.error('NEXT_PUBLIC_SUPABASE_URL と SUPABASE_SERVICE_ROLE_KEY を設定してください')
+    process.exit(1)
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  try {
+    console.log('🔧 管理者アカウントを作成中...')
+
+    // 管理者ユーザー情報
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@union.example.com'
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+
+    // 1. Supabase Authでユーザーを作成
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: adminEmail,
+      password: adminPassword,
+      email_confirm: true,
+    })
+
+    if (authError) {
+      console.error('❌ 認証ユーザーの作成に失敗:', authError.message)
+      process.exit(1)
+    }
+
+    console.log('✅ 認証ユーザーを作成しました:', authData.user.id)
+
+    // 2. usersテーブルに管理者権限を設定
+    const { error: roleError } = await supabase
+      .from('users')
+      .upsert({
+        id: authData.user.id,
+        email: adminEmail,
+        role: 'admin',
+      })
+
+    if (roleError) {
+      console.error('❌ 管理者権限の設定に失敗:', roleError.message)
+      process.exit(1)
+    }
+
+    console.log('✅ 管理者権限を設定しました')
+
+    // 3. 確認
+    const { data: userData, error: checkError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single()
+
+    if (checkError) {
+      console.error('❌ ユーザー確認に失敗:', checkError.message)
+      process.exit(1)
+    }
+
+    console.log('🎉 管理者アカウントの作成が完了しました！')
+    console.log('')
+    console.log('📋 管理者情報:')
+    console.log(`   メールアドレス: ${userData.email}`)
+    console.log(`   パスワード: ${adminPassword}`)
+    console.log(`   ユーザーID: ${userData.id}`)
+    console.log(`   権限: ${userData.role}`)
+    console.log('')
+    console.log('⚠️  本運用環境では必ずパスワードを変更してください')
+
+  } catch (error) {
+    console.error('❌ 予期しないエラーが発生しました:', error.message)
+    process.exit(1)
+  }
+}
+
+// スクリプト実行
+if (require.main === module) {
+  createAdminUser()
+}
+
+module.exports = { createAdminUser } 

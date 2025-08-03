@@ -46,10 +46,6 @@ export default function PartnersManagementPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const fetchPartners = useCallback(async () => {
     try {
       setLoading(true)
@@ -74,9 +70,16 @@ export default function PartnersManagementPage() {
   }, [currentPage, itemsPerPage, toast])
 
   useEffect(() => {
-    if (!requireAdmin()) return
     fetchPartners()
-  }, [requireAdmin, fetchPartners])
+  }, [])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('本当にこの団体を削除しますか？この操作は元に戻せません。')) {

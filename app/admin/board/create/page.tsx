@@ -44,10 +44,6 @@ export default function CreateBoardPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const form = useForm<BoardFormValues>({
     resolver: zodResolver(boardFormSchema),
     defaultValues: {
@@ -84,6 +80,14 @@ export default function CreateBoardPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
   }
 
   return (

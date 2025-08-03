@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Loader2, BarChart3, TrendingUp, Users } from 'lucide-react'
-import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
+import { useAdminAuth } from '@/hooks/use-admin-auth'
 
 interface AnalyticsData {
   date: string
@@ -15,36 +15,9 @@ export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { requireAdmin } = useAdminAuthSimple()
+  const { requireAuth } = useAdminAuth()
 
   useEffect(() => {
-    if (!requireAdmin()) return
-
-    const fetchAnalyticsData = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/admin/analytics')
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to fetch analytics data')
-        }
-        const data = await response.json()
-        if (data.success) {
-          setAnalyticsData(data.data)
-        } else {
-          throw new Error(data.error || 'Failed to fetch analytics data')
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAnalyticsData()
-  }, [requireAdmin])
-
-    useEffect(() => {
     requireAuth()
   }, [requireAuth])
 

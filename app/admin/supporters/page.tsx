@@ -100,10 +100,6 @@ export default function SupportersManagementPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const fetchSupporters = useCallback(async () => {
     try {
       setLoading(true)
@@ -143,7 +139,15 @@ export default function SupportersManagementPage() {
     if (user && userRole === 'admin') {
       fetchSupporters()
     }
-  }, [user, userRole, fetchSupporters])
+  }, [user, userRole])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('この支援者を削除しますか？この操作は元に戻せません。')) {

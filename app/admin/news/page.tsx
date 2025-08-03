@@ -89,10 +89,6 @@ export default function NewsManagementPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const fetchArticles = useCallback(async () => {
     try {
       setLoading(true)
@@ -132,7 +128,15 @@ export default function NewsManagementPage() {
     if (isAdmin) {
       fetchArticles()
     }
-  }, [isAdmin, fetchArticles])
+  }, [isAdmin])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('この記事を削除しますか？この操作は元に戻せません。')) {

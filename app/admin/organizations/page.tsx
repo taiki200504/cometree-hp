@@ -104,10 +104,6 @@ export default function OrganizationsManagementPage() {
     )
   }
 
-  if (!requireAdmin()) {
-    return null
-  }
-
   const fetchOrganizations = useCallback(async () => {
     try {
       setLoading(true)
@@ -150,7 +146,15 @@ export default function OrganizationsManagementPage() {
     if (user && userRole === 'admin') {
       fetchOrganizations()
     }
-  }, [user, userRole, fetchOrganizations])
+  }, [user, userRole])
+
+  useEffect(() => {
+    requireAdmin()
+  }, [requireAdmin])
+
+  if (!requireAdmin()) {
+    return null
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('本当にこの団体を削除しますか？この操作は元に戻せません。')) {

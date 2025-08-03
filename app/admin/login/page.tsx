@@ -24,7 +24,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 
 export default function AdminLogin() {
-  const { signIn, user, loading, userRole } = useAdminAuthSimple()
+    const { signIn, user, loading, isAdmin } = useAdminAuthSimple()
   const { toast } = useToast()
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -55,11 +55,11 @@ export default function AdminLogin() {
 
   // 既にログインしている場合はダッシュボードにリダイレクト
   useEffect(() => {
-    if (user && userRole === 'admin') {
+    if (user && isAdmin) {
       console.log('[Login] User is admin, redirecting to dashboard');
       router.push('/admin/dashboard')
     }
-  }, [user, userRole, router])
+  }, [user, isAdmin, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,7 +144,7 @@ export default function AdminLogin() {
   }
 
   // ユーザーが既にログインしている場合は何も表示しない（リダイレクト中）
-  if (user && userRole === 'admin') {
+  if (user && isAdmin) {
     return (
       <div className="min-h-screen bg-black text-green-400 font-mono">
         <div className="flex items-center justify-center h-screen">
