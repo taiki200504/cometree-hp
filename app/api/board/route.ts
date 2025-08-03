@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
         id,
         title,
         content,
+        category,
+        tags,
         author_id,
         created_at,
         updated_at,

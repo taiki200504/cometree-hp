@@ -132,7 +132,7 @@ export default function BoardItemDetail({ params }: BoardItemDetailProps) {
                 <span className="font-medium">{item.author}</span>
               </div>
               <a
-                href={`mailto:${item.contact}`}
+                href={`mailto:${item.author}`}
                 className="inline-flex items-center bg-[#066ff2] text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
