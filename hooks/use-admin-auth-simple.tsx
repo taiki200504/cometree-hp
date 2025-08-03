@@ -16,23 +16,46 @@ export function useAdminAuthSimple() {
   const checkAdminRole = useCallback(async (user: User) => {
     try {
       console.log('[Auth] Checking admin role for user:', user.id)
+      console.log('[Auth] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('[Auth] User object:', user)
       
-      const { data, error } = await supabase
+      // タイムアウトを設定（10秒）
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 10000)
+      })
+
+      const queryPromise = supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single()
 
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
+
+      console.log('[Auth] Database query result:', { data, error })
+
       if (error) {
         console.error('[Auth] Error fetching user role:', error)
+        console.error('[Auth] Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
         return false
       }
       
       const isAdminUser = data?.role === 'admin'
-      console.log('[Auth] User role check result:', { role: data?.role, isAdmin: isAdminUser })
+      console.log('[Auth] User role check result:', { 
+        role: data?.role, 
+        isAdmin: isAdminUser,
+        userId: user.id,
+        dataExists: !!data
+      })
       return isAdminUser
     } catch (error) {
       console.error('[Auth] Error in checkAdminRole:', error)
+      console.error('[Auth] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       return false
     }
   }, [supabase])
