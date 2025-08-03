@@ -127,9 +127,13 @@ export default function AdminDashboard() {
     }
   }, [user, isAdmin])
 
+  // 認証チェック（一度だけ実行）
   useEffect(() => {
     if (!authLoading) {
-      requireAuth()
+      const isAuthenticated = requireAuth()
+      if (!isAuthenticated) {
+        return // リダイレクトが実行されるので何もしない
+      }
     }
   }, [authLoading, requireAuth])
 

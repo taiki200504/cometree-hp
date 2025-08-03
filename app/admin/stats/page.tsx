@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -64,6 +64,13 @@ export default function AdminStats() {
       { type: 'stats', action: '統計更新', title: '日次統計データ', time: '1日前' }
     ]
   }))
+
+  useEffect(() => {
+    const isAuthenticated = requireAuth()
+    if (isAuthenticated) {
+      // fetchStats() // This function is not defined in the original file, so it's commented out.
+    }
+  }, [requireAuth])
 
   if (loading) {
     return (

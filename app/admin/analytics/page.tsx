@@ -18,7 +18,10 @@ export default function AnalyticsPage() {
   const { requireAuth } = useAdminAuth()
 
   useEffect(() => {
-    requireAuth()
+    const isAuthenticated = requireAuth()
+    if (!isAuthenticated) {
+      return
+    }
   }, [requireAuth])
 
   // 最新のデータ（今日）を取得

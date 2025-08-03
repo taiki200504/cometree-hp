@@ -38,11 +38,15 @@ export function useAdminAuthSimple() {
   }, [supabase])
 
   useEffect(() => {
+    let mounted = true
+
     const getSession = async () => {
       try {
         console.log('[Auth] Getting session...')
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
+        if (!mounted) return
+
         if (sessionError) {
           console.error('[Auth] Session error:', sessionError)
           setError(sessionError.message)
@@ -56,15 +60,23 @@ export function useAdminAuthSimple() {
         
         if (currentUser) {
           const isAdminUser = await checkAdminRole(currentUser)
-          setIsAdmin(isAdminUser)
+          if (mounted) {
+            setIsAdmin(isAdminUser)
+          }
         } else {
-          setIsAdmin(false)
+          if (mounted) {
+            setIsAdmin(false)
+          }
         }
-        setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       } catch (error) {
-        console.error('[Auth] Error in getSession:', error)
-        setError(error instanceof Error ? error.message : 'Unknown error')
-        setLoading(false)
+        if (mounted) {
+          console.error('[Auth] Error in getSession:', error)
+          setError(error instanceof Error ? error.message : 'Unknown error')
+          setLoading(false)
+        }
       }
     }
 
@@ -72,6 +84,8 @@ export function useAdminAuthSimple() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+        
         console.log('[Auth] Auth state changed:', event)
         try {
           const currentUser = session?.user ?? null
@@ -79,23 +93,34 @@ export function useAdminAuthSimple() {
           
           if (currentUser) {
             const isAdminUser = await checkAdminRole(currentUser)
-            setIsAdmin(isAdminUser)
+            if (mounted) {
+              setIsAdmin(isAdminUser)
+            }
           } else {
-            setIsAdmin(false)
+            if (mounted) {
+              setIsAdmin(false)
+            }
           }
-          setLoading(false)
+          if (mounted) {
+            setLoading(false)
+          }
         } catch (error) {
-          console.error('[Auth] Error in auth state change:', error)
-          setError(error instanceof Error ? error.message : 'Unknown error')
-          setLoading(false)
+          if (mounted) {
+            console.error('[Auth] Error in auth state change:', error)
+            setError(error instanceof Error ? error.message : 'Unknown error')
+            setLoading(false)
+          }
         }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [supabase, checkAdminRole])
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
       console.log('[Auth] Attempting sign in for:', email)
       const { error } = await supabase.auth.signInWithPassword({
@@ -115,9 +140,9 @@ export function useAdminAuthSimple() {
       console.error('[Auth] Unexpected sign in error:', err)
       return { error: err as Error }
     }
-  }
+  }, [supabase, router])
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       console.log('[Auth] Signing out...')
       await supabase.auth.signOut()
@@ -125,7 +150,7 @@ export function useAdminAuthSimple() {
     } catch (error) {
       console.error('[Auth] Sign out error:', error)
     }
-  }
+  }, [supabase, router])
 
   const requireAuth = useCallback(() => {
     if (loading) return true // Don't redirect while loading
@@ -143,13 +168,6 @@ export function useAdminAuthSimple() {
     console.log('[Auth] User is authenticated and is admin')
     return true
   }, [loading, user, isAdmin, router])
-
-  // Automatically run requireAuth on loading state change
-  useEffect(() => {
-    if(!loading) {
-        requireAuth();
-    }
-  }, [loading, requireAuth])
 
   return {
     user,

@@ -31,8 +31,10 @@ export default function BoardManagementPage() {
   const router = useRouter()
 
   useEffect(() => {
-    requireAuth()
-    fetchPosts()
+    const isAuthenticated = requireAuth()
+    if (isAuthenticated) {
+      fetchPosts()
+    }
   }, [requireAuth])
 
   const handleDelete = async (id: string) => {

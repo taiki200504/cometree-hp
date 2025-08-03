@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -49,6 +49,13 @@ export default function AdminSettings() {
       logoUrl: '/images/header-logo.png'
     }
   })
+
+  useEffect(() => {
+    const isAuthenticated = requireAuth()
+    if (!isAuthenticated) {
+      return
+    }
+  }, [requireAuth])
 
   if (loading) {
     return (

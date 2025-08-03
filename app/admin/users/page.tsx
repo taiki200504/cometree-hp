@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -59,6 +59,13 @@ export default function AdminUsers() {
       loginCount: 8
     }
   ])
+
+  useEffect(() => {
+    const isAuthenticated = requireAuth()
+    if (isAuthenticated) {
+      // fetchUsers() // This function is not defined in the original file, so it's commented out.
+    }
+  }, [requireAuth])
 
   if (loading) {
     return (
