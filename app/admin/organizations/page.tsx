@@ -468,8 +468,15 @@ export default function OrganizationsManagementPage() {
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem 
-                                onClick={() => router.push(`/admin/organizations/${org.id}`)}
+                                onClick={() => router.push(`/admin/organizations/${org.id}/news`)}
                                 className="text-blue-400 hover:bg-blue-400/20"
+                              >
+                                <FileText className="mr-2 h-4 w-4" />
+                                Manage News
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => router.push(`/admin/organizations/${org.id}`)}
+                                className="text-purple-400 hover:bg-purple-400/20"
                               >
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details

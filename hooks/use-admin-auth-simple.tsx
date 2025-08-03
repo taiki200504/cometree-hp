@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
@@ -12,36 +12,23 @@ export function useAdminAuthSimple() {
   const [error, setError] = useState<string | null>(null)
   const supabase = createClientComponentClient()
   const router = useRouter()
+  const mountedRef = useRef(true)
+  const authCheckedRef = useRef(false)
 
   const checkAdminRole = useCallback(async (user: User) => {
+    if (!mountedRef.current) return false
+    
     try {
       console.log('[Auth] Checking admin role for user:', user.id)
-      console.log('[Auth] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-      console.log('[Auth] User object:', user)
       
-      // タイムアウトを設定（10秒）
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database query timeout')), 10000)
-      })
-
-      const queryPromise = supabase
+      const { data, error } = await supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
-
-      console.log('[Auth] Database query result:', { data, error })
-
       if (error) {
         console.error('[Auth] Error fetching user role:', error)
-        console.error('[Auth] Error details:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        })
         return false
       }
       
@@ -49,26 +36,27 @@ export function useAdminAuthSimple() {
       console.log('[Auth] User role check result:', { 
         role: data?.role, 
         isAdmin: isAdminUser,
-        userId: user.id,
-        dataExists: !!data
+        userId: user.id
       })
       return isAdminUser
     } catch (error) {
       console.error('[Auth] Error in checkAdminRole:', error)
-      console.error('[Auth] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       return false
     }
   }, [supabase])
 
   useEffect(() => {
-    let mounted = true
+    mountedRef.current = true
+    authCheckedRef.current = false
 
-    const getSession = async () => {
+    const initializeAuth = async () => {
+      if (!mountedRef.current) return
+
       try {
-        console.log('[Auth] Getting session...')
+        console.log('[Auth] Initializing auth...')
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        if (!mounted) return
+        if (!mountedRef.current) return
 
         if (sessionError) {
           console.error('[Auth] Session error:', sessionError)
@@ -83,52 +71,62 @@ export function useAdminAuthSimple() {
         
         if (currentUser) {
           const isAdminUser = await checkAdminRole(currentUser)
-          if (mounted) {
+          if (mountedRef.current) {
             setIsAdmin(isAdminUser)
           }
         } else {
-          if (mounted) {
+          if (mountedRef.current) {
             setIsAdmin(false)
           }
         }
-        if (mounted) {
+        
+        if (mountedRef.current) {
           setLoading(false)
+          authCheckedRef.current = true
         }
       } catch (error) {
-        if (mounted) {
-          console.error('[Auth] Error in getSession:', error)
+        if (mountedRef.current) {
+          console.error('[Auth] Error in initializeAuth:', error)
           setError(error instanceof Error ? error.message : 'Unknown error')
           setLoading(false)
         }
       }
     }
 
-    getSession()
+    initializeAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!mounted) return
+        if (!mountedRef.current) return
         
         console.log('[Auth] Auth state changed:', event)
+        
+        // 初回チェック後は必要な場合のみ処理
+        if (authCheckedRef.current && event === 'INITIAL_SESSION') {
+          return
+        }
+
         try {
           const currentUser = session?.user ?? null
           setUser(currentUser)
           
           if (currentUser) {
             const isAdminUser = await checkAdminRole(currentUser)
-            if (mounted) {
+            if (mountedRef.current) {
               setIsAdmin(isAdminUser)
             }
           } else {
-            if (mounted) {
+            if (mountedRef.current) {
               setIsAdmin(false)
             }
           }
-          if (mounted) {
+          
+          if (mountedRef.current) {
             setLoading(false)
+            authCheckedRef.current = true
           }
         } catch (error) {
-          if (mounted) {
+          if (mountedRef.current) {
             console.error('[Auth] Error in auth state change:', error)
             setError(error instanceof Error ? error.message : 'Unknown error')
             setLoading(false)
@@ -138,7 +136,7 @@ export function useAdminAuthSimple() {
     )
 
     return () => {
-      mounted = false
+      mountedRef.current = false
       subscription.unsubscribe()
     }
   }, [supabase, checkAdminRole])
@@ -176,8 +174,7 @@ export function useAdminAuthSimple() {
   }, [supabase, router])
 
   const requireAuth = useCallback(() => {
-    if (loading) return true // Don't redirect while loading
-
+    if (loading) return true
     if (!user) {
       console.log('[Auth] No user, redirecting to login')
       router.push('/admin/login')
@@ -185,7 +182,7 @@ export function useAdminAuthSimple() {
     }
     if (!isAdmin) {
       console.log('[Auth] User is not admin, redirecting to home')
-      router.push('/') // Or a dedicated "unauthorized" page
+      router.push('/')
       return false
     }
     console.log('[Auth] User is authenticated and is admin')
