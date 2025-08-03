@@ -126,6 +126,7 @@ export default function AdminLogin() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="mt-1 block w-full bg-black/50 border-green-400/30 text-green-400 placeholder-green-700 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50"
                   placeholder="admin@example.com"
+                  autoComplete="username"
                   required
                 />
               </div>
@@ -138,6 +139,7 @@ export default function AdminLogin() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="mt-1 block w-full bg-black/50 border-green-400/30 text-green-400 placeholder-green-700 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   required
                 />
               </div>

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   const isTestAdmin = email === 'admin@union.example.com' && password === 'admin123'
   console.log('[API] Test admin check:', { email, isTestAdmin })
   
-  if (isTestAdmin) {
+  if (isTestAdmin && process.env.NODE_ENV === 'development') {
     console.log('[API] Test admin authentication successful')
     const responseTime = Date.now() - startTime
     await logAccess('test-admin', '/api/auth/login', 'POST', 200, responseTime)

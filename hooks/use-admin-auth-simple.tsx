@@ -29,10 +29,13 @@ export function useAdminAuthSimple() {
       try {
         console.log('[Auth] Checking admin role for user:', user.id)
         
-        // 開発環境では常に管理者として扱う
+        // 開発環境では特定のユーザーのみ管理者として扱う
         if (process.env.NODE_ENV === 'development') {
-          console.log('[Auth] Development mode: treating as admin')
-          return true
+          const testAdminEmail = 'admin@union.example.com'
+          if (user.email === testAdminEmail) {
+            console.log('[Auth] Development mode: treating test admin as admin')
+            return true
+          }
         }
 
         // 本番環境でのみデータベースチェック
@@ -165,10 +168,33 @@ export function useAdminAuthSimple() {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       console.log('[Auth] Attempting sign in for:', email)
+      
+      // 開発環境でのテスト認証
+      if (process.env.NODE_ENV === 'development') {
+        const testAdminEmail = 'admin@union.example.com'
+        const testAdminPassword = 'admin123'
+        
+        if (email === testAdminEmail && password === testAdminPassword) {
+          console.log('[Auth] Development test admin authentication successful')
+          // テスト用のセッションを作成
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: testAdminEmail,
+            password: testAdminPassword,
+          })
+          
+          if (!error) {
+            console.log('[Auth] Test admin sign in successful')
+            router.push('/admin/dashboard')
+            return { error: null }
+          }
+        }
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
+      
       if (!error) {
         console.log('[Auth] Sign in successful')
         router.push('/admin/dashboard')
