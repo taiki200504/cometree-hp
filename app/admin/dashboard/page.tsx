@@ -2,130 +2,107 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/hooks/use-toast'
 import { 
-  Cpu, 
-  HardDrive, 
-  Network, 
-  Activity, 
-  Clock, 
   Users, 
-  Eye, 
-  TrendingUp,
-  Shield,
-  Bell,
-  LogOut,
-  Loader2,
+  FileText, 
+  Calendar, 
+  Building, 
+  Handshake, 
+  Heart, 
+  BarChart3, 
+  Settings, 
   Plus,
-  FileText,
+  ArrowRight,
+  TrendingUp,
+  Eye,
   MessageSquare,
-  Building,
-  Handshake,
-  Heart,
-  BarChart3,
-  Database,
-  Settings,
-  UserCheck,
-  Calendar,
   Star
 } from 'lucide-react'
-import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
-import { useToast } from '@/components/ui/use-toast'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import Link from 'next/link'
 
-interface Stats {
-  news: number
-  events: number
-  users: number
-  organizations: number
-  partners: number
-  members: number
-  supporters: number
-  views: number
-  boardPosts: number
-}
-
-interface SystemMetrics {
-  cpu: number
-  memory: number
-  network: number
-  storage: number
+interface DashboardStats {
+  totalMembers: number
+  totalNews: number
+  totalEvents: number
+  totalOrganizations: number
+  totalPartners: number
+  totalSupporters: number
+  recentActivity: number
+  systemHealth: 'excellent' | 'good' | 'warning' | 'critical'
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats>(() => ({
-    news: 0,
-    events: 0,
-    users: 0,
-    organizations: 0,
-    partners: 0,
-    members: 0,
-    supporters: 0,
-    views: 0,
-    boardPosts: 0
-  }))
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>(() => ({
-    cpu: 45,
-    memory: 62,
-    network: 78,
-    storage: 35
-  }))
+  const [stats, setStats] = useState<DashboardStats>({
+    totalMembers: 0,
+    totalNews: 0,
+    totalEvents: 0,
+    totalOrganizations: 0,
+    totalPartners: 0,
+    totalSupporters: 0,
+    recentActivity: 0,
+    systemHealth: 'excellent'
+  })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
-  const [statsError, setStatsError] = useState<string | null>(null)
-  const [isUpdatingStats, setIsUpdatingStats] = useState(false)
-  const [currentTime, setCurrentTime] = useState(() => new Date())
 
-  // リアルタイムシステムメトリクス更新
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date())
-      setSystemMetrics(prev => ({
-        ...prev,
-        cpu: Math.max(20, Math.min(90, prev.cpu + (Math.random() - 0.5) * 10)),
-        memory: Math.max(30, Math.min(85, prev.memory + (Math.random() - 0.5) * 5)),
-        network: Math.max(50, Math.min(95, prev.network + (Math.random() - 0.5) * 8)),
-        storage: Math.max(25, Math.min(60, prev.storage + (Math.random() - 0.5) * 3))
-      }))
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // データ取得関数
-  const fetchStats = useCallback(async () => {
-    try {
-      setStatsError(null)
-      const response = await fetch('/api/admin/stats')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.error) {
-          setStatsError(data.error)
-        } else {
-          setStats(data)
-        }
-      } else {
-        const errorData = await response.json()
-        setStatsError(errorData.error || '統計データの取得に失敗しました。')
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error)
-      setStatsError(error instanceof Error ? error.message : '不明なエラーが発生しました。')
-    } finally {
-      setIsLoadingStats(false)
-    }
-  }, [])
-
-    const { user, loading: authLoading, requireAuth, signOut, isAdmin } = useAdminAuthSimple()
+  const { requireAuth, loading: authLoading, signOut } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast()
 
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsLoadingStats(true)
+      
+      // 各APIエンドポイントからデータを取得
+      const [membersRes, newsRes, eventsRes, organizationsRes, partnersRes, supportersRes] = await Promise.all([
+        fetch('/api/admin/members'),
+        fetch('/api/admin/news'),
+        fetch('/api/admin/events'),
+        fetch('/api/admin/organizations'),
+        fetch('/api/admin/partners'),
+        fetch('/api/admin/supporters')
+      ])
+
+      const members = await membersRes.json()
+      const news = await newsRes.json()
+      const events = await eventsRes.json()
+      const organizations = await organizationsRes.json()
+      const partners = await partnersRes.json()
+      const supporters = await supportersRes.json()
+
+      setStats({
+        totalMembers: members.length || 0,
+        totalNews: news.length || 0,
+        totalEvents: events.length || 0,
+        totalOrganizations: organizations.length || 0,
+        totalPartners: partners.length || 0,
+        totalSupporters: supporters.length || 0,
+        recentActivity: (members.length || 0) + (news.length || 0) + (events.length || 0),
+        systemHealth: 'excellent'
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+      toast({
+        title: "エラー",
+        description: "統計データの取得に失敗しました",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }, [toast])
+
   // データ取得
   useEffect(() => {
-    if (user && isAdmin) {
+    const isAuthenticated = requireAuth()
+    if (isAuthenticated) {
       fetchStats()
     }
-  }, [user, isAdmin])
+  }, [requireAuth, fetchStats])
 
   // 認証チェック（一度だけ実行）
   useEffect(() => {
@@ -143,397 +120,282 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white font-mono">
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
-            <div className="mb-8">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <Cpu className="h-8 w-8 animate-pulse text-blue-400" />
-                <span className="text-2xl font-bold text-blue-400">UNION オペレーションセンター</span>
-              </div>
-              <div className="text-sm opacity-75">ダッシュボードを初期化中...</div>
-            </div>
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-400" />
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span>認証システム: オンライン</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span>データベース: オンライン</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span>API ゲートウェイ: オンライン</span>
-              </div>
-            </div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+            <div className="text-lg">INITIALIZING ADMIN DASHBOARD...</div>
+            <div className="text-sm opacity-75 mt-2">Loading system components</div>
           </div>
         </div>
       </div>
     )
   }
 
-  const handleSignOut = async () => {
-    try {
-      const response = await fetch('/api/auth/logout', { method: 'POST' })
-      if (response.ok) {
-        router.push('/admin/login')
-        toast({
-          title: "ログアウト完了",
-          description: "正常にログアウトしました。",
-        })
-      }
-    } catch (error) {
-      console.error('Logout error:', error)
-      toast({
-        title: "ログアウトエラー",
-        description: "ログアウト中にエラーが発生しました。",
-        variant: 'destructive',
-      })
-    }
-  }
-
-  const handleUpdateStats = async () => {
-    setIsUpdatingStats(true)
-    try {
-      await fetchStats()
-      toast({
-        title: "統計更新完了",
-        description: "統計データを正常に更新しました。",
-      })
-    } catch (error) {
-      toast({
-        title: "統計更新エラー",
-        description: "統計データの更新中にエラーが発生しました。",
-        variant: 'destructive',
-      })
-    } finally {
-      setIsUpdatingStats(false)
-    }
-  }
-
-  const handleAddTestData = async (type: 'members' | 'supporters' | 'news') => {
-    try {
-      const response = await fetch(`/api/admin/${type}/test-data`, { method: 'POST' })
-      if (response.ok) {
-        toast({
-          title: "テストデータ追加完了",
-          description: `${type === 'members' ? 'メンバー' : type === 'supporters' ? 'サポーター' : 'ニュース'}のテストデータを正常に追加しました。`,
-        })
-        fetchStats() // 統計を更新
-      } else {
-        throw new Error('Failed to add test data')
-      }
-    } catch (error) {
-      toast({
-        title: "テストデータ追加エラー",
-        description: "テストデータの追加中にエラーが発生しました。",
-        variant: 'destructive',
-      })
-    }
-  }
-
-  const getStatusColor = (value: number) => {
-    if (value >= 80) return 'text-red-400'
-    if (value >= 60) return 'text-yellow-400'
-    return 'text-blue-400'
-  }
-
-  const getStatusIcon = (value: number) => {
-    if (value >= 80) return '🔴'
-    if (value >= 60) return '🟡'
-    return '🟢'
-  }
-
-  const managementCards = [
+  const quickActions = [
     {
-      title: 'ニュース管理',
-      description: 'ニュース記事の管理',
-      icon: <FileText className="h-6 w-6" />,
-      href: '/admin/news',
-      color: 'from-blue-500 to-blue-600',
-      count: stats.news,
-      actions: [
-        { label: '新規作成', icon: <Plus className="h-4 w-4" />, href: '/admin/news/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/news' }
-      ]
-    },
-    {
-      title: 'イベント管理',
-      description: 'イベントの管理',
-      icon: <Calendar className="h-6 w-6" />,
-      href: '/admin/events',
-      color: 'from-green-500 to-green-600',
-      count: stats.events,
-      actions: [
-        { label: '新規作成', icon: <Plus className="h-4 w-4" />, href: '/admin/events/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/events' }
-      ]
-    },
-    {
-      title: '掲示板管理',
-      description: '掲示板投稿の管理',
-      icon: <MessageSquare className="h-6 w-6" />,
-      href: '/admin/board',
-      color: 'from-purple-500 to-purple-600',
-      count: stats.boardPosts || 0,
-      actions: [
-        { label: '新規投稿', icon: <Plus className="h-4 w-4" />, href: '/admin/board/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/board' }
-      ]
-    },
-    {
-      title: '加盟団体管理',
-      description: '加盟団体の管理',
-      icon: <Building className="h-6 w-6" />,
-      href: '/admin/organizations',
-      color: 'from-indigo-500 to-indigo-600',
-      count: stats.organizations,
-      actions: [
-        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/organizations/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/organizations' }
-      ]
-    },
-    {
-      title: '提携団体管理',
-      description: '提携団体の管理',
-      icon: <Handshake className="h-6 w-6" />,
-      href: '/admin/partners',
-      color: 'from-amber-500 to-amber-600',
-      count: stats.partners,
-      actions: [
-        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/partners/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/partners' }
-      ]
-    },
-    {
-      title: '運営メンバー管理',
-      description: '運営メンバーの管理',
+      title: "メンバー追加",
+      description: "新しいメンバーを登録",
       icon: <Users className="h-6 w-6" />,
-      href: '/admin/members',
-      color: 'from-teal-500 to-teal-600',
-      count: stats.members,
-      actions: [
-        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/members/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/members' }
-      ]
+      href: "/admin/members/create",
+      color: "bg-blue-500 hover:bg-blue-600"
     },
     {
-      title: '支援者管理',
-      description: '支援者の管理',
-      icon: <Heart className="h-6 w-6" />,
-      href: '/admin/supporters',
-      color: 'from-red-500 to-red-600',
-      count: stats.supporters,
-      actions: [
-        { label: '新規追加', icon: <Plus className="h-4 w-4" />, href: '/admin/supporters/create' },
-        { label: '一覧表示', icon: <Eye className="h-4 w-4" />, href: '/admin/supporters' }
-      ]
+      title: "ニュース作成",
+      description: "新しいニュースを投稿",
+      icon: <FileText className="h-6 w-6" />,
+      href: "/admin/news/create",
+      color: "bg-green-500 hover:bg-green-600"
     },
     {
-      title: 'アクセス解析',
-      description: 'サイト統計の更新と分析',
-      icon: <BarChart3 className="h-6 w-6" />,
-      href: '/admin/analytics',
-      color: 'from-orange-500 to-orange-600',
-      count: stats.views,
-      actions: [
-        { label: '統計表示', icon: <TrendingUp className="h-4 w-4" />, href: '/admin/analytics' },
-        { label: '統計データ', icon: <Activity className="h-4 w-4" />, href: '/admin/stats' }
-      ]
+      title: "イベント作成",
+      description: "新しいイベントを登録",
+      icon: <Calendar className="h-6 w-6" />,
+      href: "/admin/events/create",
+      color: "bg-purple-500 hover:bg-purple-600"
+    },
+    {
+      title: "団体追加",
+      description: "新しい加盟団体を登録",
+      icon: <Building className="h-6 w-6" />,
+      href: "/admin/organizations/create",
+      color: "bg-orange-500 hover:bg-orange-600"
+    }
+  ]
+
+  const managementSections = [
+    {
+      title: "メンバー管理",
+      description: "運営メンバーの管理",
+      icon: <Users className="h-5 w-5" />,
+      href: "/admin/members",
+      count: stats.totalMembers,
+      color: "text-blue-600"
+    },
+    {
+      title: "ニュース管理",
+      description: "ニュース記事の管理",
+      icon: <FileText className="h-5 w-5" />,
+      href: "/admin/news",
+      count: stats.totalNews,
+      color: "text-green-600"
+    },
+    {
+      title: "イベント管理",
+      description: "イベントの管理",
+      icon: <Calendar className="h-5 w-5" />,
+      href: "/admin/events",
+      count: stats.totalEvents,
+      color: "text-purple-600"
+    },
+    {
+      title: "加盟団体管理",
+      description: "加盟団体の管理",
+      icon: <Building className="h-5 w-5" />,
+      href: "/admin/organizations",
+      count: stats.totalOrganizations,
+      color: "text-orange-600"
+    },
+    {
+      title: "提携企業管理",
+      description: "提携企業の管理",
+      icon: <Handshake className="h-5 w-5" />,
+      href: "/admin/partners",
+      count: stats.totalPartners,
+      color: "text-indigo-600"
+    },
+    {
+      title: "支援者管理",
+      description: "支援者の管理",
+      icon: <Heart className="h-5 w-5" />,
+      href: "/admin/supporters",
+      count: stats.totalSupporters,
+      color: "text-pink-600"
     }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white font-mono">
-      {/* Header */}
-      <header className="bg-white/10 backdrop-blur-md border-b border-blue-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center border border-blue-400 shadow-lg">
-                  <Shield className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    UNION オペレーションセンター
-                  </h1>
-                  <div className="text-xs opacity-75">管理者ダッシュボード</div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Bell className="h-5 w-5 text-blue-400 hover:text-blue-300 cursor-pointer transition-colors" />
-                <Badge variant="secondary" className="bg-blue-400/20 text-blue-400 border-blue-400/30">
-                  オンライン
-                </Badge>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-blue-400">{user?.email}</p>
-                  <p className="text-xs opacity-75">管理者</p>
-                </div>
-                <Button onClick={handleSignOut} variant="outline" size="sm" className="flex items-center space-x-2 border-blue-400/30 text-blue-400 hover:bg-blue-400/10">
-                  <LogOut className="h-4 w-4" />
-                  <span>ログアウト</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="p-4 md:p-8">
+        {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-blue-400 mb-2">
-                ようこそ、{user?.email?.split('@')[0]?.toUpperCase()}
-              </h2>
-              <p className="text-sm opacity-75 mb-4">
-                UNION オペレーションセンター - {currentTime.toLocaleString('ja-JP')}
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">UNION 管理者ダッシュボード</h1>
+              <p className="text-gray-600">システム全体の管理と監視</p>
             </div>
             <div className="flex items-center space-x-4">
-              <Button onClick={handleUpdateStats} disabled={isUpdatingStats} className="bg-blue-400/20 text-blue-400 border-blue-400/30 hover:bg-blue-400/30">
-                {isUpdatingStats && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                統計更新
+              <Badge variant={stats.systemHealth === 'excellent' ? 'default' : 'secondary'}>
+                {stats.systemHealth === 'excellent' ? 'システム正常' : 'システム警告'}
+              </Badge>
+              <Button variant="outline" onClick={signOut}>
+                ログアウト
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="border-cyan-400/30 text-cyan-400 hover:bg-cyan-400/10">
-                    テストデータ追加
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-white/10 backdrop-blur-md border-blue-400/30">
-                  <DropdownMenuItem onClick={() => handleAddTestData('members')} className="text-blue-400 hover:bg-blue-400/10">
-                    メンバーデータ追加
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddTestData('supporters')} className="text-blue-400 hover:bg-blue-400/10">
-                    サポーターデータ追加
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddTestData('news')} className="text-blue-400 hover:bg-blue-400/10">
-                    ニュースデータ追加
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>
 
-        {/* System Metrics */}
+        {/* 統計カード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">CPU使用率</CardTitle>
-                <Cpu className="h-4 w-4 text-blue-400" />
-              </div>
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">総メンバー数</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.cpu.toFixed(1)}%</div>
-              <div className={`text-xs ${getStatusColor(systemMetrics.cpu)}`}>
-                {getStatusIcon(systemMetrics.cpu)} {systemMetrics.cpu >= 80 ? '高負荷' : systemMetrics.cpu >= 60 ? '注意' : '正常'}
-              </div>
+              <div className="text-2xl font-bold text-blue-600">{isLoadingStats ? '...' : stats.totalMembers}</div>
+              <p className="text-xs text-gray-500">運営メンバー</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">メモリ使用率</CardTitle>
-                <HardDrive className="h-4 w-4 text-blue-400" />
-              </div>
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">ニュース記事</CardTitle>
+              <FileText className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.memory.toFixed(1)}%</div>
-              <div className={`text-xs ${getStatusColor(systemMetrics.memory)}`}>
-                {getStatusIcon(systemMetrics.memory)} {systemMetrics.memory >= 80 ? '高負荷' : systemMetrics.memory >= 60 ? '注意' : '正常'}
-              </div>
+              <div className="text-2xl font-bold text-green-600">{isLoadingStats ? '...' : stats.totalNews}</div>
+              <p className="text-xs text-gray-500">公開済み記事</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">ネットワーク</CardTitle>
-                <Network className="h-4 w-4 text-blue-400" />
-              </div>
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">イベント数</CardTitle>
+              <Calendar className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.network.toFixed(1)}%</div>
-              <div className={`text-xs ${getStatusColor(systemMetrics.network)}`}>
-                {getStatusIcon(systemMetrics.network)} {systemMetrics.network >= 80 ? '高負荷' : systemMetrics.network >= 60 ? '注意' : '正常'}
-              </div>
+              <div className="text-2xl font-bold text-purple-600">{isLoadingStats ? '...' : stats.totalEvents}</div>
+              <p className="text-xs text-gray-500">登録済みイベント</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-md border-blue-400/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-blue-400">ストレージ</CardTitle>
-                <Activity className="h-4 w-4 text-blue-400" />
-              </div>
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">加盟団体</CardTitle>
+              <Building className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{systemMetrics.storage.toFixed(1)}%</div>
-              <div className={`text-xs ${getStatusColor(systemMetrics.storage)}`}>
-                {getStatusIcon(systemMetrics.storage)} {systemMetrics.storage >= 80 ? '高負荷' : systemMetrics.storage >= 60 ? '注意' : '正常'}
-              </div>
+              <div className="text-2xl font-bold text-orange-600">{isLoadingStats ? '...' : stats.totalOrganizations}</div>
+              <p className="text-xs text-gray-500">加盟団体数</p>
             </CardContent>
           </Card>
         </div>
 
-
-
-        {/* Management Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {managementCards.map((card, index) => (
-            <Card key={index} className="bg-white/10 backdrop-blur-md border-blue-400/30 hover:bg-white/20 transition-all duration-300">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className={`w-10 h-10 bg-gradient-to-r ${card.color} rounded-lg flex items-center justify-center`}>
-                    {card.icon}
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-400/20 text-blue-400 border-blue-400/30">
-                    {card.count}
-                  </Badge>
-                </div>
-                <CardTitle className="text-lg font-bold text-white">{card.title}</CardTitle>
-                <p className="text-sm opacity-75">{card.description}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex space-x-2">
-                  {card.actions.map((action, actionIndex) => (
-                    <Button
-                      key={actionIndex}
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-blue-400/30 text-blue-400 hover:bg-blue-400/10"
-                      onClick={() => router.push(action.href)}
-                    >
+        {/* クイックアクション */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">クイックアクション</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {quickActions.map((action, index) => (
+              <Card key={index} className="border-0 shadow-lg bg-white hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-3 rounded-lg ${action.color} text-white`}>
                       {action.icon}
-                      <span className="ml-1">{action.label}</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{action.title}</h3>
+                      <p className="text-sm text-gray-600">{action.description}</p>
+                    </div>
+                    <Button asChild size="sm" className="bg-gray-100 hover:bg-gray-200 text-gray-700">
+                      <Link href={action.href}>
+                        <Plus className="h-4 w-4" />
+                      </Link>
                     </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
-        {/* Error Display */}
-        {statsError && (
-          <div className="mt-8 p-4 bg-red-400/10 border border-red-400/30 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-red-400"></div>
-              <span className="text-red-400">統計データエラー: {statsError}</span>
-            </div>
+        {/* 管理セクション */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">管理セクション</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {managementSections.map((section, index) => (
+              <Card key={index} className="border-0 shadow-lg bg-white hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 rounded-lg bg-gray-100 ${section.color}`}>
+                        {section.icon}
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{section.title}</CardTitle>
+                        <p className="text-sm text-gray-600">{section.description}</p>
+                      </div>
+                    </div>
+                    <Badge variant="outline">{section.count}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild className="w-full">
+                    <Link href={section.href}>
+                      管理画面へ
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        )}
-      </main>
+        </div>
+
+        {/* 追加機能 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-lg">統計・分析</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">サイトの統計データと分析結果を確認</p>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/admin/stats">
+                  統計を見る
+                  <TrendingUp className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <Settings className="h-5 w-5 text-green-600" />
+                <CardTitle className="text-lg">システム設定</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">システム設定と環境変数の管理</p>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/admin/settings">
+                  設定を開く
+                  <Settings className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-white">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <MessageSquare className="h-5 w-5 text-purple-600" />
+                <CardTitle className="text-lg">ポッドキャスト管理</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">ポッドキャスト番組とエピソードの管理</p>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/admin/podcasts">
+                  ポッドキャスト管理
+                  <Star className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

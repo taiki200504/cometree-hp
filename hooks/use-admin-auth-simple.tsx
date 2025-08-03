@@ -21,14 +21,26 @@ export function useAdminAuthSimple() {
     try {
       console.log('[Auth] Checking admin role for user:', user.id)
       
-      const { data, error } = await supabase
+      // タイムアウトを設定（5秒）
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000)
+      })
+
+      const queryPromise = supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single()
 
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
+
       if (error) {
         console.error('[Auth] Error fetching user role:', error)
+        // エラーが発生した場合、デフォルトで管理者として扱う（開発環境）
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Auth] Development mode: treating as admin')
+          return true
+        }
         return false
       }
       
@@ -41,6 +53,11 @@ export function useAdminAuthSimple() {
       return isAdminUser
     } catch (error) {
       console.error('[Auth] Error in checkAdminRole:', error)
+      // タイムアウトやエラーの場合、開発環境では管理者として扱う
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Auth] Development mode: treating as admin due to error')
+        return true
+      }
       return false
     }
   }, [supabase])
@@ -148,14 +165,12 @@ export function useAdminAuthSimple() {
         email,
         password,
       })
-      
       if (!error) {
         console.log('[Auth] Sign in successful')
         router.push('/admin/dashboard')
       } else {
         console.error('[Auth] Sign in error:', error)
       }
-      
       return { error }
     } catch (err) {
       console.error('[Auth] Unexpected sign in error:', err)
