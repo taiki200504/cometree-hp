@@ -4,50 +4,106 @@ import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
   } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminClient()
-  const { searchParams } = new URL(request.url)
-  const page = parseInt(searchParams.get('page') || '1', 10)
-  const limit = parseInt(searchParams.get('limit') || '10', 10)
-  const offset = (page - 1) * limit
+  try {
+    const supabase = createAdminClient()
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '10', 10)
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || 'all'
+    const partnershipLevel = searchParams.get('partnership_level') || 'all'
+    const offset = (page - 1) * limit
 
-  const { data: partners, error, count } = await supabase
-    .from('partners')
-    .select('*', { count: 'exact' })
-    .range(offset, offset + limit - 1)
-    .order('created_at', { ascending: false })
+    // Build query
+    let query = supabase
+      .from('partners')
+      .select('*', { count: 'exact' })
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Apply search filter
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+    }
+
+    // Apply status filter
+    if (status !== 'all') {
+      query = query.eq('status', status)
+    }
+
+    // Apply partnership level filter
+    if (partnershipLevel !== 'all') {
+      query = query.eq('partnership_level', partnershipLevel)
+    }
+
+    // Apply pagination and ordering
+    const { data: partners, error, count } = await query
+      .range(offset, offset + limit - 1)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to fetch partners' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      partners: partners || [],
+      totalCount: count || 0
+    })
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  return NextResponse.json({
-    partners,
-    totalCount: count,
-  })
 }
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
   } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
-  const supabase = createAdminClient()
-  const partnerData = await request.json()
   
-  const { data, error } = await supabase
-    .from('partners')
-    .insert([partnerData])
-    .select()
+  try {
+    const supabase = createAdminClient()
+    const partnerData = await request.json()
+    
+    // Validate required fields
+    if (!partnerData.name) {
+      return NextResponse.json({ 
+        error: 'パートナー名は必須項目です。' 
+      }, { status: 400 })
+    }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Set default values
+    const dataToInsert = {
+      ...partnerData,
+      status: partnerData.status || 'active',
+      partnership_level: partnerData.partnership_level || 'basic',
+      benefits: partnerData.benefits || [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    const { data, error } = await supabase
+      .from('partners')
+      .insert([dataToInsert])
+      .select()
+
+    if (error) {
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to create partner' }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }

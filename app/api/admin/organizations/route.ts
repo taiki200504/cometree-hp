@@ -4,7 +4,14 @@ import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
+  } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
+
+  try {
     const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
@@ -14,13 +21,14 @@ export async function GET(request: NextRequest) {
     const verification = searchParams.get('verification') || 'all'
     const offset = (page - 1) * limit
 
+    // Build query
     let query = supabase
       .from('organizations')
       .select('*', { count: 'exact' })
 
     // Apply search filter
     if (search) {
-      query = query.or(`name.ilike.%${search}%,category.ilike.%${search}%,region.ilike.%${search}%`)
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`)
     }
 
     // Apply status filter
@@ -33,42 +41,69 @@ export async function GET(request: NextRequest) {
       query = query.eq('verification_level', verification)
     }
 
+    // Apply pagination and ordering
     const { data: organizations, error, count } = await query
       .range(offset, offset + limit - 1)
       .order('created_at', { ascending: false })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to fetch organizations' }, { status: 500 })
     }
 
     return NextResponse.json({
-      organizations,
-      totalCount: count,
-      page,
-      limit
+      organizations: organizations || [],
+      totalCount: count || 0
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
   } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
-  const supabase = createAdminClient()
-  const organizationData = await request.json()
   
-  const { data, error } = await supabase
-    .from('organizations')
-    .insert([organizationData])
-    .select()
+  try {
+    const supabase = createAdminClient()
+    const organizationData = await request.json()
+    
+    // Validate required fields
+    if (!organizationData.name) {
+      return NextResponse.json({ 
+        error: '団体名は必須項目です。' 
+      }, { status: 400 })
+    }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Set default values
+    const dataToInsert = {
+      ...organizationData,
+      status: organizationData.status || 'active',
+      verification_level: organizationData.verification_level || 'basic',
+      member_count: organizationData.member_count || 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    const { data, error } = await supabase
+      .from('organizations')
+      .insert([dataToInsert])
+      .select()
+
+    if (error) {
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }

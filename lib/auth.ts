@@ -20,6 +20,21 @@ export async function getCurrentUser(): Promise<User | null> {
       return null
     }
 
+    // 開発環境でのテスト管理者チェック
+    if (process.env.NODE_ENV === 'development') {
+      const testAdminEmail = 'admin@union.example.com'
+      if (user.email === testAdminEmail) {
+        console.log('[Auth] Development mode: treating test admin as admin')
+        return {
+          id: user.id,
+          email: user.email!,
+          name: 'Test Admin',
+          role: 'admin',
+          organization_id: null
+        }
+      }
+    }
+
     // ユーザーの詳細情報を取得
     const { data: profile, error: profileError } = await supabase
       .from('users')
@@ -29,6 +44,14 @@ export async function getCurrentUser(): Promise<User | null> {
 
     if (profileError) {
       console.error('Profile fetch error:', profileError)
+      // プロファイルが見つからない場合はデフォルト値を返す
+      return {
+        id: user.id,
+        email: user.email!,
+        name: user.user_metadata?.name || user.email?.split('@')[0],
+        role: 'user',
+        organization_id: null
+      }
     }
 
     return {
@@ -86,6 +109,15 @@ export async function requireAdmin(request: NextRequest) {
   
   if (!user) {
     throw new Error('Authentication required')
+  }
+  
+  // 開発環境でのテスト管理者チェック
+  if (process.env.NODE_ENV === 'development') {
+    const testAdminEmail = 'admin@union.example.com'
+    if (user.email === testAdminEmail) {
+      console.log('[Auth] Development mode: allowing test admin access')
+      return user
+    }
   }
   
   if (user.role !== 'admin') {

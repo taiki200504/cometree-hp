@@ -4,117 +4,108 @@ import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
   } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
-  
-  const supabase = createAdminClient()
-  const { searchParams } = new URL(request.url)
-  const page = parseInt(searchParams.get('page') || '1', 10)
-  const limit = parseInt(searchParams.get('limit') || '10', 10)
-  const search = searchParams.get('search') || ''
-  const status = searchParams.get('status') || 'all'
-  const offset = (page - 1) * limit
 
-  // Build query
-  let query = supabase
-    .from('events')
-    .select('*', { count: 'exact' })
+  try {
+    const supabase = createAdminClient()
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '10', 10)
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || 'all'
+    const category = searchParams.get('category') || 'all'
+    const offset = (page - 1) * limit
 
-  // Apply search filter
-  if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
-  }
+    // Build query
+    let query = supabase
+      .from('events')
+      .select('*', { count: 'exact' })
 
-  // Apply status filter
-  if (status !== 'all') {
-    if (status === 'upcoming') {
-      query = query.gte('event_date', new Date().toISOString())
-    } else if (status === 'past') {
-      query = query.lt('event_date', new Date().toISOString())
+    // Apply search filter
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
     }
+
+    // Apply status filter
+    if (status !== 'all') {
+      query = query.eq('status', status)
+    }
+
+    // Apply category filter
+    if (category !== 'all') {
+      query = query.eq('category', category)
+    }
+
+    // Apply pagination and ordering
+    const { data: events, error, count } = await query
+      .range(offset, offset + limit - 1)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      events: events || [],
+      totalCount: count || 0
+    })
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  // Apply pagination and ordering
-  const { data: events, error, count } = await query
-    .range(offset, offset + limit - 1)
-    .order('event_date', { ascending: true })
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  // Get metrics
-  const { data: metricsData, error: metricsError } = await supabase
-    .from('events')
-    .select('event_date, registration_count, max_participants')
-
-  if (metricsError) {
-    console.error('Error fetching metrics:', metricsError)
-  }
-
-  const now = new Date()
-  const upcomingEvents = metricsData?.filter((e: { event_date: string | number | Date; }) => new Date(e.event_date) >= now).length || 0
-  const pastEvents = metricsData?.filter((e: { event_date: string | number | Date; }) => new Date(e.event_date) < now).length || 0
-  const totalRegistrations = metricsData?.reduce((sum: number, e: { registration_count: number; }) => sum + (e.registration_count || 0), 0) || 0
-
-  // Calculate metrics
-  const metrics = {
-    totalEvents: count || 0,
-    upcomingEvents,
-    pastEvents,
-    totalRegistrations,
-    averageRegistrations: metricsData && metricsData.length > 0 
-      ? Math.round(metricsData.reduce((sum: number, e: { registration_count: number; }) => sum + (e.registration_count || 0), 0) / metricsData.length)
-      : 0
-  }
-
-  return NextResponse.json({
-    events: events || [],
-    totalCount: count || 0,
-    metrics
-  })
 }
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin(request)
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
   } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminClient()
-  const eventData = await request.json()
-  
-  // Validate required fields
-  if (!eventData.title || !eventData.description || !eventData.event_date) {
-    return NextResponse.json({ 
-      error: 'タイトル、説明、開催日は必須項目です。' 
-    }, { status: 400 })
-  }
+  try {
+    const supabase = createAdminClient()
+    const eventData = await request.json()
+    
+    // Validate required fields
+    if (!eventData.title || !eventData.date) {
+      return NextResponse.json({ 
+        error: 'タイトルと日付は必須項目です。' 
+      }, { status: 400 })
+    }
 
-  // Set default values
-  const dataToInsert = {
-    ...eventData,
-    registration_count: 0,
-    max_participants: eventData.max_participants || 100,
-    is_featured: eventData.is_featured || false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-  
-  const { data, error } = await supabase
-    .from('events')
-    .insert([dataToInsert])
-    .select()
+    // Set default values
+    const dataToInsert = {
+      ...eventData,
+      status: eventData.status || 'upcoming',
+      category: eventData.category || 'general',
+      current_participants: eventData.current_participants || 0,
+      registration_required: eventData.registration_required || false,
+      tags: eventData.tags || [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    const { data, error } = await supabase
+      .from('events')
+      .insert([dataToInsert])
+      .select()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+    if (error) {
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
+    }
 
-  return NextResponse.json({ 
-    success: true, 
-    event: data?.[0] 
-  })
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
