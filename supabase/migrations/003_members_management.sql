@@ -1,5 +1,8 @@
+-- Drop existing members table if it exists and recreate with proper structure
+DROP TABLE IF EXISTS members CASCADE;
+
 -- Create members table
-CREATE TABLE IF NOT EXISTS members (
+CREATE TABLE members (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,

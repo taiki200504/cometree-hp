@@ -31,13 +31,6 @@ CREATE POLICY "Admins can view all users" ON users
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert admin user (password: admin123)
--- Note: You'll need to create the user in Supabase Auth first, then update the ID below
--- This is a placeholder - replace with actual user ID from Supabase Auth
-INSERT INTO users (id, email, role) VALUES 
-('00000000-0000-0000-0000-000000000000', 'admin@union.example.com', 'admin')
-ON CONFLICT (id) DO UPDATE SET role = 'admin';
-
 -- Create function to automatically create user record
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$

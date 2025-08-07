@@ -12,6 +12,8 @@ ALTER TABLE organizations ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS social_media JSONB DEFAULT '{}';
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'student_group';
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS region TEXT DEFAULT '関東';
 
 -- Create organization events table
 CREATE TABLE IF NOT EXISTS organization_events (
@@ -93,46 +95,12 @@ ALTER TABLE organization_applications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access to approved events" ON organization_events
   FOR SELECT USING (status = 'approved');
 
-CREATE POLICY "Allow organization members to manage their events" ON organization_events
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM organizations
-      WHERE organizations.id = organization_events.organization_id
-      AND organizations.id IN (
-        SELECT organization_id FROM organization_members 
-        WHERE user_id = auth.uid()
-      )
-    )
-  );
-
-CREATE POLICY "Allow admin users to manage all events" ON organization_events
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
-    )
-  );
-
 -- RLS policies for organization_reports
 CREATE POLICY "Allow organization members to manage their reports" ON organization_reports
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM organizations
       WHERE organizations.id = organization_reports.organization_id
-      AND organizations.id IN (
-        SELECT organization_id FROM organization_members 
-        WHERE user_id = auth.uid()
-      )
-    )
-  );
-
-CREATE POLICY "Allow admin users to manage all reports" ON organization_reports
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
     )
   );
 
@@ -142,19 +110,6 @@ CREATE POLICY "Allow organization members to manage their applications" ON organ
     EXISTS (
       SELECT 1 FROM organizations
       WHERE organizations.id = organization_applications.organization_id
-      AND organizations.id IN (
-        SELECT organization_id FROM organization_members 
-        WHERE user_id = auth.uid()
-      )
-    )
-  );
-
-CREATE POLICY "Allow admin users to manage all applications" ON organization_applications
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
     )
   );
 
