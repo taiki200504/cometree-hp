@@ -24,8 +24,8 @@ async function createAdminUser() {
     console.log('🔧 管理者アカウントを作成中...')
 
     // 管理者ユーザー情報
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@union.example.com'
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+    const adminEmail = 'gakusei.union266@gmail.com'
+    const adminPassword = 'gakusei226'
 
     // 1. 既存のユーザーを確認
     const { data: existingUser, error: checkError } = await supabase.auth.admin.listUsers()
@@ -62,7 +62,7 @@ async function createAdminUser() {
       .upsert({
         id: targetUser.id,
         email: adminEmail,
-        name: 'Administrator',
+        name: 'UNION Administrator',
         role: 'admin',
       })
 

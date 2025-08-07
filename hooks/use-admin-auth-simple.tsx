@@ -31,11 +31,18 @@ export function useAdminAuthSimple() {
         
         // 開発環境では特定のユーザーのみ管理者として扱う
         if (process.env.NODE_ENV === 'development') {
-          const testAdminEmail = 'admin@union.example.com'
-          if (user.email === testAdminEmail) {
+          const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+          if (testAdminEmails.includes(user.email!)) {
             console.log('[Auth] Development mode: treating test admin as admin')
             return true
           }
+        }
+
+        // 本番環境での管理者チェック
+        const productionAdminEmails = ['gakusei.union266@gmail.com']
+        if (productionAdminEmails.includes(user.email!)) {
+          console.log('[Auth] Production mode: treating production admin as admin')
+          return true
         }
 
         // 本番環境でのみデータベースチェック
@@ -171,21 +178,23 @@ export function useAdminAuthSimple() {
       
       // 開発環境でのテスト認証
       if (process.env.NODE_ENV === 'development') {
-        const testAdminEmail = 'admin@union.example.com'
-        const testAdminPassword = 'admin123'
+        const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+        const testAdminPasswords = ['admin123', 'gakusei226']
         
-        if (email === testAdminEmail && password === testAdminPassword) {
-          console.log('[Auth] Development test admin authentication successful')
-          // テスト用のセッションを作成
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: testAdminEmail,
-            password: testAdminPassword,
-          })
-          
-          if (!error) {
-            console.log('[Auth] Test admin sign in successful')
-            router.push('/admin/dashboard')
-            return { error: null }
+        for (let i = 0; i < testAdminEmails.length; i++) {
+          if (email === testAdminEmails[i] && password === testAdminPasswords[i]) {
+            console.log('[Auth] Development test admin authentication successful')
+            // テスト用のセッションを作成
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: testAdminEmails[i],
+              password: testAdminPasswords[i],
+            })
+            
+            if (!error) {
+              console.log('[Auth] Test admin sign in successful')
+              router.push('/admin/dashboard')
+              return { error: null }
+            }
           }
         }
       }

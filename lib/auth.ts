@@ -22,8 +22,8 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // 開発環境でのテスト管理者チェック
     if (process.env.NODE_ENV === 'development') {
-      const testAdminEmail = 'admin@union.example.com'
-      if (user.email === testAdminEmail) {
+      const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+      if (testAdminEmails.includes(user.email!)) {
         console.log('[Auth] Development mode: treating test admin as admin')
         return {
           id: user.id,
@@ -32,6 +32,19 @@ export async function getCurrentUser(): Promise<User | null> {
           role: 'admin',
           organization_id: null
         }
+      }
+    }
+
+    // 本番環境での管理者チェック
+    const productionAdminEmails = ['gakusei.union266@gmail.com']
+    if (productionAdminEmails.includes(user.email!)) {
+      console.log('[Auth] Production mode: treating production admin as admin')
+      return {
+        id: user.id,
+        email: user.email!,
+        name: 'UNION Administrator',
+        role: 'admin',
+        organization_id: null
       }
     }
 
@@ -113,11 +126,18 @@ export async function requireAdmin(request: NextRequest) {
   
   // 開発環境でのテスト管理者チェック
   if (process.env.NODE_ENV === 'development') {
-    const testAdminEmail = 'admin@union.example.com'
-    if (user.email === testAdminEmail) {
+    const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+    if (testAdminEmails.includes(user.email)) {
       console.log('[Auth] Development mode: allowing test admin access')
       return user
     }
+  }
+  
+  // 本番環境での管理者チェック
+  const productionAdminEmails = ['gakusei.union266@gmail.com']
+  if (productionAdminEmails.includes(user.email)) {
+    console.log('[Auth] Production mode: allowing production admin access')
+    return user
   }
   
   if (user.role !== 'admin') {
