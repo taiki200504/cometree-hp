@@ -459,22 +459,22 @@ export default function OrganizationsManagementPage() {
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-black/90 border-green-400/30">
-                              <DropdownMenuItem 
+                            <DropdownMenuContent className="bg-black border-green-400/30">
+                              <DropdownMenuItem
                                 onClick={() => router.push(`/admin/organizations/${org.id}/edit`)}
-                                className="text-green-400 hover:bg-green-400/20"
+                                className="text-blue-400 hover:bg-blue-400/20"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => router.push(`/admin/organizations/${org.id}/news`)}
-                                className="text-blue-400 hover:bg-blue-400/20"
+                              <DropdownMenuItem
+                                onClick={() => router.push(`/admin/organizations/${org.id}/content`)}
+                                className="text-green-400 hover:bg-green-400/20"
                               >
                                 <FileText className="mr-2 h-4 w-4" />
-                                Manage News
+                                Content
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => router.push(`/admin/organizations/${org.id}`)}
                                 className="text-purple-400 hover:bg-purple-400/20"
                               >

@@ -83,16 +83,87 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!loading && !user) {
       router.push("/community/portal/login")
+    } else if (user) {
+      // プロフィールデータを読み込み
+      fetchProfile()
     }
   }, [user, loading, router])
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`/api/community/organization/profile?userId=${user?.id}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setProfile({
+          id: data.id,
+          name: data.name || '',
+          email: data.contact_email || '',
+          phone: data.contact_phone || '',
+          address: data.address || '',
+          website: data.website_url || '',
+          description: data.description || '',
+          memberCount: data.member_count || 0,
+          establishedDate: data.established_date || '',
+          category: data.category || 'その他',
+          status: data.status || 'active',
+          lastUpdated: data.updated_at || new Date().toISOString()
+        })
+      } else {
+        // プロフィールが存在しない場合は初期データを使用
+        setProfile({
+          ...mockProfile,
+          name: user?.user_metadata?.organization_name || '新しい団体',
+          email: user?.email || ''
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+      // エラー時は初期データを使用
+      setProfile({
+        ...mockProfile,
+        name: user?.user_metadata?.organization_name || '新しい団体',
+        email: user?.email || ''
+      })
+    }
+  }
 
   const handleSave = async () => {
     setIsSaving(true)
     setSaveStatus("idle")
     
     try {
-      // 実際の実装ではAPIを呼び出してプロフィールを更新
-      await new Promise(resolve => setTimeout(resolve, 1000)) // モック遅延
+      // APIを呼び出してプロフィールを更新
+      const response = await fetch('/api/community/organization/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          name: profile.name,
+          description: profile.description,
+          email: profile.email,
+          phone: profile.phone,
+          address: profile.address,
+          website: profile.website,
+          memberCount: profile.memberCount,
+          establishedDate: profile.establishedDate,
+          category: profile.category,
+          status: profile.status
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('プロフィールの更新に失敗しました')
+      }
+
+      const updatedProfile = await response.json()
+      setProfile({
+        ...profile,
+        ...updatedProfile,
+        lastUpdated: new Date().toISOString()
+      })
       
       setSaveStatus("success")
       setIsEditing(false)
@@ -100,6 +171,7 @@ export default function ProfilePage() {
       // 3秒後に成功メッセージを消す
       setTimeout(() => setSaveStatus("idle"), 3000)
     } catch (error) {
+      console.error('Error saving profile:', error)
       setSaveStatus("error")
     } finally {
       setIsSaving(false)
