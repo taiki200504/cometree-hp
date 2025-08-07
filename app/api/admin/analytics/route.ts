@@ -4,7 +4,7 @@ import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
 
 export async function GET(request: NextRequest) {
   // Apply rate limiting (admin route)
-  const ip = request.ip || 'unknown'; // Get client IP address
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'; // Get client IP address
   const { allowed, remaining, resetAfter } = checkRateLimit(ip, true);
 
   if (!allowed) {

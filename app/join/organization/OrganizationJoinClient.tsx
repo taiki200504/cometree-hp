@@ -107,7 +107,7 @@ const faq = [
 ]
 
 export default function OrganizationJoinClient() {
-  const { stats = {}, loading = false } = useStats() || {};
+  const { stats, loading } = useStats()
   
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

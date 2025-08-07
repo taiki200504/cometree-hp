@@ -1,15 +1,15 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
   const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -54,11 +54,11 @@ export async function GET(request: Request) {
   // Calculate metrics
   const metrics = {
     totalSupporters: count || 0,
-    activeSupporters: metricsData?.filter(s => s.is_active).length || 0,
-    financialSupporters: metricsData?.filter(s => s.support_type === 'financial' && s.is_active).length || 0,
-    mediaSupporters: metricsData?.filter(s => s.support_type === 'media' && s.is_active).length || 0,
-    collaborationSupporters: metricsData?.filter(s => s.support_type === 'collaboration' && s.is_active).length || 0,
-    individualSupporters: metricsData?.filter(s => s.support_type === 'individual' && s.is_active).length || 0
+    activeSupporters: metricsData?.filter((s: { is_active: boolean; }) => s.is_active).length || 0,
+    financialSupporters: metricsData?.filter((s: { support_type: string; is_active: boolean; }) => s.support_type === 'financial' && s.is_active).length || 0,
+    mediaSupporters: metricsData?.filter((s: { support_type: string; is_active: boolean; }) => s.support_type === 'media' && s.is_active).length || 0,
+    collaborationSupporters: metricsData?.filter((s: { support_type: string; is_active: boolean; }) => s.support_type === 'collaboration' && s.is_active).length || 0,
+    individualSupporters: metricsData?.filter((s: { support_type: string; is_active: boolean; }) => s.support_type === 'individual' && s.is_active).length || 0
   }
 
   return NextResponse.json({
@@ -68,14 +68,14 @@ export async function GET(request: Request) {
   })
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const supporterData = await request.json()
   
   // Validate required fields

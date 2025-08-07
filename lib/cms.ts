@@ -1,4 +1,4 @@
-import { createServerSupabaseClient, createAdminSupabaseClient } from './supabase'
+import { createClient } from './supabase/server'
 
 export type ContentStatus = 'draft' | 'published' | 'archived' | 'cancelled' | 'completed'
 
@@ -12,7 +12,7 @@ export class NewsCMS {
     offset?: number
     search?: string
   } = {}) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     let query = supabase.from('news_articles').select('*')
     
     if (options.status) {
@@ -58,7 +58,7 @@ export class NewsCMS {
     author_id: string
     organization_id?: string
   }) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: article, error } = await supabase
       .from('news_articles')
@@ -89,7 +89,7 @@ export class NewsCMS {
     tags: string[]
     status: ContentStatus
   }>) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: article, error } = await supabase
       .from('news_articles')
@@ -116,7 +116,7 @@ export class NewsCMS {
   
   // 記事削除
   static async deleteArticle(id: string) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { error } = await supabase
       .from('news_articles')
@@ -140,7 +140,7 @@ export class EventCMS {
     search?: string
     upcoming?: boolean
   } = {}) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     let query = supabase.from('events').select('*')
     
     if (options.status) {
@@ -197,7 +197,7 @@ export class EventCMS {
     max_participants?: number
     organizer_id: string
   }) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: event, error } = await supabase
       .from('events')
@@ -234,7 +234,7 @@ export class EventCMS {
     registration_url: string
     max_participants: number
   }>) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: event, error } = await supabase
       .from('events')
@@ -262,7 +262,7 @@ export class EventCMS {
   
   // イベント削除
   static async deleteEvent(id: string) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { error } = await supabase
       .from('events')
@@ -285,7 +285,7 @@ export class BoardCMS {
     offset?: number
     search?: string
   } = {}) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     let query = supabase.from('board_posts').select('*')
     
     if (options.status) {
@@ -328,7 +328,7 @@ export class BoardCMS {
     is_anonymous: boolean
     author_id: string
   }) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: post, error } = await supabase
       .from('board_posts')
@@ -364,7 +364,7 @@ export class BoardCMS {
     tags: string[]
     status: 'published' | 'hidden' | 'deleted'
   }>) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: post, error } = await supabase
       .from('board_posts')
@@ -382,7 +382,7 @@ export class BoardCMS {
   
   // 投稿削除
   static async deletePost(id: string) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { error } = await supabase
       .from('board_posts')
@@ -405,7 +405,7 @@ export class OrganizationCMS {
     offset?: number
     search?: string
   } = {}) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     let query = supabase.from('organizations').select('*')
     
     if (options.status) {
@@ -452,7 +452,7 @@ export class OrganizationCMS {
     member_count?: number
     category?: string
   }) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: organization, error } = await supabase
       .from('organizations')
@@ -484,7 +484,7 @@ export class OrganizationCMS {
     category: string
     status: 'active' | 'inactive' | 'pending'
   }>) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { data: organization, error } = await supabase
       .from('organizations')
@@ -502,7 +502,7 @@ export class OrganizationCMS {
   
   // 組織削除
   static async deleteOrganization(id: string) {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     const { error } = await supabase
       .from('organizations')

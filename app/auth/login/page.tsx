@@ -27,7 +27,7 @@ export default function LoginPage() {
     setError("")
 
     try {
-      await signIn({ email, password })
+      await signIn(email, password)
       router.push("/")
       router.refresh()
     } catch (err) {

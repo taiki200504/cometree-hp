@@ -137,11 +137,11 @@ export default function Partners() {
         subtitle="Partner Companies"
         title="提携企業一覧"
         description="UNIONと提携している企業をご紹介します。学生の成長を支援し、共に未来を創造するパートナー企業です。"
-        primaryCTA={{
+        primaryAction={{
           text: "提携申請する",
           href: "https://docs.google.com/forms/d/e/1FAIpQLSdUR_v_l38b0abzhnaEqsA58zRjeS6z72s0SSwb4OWoZouZ6g/viewform?usp=sf_link",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "コミュニティに戻る",
           href: "/community",
         }}

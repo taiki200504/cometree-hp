@@ -1,11 +1,11 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
-    const supabase = createAdminSupabaseClient()
+    const supabase = createAdminClient()
 
     // Get total organizations
     const { count: totalOrganizations } = await supabase
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       .from('organizations')
       .select('member_count')
 
-    const totalMembers = memberCounts?.reduce((sum, org) => sum + (org.member_count || 0), 0) || 0
+    const totalMembers = memberCounts?.reduce((sum: number, org: { member_count: number; }) => sum + (org.member_count || 0), 0) || 0
 
     // Get pending applications
     const { count: pendingApplications } = await supabase

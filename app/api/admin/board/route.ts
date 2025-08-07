@@ -1,15 +1,15 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
   const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -57,12 +57,12 @@ export async function GET(request: Request) {
   // Calculate metrics
   const metrics = {
     totalPosts: count || 0,
-    publishedPosts: metricsData?.filter(p => p.is_published).length || 0,
-    draftPosts: metricsData?.filter(p => !p.is_published).length || 0,
-    totalViews: metricsData?.reduce((sum, p) => sum + (p.view_count || 0), 0) || 0,
-    totalLikes: metricsData?.reduce((sum, p) => sum + (p.likes_count || 0), 0) || 0,
+    publishedPosts: metricsData?.filter((p: { is_published: boolean; }) => p.is_published).length || 0,
+    draftPosts: metricsData?.filter((p: { is_published: boolean; }) => !p.is_published).length || 0,
+    totalViews: metricsData?.reduce((sum: number, p: { view_count: number; }) => sum + (p.view_count || 0), 0) || 0,
+    totalLikes: metricsData?.reduce((sum: number, p: { likes_count: number; }) => sum + (p.likes_count || 0), 0) || 0,
     averageViews: metricsData && metricsData.length > 0 
-      ? Math.round(metricsData.reduce((sum, p) => sum + (p.view_count || 0), 0) / metricsData.length)
+      ? Math.round(metricsData.reduce((sum: number, p: { view_count: number; }) => sum + (p.view_count || 0), 0) / metricsData.length)
       : 0
   }
 
@@ -73,14 +73,14 @@ export async function GET(request: Request) {
   })
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const postData = await request.json()
   
   // Validate required fields

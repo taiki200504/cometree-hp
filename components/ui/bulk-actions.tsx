@@ -9,7 +9,7 @@ import {
   Edit,
   Copy,
   Archive,
-  Unarchive,
+  Archive as Unarchive,
   Eye,
   EyeOff,
   Download,

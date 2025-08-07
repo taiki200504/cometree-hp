@@ -28,23 +28,9 @@ export default function PartnersManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 10 // 1ページあたりの表示件数
 
-  const { requireAdmin, loading: authLoading } = useAdminAuthSimple()
+  const { requireAdmin, loading: authLoading, user } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast() // Initialize useToast
-
-  // 認証チェック
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const fetchPartners = useCallback(async () => {
     try {
@@ -70,14 +56,30 @@ export default function PartnersManagementPage() {
   }, [currentPage, itemsPerPage, toast])
 
   useEffect(() => {
-    fetchPartners()
-  }, [])
-
-  useEffect(() => {
     requireAdmin()
   }, [requireAdmin])
 
-  if (!requireAdmin()) {
+  useEffect(() => {
+    if(user) {
+      fetchPartners()
+    }
+  }, [user, fetchPartners])
+
+  // 認証チェック
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-green-400 font-mono">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
+            <div className="text-lg">LOADING...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
     return null
   }
 

@@ -1,15 +1,15 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   
   const testMembers = [
     {

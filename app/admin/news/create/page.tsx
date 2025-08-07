@@ -16,10 +16,12 @@ import {
   EyeOff,
   Loader2,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Eye as EyeIcon
 } from 'lucide-react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useToast } from '@/components/ui/use-toast'
+import { PreviewModal } from '@/components/ui/preview-modal'
 
 export default function CreateNewsPage() {
   const [title, setTitle] = useState('')
@@ -27,6 +29,7 @@ export default function CreateNewsPage() {
   const [isPublished, setIsPublished] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
 
   const { requireAdmin, user, userRole, loading: authLoading } = useAdminAuthSimple()
   const router = useRouter()
@@ -202,8 +205,18 @@ export default function CreateNewsPage() {
                 </div>
               )}
 
-              {/* Submit Button */}
+              {/* Action Buttons */}
               <div className="flex justify-end space-x-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowPreview(true)}
+                  disabled={!title.trim() || !content.trim()}
+                  className="border-green-400/30 text-green-400 hover:bg-green-400/10"
+                >
+                  <EyeIcon className="mr-2 h-4 w-4" />
+                  プレビュー
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -234,6 +247,31 @@ export default function CreateNewsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={{
+          title,
+          content,
+          excerpt: content.substring(0, 100) + '...',
+          category: 'お知らせ',
+          tags: ['UNION'],
+          author: 'UNION編集部',
+          date: new Date().toISOString(),
+          type: 'news'
+        }}
+        onPublish={async () => {
+          // プレビューから直接公開する機能
+          setIsPublished(true)
+          setShowPreview(false)
+          toast({
+            title: "公開設定",
+            description: "公開状態に設定されました。作成ボタンを押して保存してください。",
+          })
+        }}
+      />
     </div>
   )
 }

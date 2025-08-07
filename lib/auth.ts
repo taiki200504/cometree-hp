@@ -1,22 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-
-// Supabaseクライアントの作成
-
-const createAdminSupabaseClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
 
 // ユーザー型定義
 export interface User {
@@ -30,8 +13,7 @@ export interface User {
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const cookieStore = await cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const supabase = createClient()
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
@@ -65,8 +47,7 @@ export async function getCurrentUser(): Promise<User | null> {
 // サインアップ
 export async function signUp(email: string, password: string, name?: string) {
   try {
-    const cookieStore = await cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -123,7 +104,7 @@ export async function logAccess(
   responseTime: number
 ) {
   try {
-    const supabase = createAdminSupabaseClient()
+    const supabase = createAdminClient()
     
     await supabase
       .from('access_logs')
@@ -138,7 +119,4 @@ export async function logAccess(
   } catch (error) {
     console.error('Log access error:', error)
   }
-}
-
-// サーバーサイドのSupabaseクライアントをエクスポート
-export { createAdminSupabaseClient } 
+} 

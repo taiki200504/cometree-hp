@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic'
 import { useToast } from '@/components/ui/use-toast'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAdminAuth } from '@/hooks/use-admin-auth'
+import { requireAdmin } from '@/lib/auth'
 
 const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor'), { ssr: false })
 
@@ -28,21 +29,7 @@ export default function CreateBoardPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const { user, loading: authLoading, requireAuth } = useAdminAuth()
-
-  // 認証チェック
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+    const { user, loading: authLoading, requireAuth } = useAdminAuth()
 
   const form = useForm<BoardFormValues>({
     resolver: zodResolver(boardFormSchema),
@@ -51,6 +38,10 @@ export default function CreateBoardPage() {
       content: '',
     },
   })
+
+  useEffect(() => {
+    requireAuth()
+  }, [requireAuth])
 
   const onSubmit = async (data: BoardFormValues) => {
     setLoading(true)
@@ -82,11 +73,20 @@ export default function CreateBoardPage() {
     }
   }
 
-  useEffect(() => {
-    requireAdmin()
-  }, [requireAdmin])
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-green-400 font-mono">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
+            <div className="text-lg">LOADING...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-  if (!requireAdmin()) {
+  if (!user) {
     return null
   }
 

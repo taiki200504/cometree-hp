@@ -56,7 +56,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const isItemFavorite = (id: number) => {
+  const isItemFavorite = (id: string) => {
     try {
       return isFavorite(id)
     } catch (error) {

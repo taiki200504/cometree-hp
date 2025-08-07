@@ -54,14 +54,11 @@ export default function SignUpPage() {
     }
 
     try {
-      await signUp({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-        university: formData.university || undefined,
-        faculty: formData.faculty || undefined,
-        year: formData.year ? Number.parseInt(formData.year) : undefined,
-      })
+      await signUp(
+        formData.email,
+        formData.password,
+        formData.name
+      )
 
       setSuccess(true)
       setTimeout(() => {

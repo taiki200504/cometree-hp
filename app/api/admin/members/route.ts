@@ -1,15 +1,15 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
   const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -53,10 +53,10 @@ export async function GET(request: Request) {
   // Calculate metrics
   const metrics = {
     totalMembers: count || 0,
-    coreMembers: metricsData?.filter(m => m.category === 'core').length || 0,
-    advisors: metricsData?.filter(m => m.category === 'advisor').length || 0,
-    staffMembers: metricsData?.filter(m => m.category === 'staff').length || 0,
-    representatives: metricsData?.filter(m => m.is_representative).length || 0
+    coreMembers: metricsData?.filter((m: { category: string; }) => m.category === 'core').length || 0,
+    advisors: metricsData?.filter((m: { category: string; }) => m.category === 'advisor').length || 0,
+    staffMembers: metricsData?.filter((m: { category: string; }) => m.category === 'staff').length || 0,
+    representatives: metricsData?.filter((m: { is_representative: boolean; }) => m.is_representative).length || 0
   }
 
   return NextResponse.json({
@@ -66,14 +66,14 @@ export async function GET(request: Request) {
   })
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const memberData = await request.json()
   
   // Validate required fields

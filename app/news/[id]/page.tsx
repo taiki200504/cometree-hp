@@ -47,8 +47,18 @@ export default function NewsDetail() {
 
   const fetchNewsData = async (id: string) => {
     try {
-      // TODO: Supabaseからデータを取得
-      // 仮のデータ
+      // Supabaseからデータを取得
+      const response = await fetch(`/api/news/${id}`)
+      
+      if (!response.ok) {
+        throw new Error('ニュースの取得に失敗しました')
+      }
+      
+      const data = await response.json()
+      setNewsData(data)
+    } catch (error) {
+      console.error('Error fetching news:', error)
+      // エラー時はモックデータを表示
       const mockData: NewsData = {
         id,
         title: 'UNIÓN新年度の活動について',
@@ -80,10 +90,7 @@ export default function NewsDetail() {
         updatedAt: '2024-04-01T10:00:00Z',
         viewCount: 156
       }
-      
       setNewsData(mockData)
-    } catch (error) {
-      console.error('Error fetching news:', error)
     } finally {
       setIsLoading(false)
     }

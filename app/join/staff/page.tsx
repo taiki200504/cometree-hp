@@ -206,11 +206,11 @@ export default function StaffPage() {
         subtitle="Join Our Team"
         title="運営メンバー募集"
         description="UNIONは「学生の声を社会に響かせる」仲間を募集しています。未経験歓迎・リモート可で柔軟に参加できます。"
-        primaryCTA={{
+        primaryAction={{
           text: "エントリーする",
           href: "https://lin.ee/CVuq44t",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "詳細を見る",
           href: "#positions",
         }}
@@ -219,7 +219,7 @@ export default function StaffPage() {
       <main className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* 募集中ポジション */}
-          <AnimatedSection id="positions">
+          <AnimatedSection>
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">募集中ポジション</h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">

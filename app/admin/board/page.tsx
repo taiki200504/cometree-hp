@@ -30,12 +30,29 @@ export default function BoardManagementPage() {
   const { requireAuth } = useAdminAuth()
   const router = useRouter()
 
+  const fetchPosts = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/admin/board?page=${currentPage}&limit=${itemsPerPage}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts.')
+      }
+      const result = await response.json()
+      setPosts(result.posts)
+      setTotalPages(Math.ceil(result.totalCount / itemsPerPage))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '投稿の読み込みに失敗しました。')
+    } finally {
+      setLoading(false)
+    }
+  }, [currentPage, itemsPerPage])
+
   useEffect(() => {
     const isAuthenticated = requireAuth()
     if (isAuthenticated) {
       fetchPosts()
     }
-  }, [requireAuth])
+  }, [requireAuth, fetchPosts])
 
   const handleDelete = async (id: string) => {
     if (!confirm('本当にこの投稿を削除しますか？この操作は元に戻せません。')) {

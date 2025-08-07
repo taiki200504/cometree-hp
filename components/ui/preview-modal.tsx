@@ -58,7 +58,7 @@ export function PreviewModal({ isOpen, onClose, data, onPublish }: PreviewModalP
     if (!onPublish) {
       toast({
         title: "情報",
-        description: "公開機能は実装中です",
+        description: "公開機能が利用できません",
       })
       return
     }

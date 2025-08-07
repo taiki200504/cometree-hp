@@ -108,7 +108,7 @@ export default function Board() {
           comparison = a.title.localeCompare(b.title)
           break
         case "author":
-          comparison = a.author.localeCompare(b.author)
+          comparison = a.author?.localeCompare(b.author || '') || 0
           break
       }
       return sortOrder === "asc" ? comparison : -comparison
@@ -257,7 +257,7 @@ export default function Board() {
                       <Calendar className="h-4 w-4 mr-1" />
                       {new Date(item.created_at).toLocaleDateString()}
                       <span className="mx-2">•</span>
-                      <span>{item.author}</span>
+                      <span>{item.author ?? '不明'}</span>
                     </div>
 
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-3 line-clamp-2 leading-tight">

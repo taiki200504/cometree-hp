@@ -95,16 +95,6 @@ const nextConfig = {
       config.devtool = 'eval-source-map';
     }
     
-    // Image コンストラクタエラーの修正
-    config.module.rules.push({
-      test: /\.js$/,
-      resolve: {
-        alias: {
-          'Image': false,
-        },
-      },
-    });
-    
     return config;
   },
 }

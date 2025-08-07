@@ -19,11 +19,42 @@ export default function Favorites() {
 
   useEffect(() => {
     // お気に入りIDに対応するアイテムを取得
-    // サンプルデータを削除したため、この部分は実際のデータ取得に置き換える必要があります。
-    // 例: APIからデータを取得する場合
-    // const items = await fetchItemsFromAPI(); // ここにAPI呼び出しを追加
-    // setFavoriteItems(items);
-    console.log("Favorites:", favorites); // サンプルデータがないため、ログを出力
+    const fetchFavoriteItems = async () => {
+      if (favorites.length === 0) {
+        setFavoriteItems([])
+        return
+      }
+
+      try {
+        // 実際のAPIからデータを取得
+        const items = await Promise.all(
+          favorites.map(async (favoriteId) => {
+            const response = await fetch(`/api/news/${favoriteId}`)
+            if (response.ok) {
+              const data = await response.json()
+              return {
+                id: data.id,
+                title: data.title,
+                excerpt: data.excerpt,
+                category: data.category,
+                type: 'article',
+                date: new Date(data.publishedAt).toLocaleDateString(),
+                author: 'UNION編集部'
+              }
+            }
+            return null
+          })
+        )
+
+        const validItems = items.filter(item => item !== null)
+        setFavoriteItems(validItems)
+      } catch (error) {
+        console.error('Error fetching favorite items:', error)
+        setFavoriteItems([])
+      }
+    }
+
+    fetchFavoriteItems()
   }, [favorites])
 
   const filteredFavorites = useMemo(() => {

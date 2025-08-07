@@ -157,11 +157,11 @@ export default function MediaGuild() {
         subtitle="UNION Media Guild"
         title="Media Guild"
         description="学生クリエイターが集い「学び×実践」を加速させるオンライン・ギルドです。メディア・クリエイティブ分野での成長をサポートします。"
-        primaryCTA={{
+        primaryAction={{
           text: "ギルドに参加する",
           href: "https://join.slack.com/t/unionmediaguild/shared_invite/zt-3913ji51d-pWNxHniWT6KEZYOOGBKPXg",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "活動内容を見る",
           href: "#activities",
         }}

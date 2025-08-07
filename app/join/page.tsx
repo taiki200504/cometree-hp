@@ -52,11 +52,11 @@ export default function JoinUs() {
         subtitle="Join UNION"
         title="参加方法"
         description="UNIONコミュニティに参加して、共に成長しませんか？学生団体として加盟するか、個人としてコミュニティに参加することができます。"
-        primaryCTA={{
+        primaryAction={{
           text: "今すぐ参加する",
           href: "https://join.slack.com/t/union-finschool/shared_invite/zt-2s6iy0dj5-ttUUdbA2MrY2XJf~cou81A",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "詳細を見る",
           href: "#details",
         }}

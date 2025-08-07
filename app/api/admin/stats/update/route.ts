@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
+import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
 
   try {
     // 各テーブルの最新の件数を取得

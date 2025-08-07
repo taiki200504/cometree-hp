@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from './supabase'
+import { createClient } from './supabase/server'
 import { put } from '@vercel/blob'
 import { NextRequest } from 'next/server'
 
@@ -15,7 +15,7 @@ export async function uploadToSupabaseStorage(
   bucket: string,
   path: string
 ): Promise<FileUploadResult> {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
   
   const { data, error } = await supabase.storage
     .from(bucket)
@@ -63,7 +63,7 @@ export async function deleteFromSupabaseStorage(
   bucket: string,
   path: string
 ): Promise<void> {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
   
   const { error } = await supabase.storage
     .from(bucket)

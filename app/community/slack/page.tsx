@@ -158,11 +158,11 @@ export default function SlackCommunity() {
         subtitle="UNION Slack Community"
         title="Slackコミュニティ"
         description="全国の学生が集まるUNIONのSlackコミュニティ。学生限定の安全な環境で情報交換や交流を行えます。"
-        primaryCTA={{
+        primaryAction={{
           text: "今すぐ参加する",
           href: "https://join.slack.com/t/union-finschool/shared_invite/zt-2s6iy0dj5-ttUUdbA2MrY2XJf~cou81A",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "詳細を見る",
           href: "#details",
         }}

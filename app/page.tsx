@@ -655,7 +655,7 @@ export default function Home() {
                           <span className="text-sm text-gray-500 dark:text-gray-400">{item.source}</span>
                         </div>
                         <div className="flex gap-1">
-                          {item.tags.slice(0, 2).map((tag, tagIndex) => (
+                          {item.tags.slice(0, 2).map((tag: string, tagIndex: number) => (
                             <span
                               key={tagIndex}
                               className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs"

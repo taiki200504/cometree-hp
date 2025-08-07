@@ -8,6 +8,7 @@ export interface StatsData {
   eventCount: number
   partnerCount?: number
   prefectureCount?: number
+  mediaCount?: number
 }
 
 export function useStats() {

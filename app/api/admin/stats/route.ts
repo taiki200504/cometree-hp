@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
+import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   
   try {
     // Count all tables safely
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .from('board_posts')
       .select('view_count')
     
-    const totalViews = boardPosts?.reduce((sum, post) => sum + (post.view_count || 0), 0) || 0
+    const totalViews = boardPosts?.reduce((sum: number, post: { view_count: number; }) => sum + (post.view_count || 0), 0) || 0
 
     return NextResponse.json({
       news: newsCount ?? 0,

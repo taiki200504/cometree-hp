@@ -54,11 +54,11 @@ export default function CommunityService() {
         subtitle="Community Service"
         title="コミュニティ事業"
         description="UNIONのコミュニティ事業は、学生団体同士の連携を深め、共に成長し合う環境を提供します。Slackコミュニティ、定期ミートアップ、合同イベントを通じて、学生の挑戦を支援しています。"
-        primaryCTA={{
+        primaryAction={{
           text: "コミュニティに参加",
           href: "/join",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "詳細を見る",
           href: "#details",
         }}

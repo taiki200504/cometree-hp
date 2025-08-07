@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { z } from 'zod'
 
 // GET handler for fetching public board posts
 export async function GET(request: NextRequest) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'
   const { allowed, remaining, resetAfter } = checkRateLimit(ip)
 
   if (!allowed) {
@@ -69,7 +67,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to include author email
-    const transformedPosts = posts?.map(post => ({
+    const transformedPosts = posts?.map((post: any) => ({
       ...post,
       author: post.users?.email || 'Unknown'
     })) || []
@@ -93,11 +91,10 @@ export async function GET(request: NextRequest) {
 
 // POST handler for creating a new board post (authenticated users only)
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'
   const { allowed, remaining, resetAfter } = checkRateLimit(ip)
 
   if (!allowed) {

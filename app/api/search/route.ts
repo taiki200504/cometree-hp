@@ -1,30 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// モックデータ（実際の実装では各データソースから取得）
-const mockNews = [
-  {
-    id: 1,
-    type: "news",
-    title: "東京大学起業サークル、新たなスタートアップを設立",
-    excerpt:
-      "東京大学起業サークルTNKのメンバーが、AI技術を活用した学習支援アプリを開発し、正式にスタートアップ企業を設立しました。",
-    url: "/studentnews/1",
-    category: "起業・ビジネス",
-    date: "2025年1月18日",
-    tags: ["起業", "AI", "学習支援", "投資"],
-  },
-  {
-    id: 2,
-    type: "news",
-    title: "早稲田大学国際交流サークル、グローバル学生会議を開催",
-    excerpt:
-      "早稲田大学国際交流サークルが主催するグローバル学生会議が開催され、世界15カ国から100名以上の学生が参加しました。",
-    url: "/studentnews/2",
-    category: "国際交流",
-    date: "2025年1月15日",
-    tags: ["国際交流", "会議", "気候変動", "教育"],
-  },
-]
+import { supabase } from "@/lib/supabase"
 
 const mockEvents = [
   {
@@ -122,32 +97,109 @@ export async function GET(request: NextRequest) {
     const queryLower = query.toLowerCase()
     let allResults: any[] = []
 
-    // 検索対象のデータソースを決定
-    const searchSources = []
-    if (!type || type === "all" || type === "news") {
-      searchSources.push(...mockNews)
-    }
-    if (!type || type === "all" || type === "event") {
-      searchSources.push(...mockEvents)
-    }
-    if (!type || type === "all" || type === "podcast") {
-      searchSources.push(...mockPodcasts)
-    }
-    if (!type || type === "all" || type === "page") {
-      searchSources.push(...mockPages)
-    }
+    try {
+      // Supabaseからデータを取得
+      if (!type || type === "all" || type === "news") {
+        const { data: newsResults, error: newsError } = await supabase
+          .from('news')
+          .select('*')
+          .eq('status', 'published')
+          .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+          .limit(limit)
 
-    // 検索実行
-    allResults = searchSources.filter((item) => {
-      const matchesQuery =
-        item.title.toLowerCase().includes(queryLower) ||
-        item.excerpt.toLowerCase().includes(queryLower) ||
-        item.tags.some((tag: string) => tag.toLowerCase().includes(queryLower))
+        if (!newsError && newsResults) {
+          const formattedNews = newsResults.map(news => ({
+            id: news.id,
+            type: "news",
+            title: news.title,
+            excerpt: news.excerpt || '',
+            url: `/news/${news.id}`,
+            category: news.category,
+            date: new Date(news.published_at || news.created_at).toLocaleDateString(),
+            tags: news.tags || []
+          }))
+          allResults.push(...formattedNews)
+        }
+      }
 
-      const matchesCategory = !category || category === "all" || item.category === category
+      if (!type || type === "all" || type === "event") {
+        const { data: eventResults, error: eventError } = await supabase
+          .from('events')
+          .select('*')
+          .eq('status', 'upcoming')
+          .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+          .limit(limit)
 
-      return matchesQuery && matchesCategory
-    })
+        if (!eventError && eventResults) {
+          const formattedEvents = eventResults.map(event => ({
+            id: event.id,
+            type: "event",
+            title: event.title,
+            excerpt: event.description || '',
+            url: `/events/${event.id}`,
+            category: event.category,
+            date: new Date(event.date).toLocaleDateString(),
+            tags: event.tags || []
+          }))
+          allResults.push(...formattedEvents)
+        }
+      }
+
+      // モックデータをフォールバックとして使用
+      if (allResults.length === 0) {
+        const searchSources = []
+        if (!type || type === "all" || type === "news") {
+          searchSources.push(...mockNews)
+        }
+        if (!type || type === "all" || type === "event") {
+          searchSources.push(...mockEvents)
+        }
+        if (!type || type === "all" || type === "podcast") {
+          searchSources.push(...mockPodcasts)
+        }
+        if (!type || type === "all" || type === "page") {
+          searchSources.push(...mockPages)
+        }
+
+        allResults = searchSources.filter((item) => {
+          const matchesQuery =
+            item.title.toLowerCase().includes(queryLower) ||
+            item.excerpt.toLowerCase().includes(queryLower) ||
+            item.tags.some((tag: string) => tag.toLowerCase().includes(queryLower))
+
+          const matchesCategory = !category || category === "all" || item.category === category
+
+          return matchesQuery && matchesCategory
+        })
+      }
+    } catch (error) {
+      console.error('Supabase search error:', error)
+      // エラー時はモックデータを使用
+      const searchSources = []
+      if (!type || type === "all" || type === "news") {
+        searchSources.push(...mockNews)
+      }
+      if (!type || type === "all" || type === "event") {
+        searchSources.push(...mockEvents)
+      }
+      if (!type || type === "all" || type === "podcast") {
+        searchSources.push(...mockPodcasts)
+      }
+      if (!type || type === "all" || type === "page") {
+        searchSources.push(...mockPages)
+      }
+
+      allResults = searchSources.filter((item) => {
+        const matchesQuery =
+          item.title.toLowerCase().includes(queryLower) ||
+          item.excerpt.toLowerCase().includes(queryLower) ||
+          item.tags.some((tag: string) => tag.toLowerCase().includes(queryLower))
+
+        const matchesCategory = !category || category === "all" || item.category === category
+
+        return matchesQuery && matchesCategory
+      })
+    }
 
     // 関連度でソート（タイトルマッチを優先）
     allResults.sort((a, b) => {

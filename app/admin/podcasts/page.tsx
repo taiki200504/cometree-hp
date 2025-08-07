@@ -25,6 +25,7 @@ import {
   BarChart3,
   Link as LinkIcon
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface PodcastShow {
@@ -81,7 +82,7 @@ export default function PodcastManagementPage() {
     cover_image_url: '',
     color_gradient: 'from-blue-400 to-blue-600',
     total_episodes: 0,
-    status: 'active' as const
+    status: 'active' as 'active' | 'inactive' | 'archived'
   })
 
   const { requireAuth, loading: authLoading } = useAdminAuthSimple()
@@ -123,6 +124,10 @@ export default function PodcastManagementPage() {
       console.error('Error fetching external links:', error)
     }
   }, [])
+
+  useEffect(() => {
+    requireAuth()
+  }, [requireAuth])
 
   useEffect(() => {
     const isAuthenticated = requireAuth()
@@ -274,9 +279,11 @@ export default function PodcastManagementPage() {
                     <div className="flex items-center space-x-4">
                       <div className="w-16 h-16 bg-gradient-to-r rounded-lg flex items-center justify-center">
                         {show.cover_image_url ? (
-                          <img 
+                          <Image 
                             src={show.cover_image_url} 
                             alt={show.name}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 rounded-lg object-cover"
                           />
                         ) : (

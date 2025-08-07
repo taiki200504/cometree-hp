@@ -1,9 +1,9 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -12,7 +12,7 @@ export async function GET(
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { data: news, error } = await supabase
     .from('news')
     .select('*')
@@ -31,7 +31,7 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -40,7 +40,7 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const newsData = await request.json()
 
   // Validate required fields
@@ -77,7 +77,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -86,7 +86,7 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
 
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { error } = await supabase
     .from('news')
     .delete()

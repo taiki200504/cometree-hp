@@ -42,7 +42,7 @@ export default function FavoriteButton({ itemId, className, size = "md", showTex
 
   return (
     <button
-      onClick={handleClick}
+              onClick={() => (favorite ? removeFavorite(item.id) : addFavorite(item))}
       className={cn(
         "inline-flex items-center justify-center rounded-full transition-all duration-200 hover:scale-110",
         "bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800",

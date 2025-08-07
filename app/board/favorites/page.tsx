@@ -127,11 +127,11 @@ export default function BoardFavorites() {
         subtitle="Your Favorite Posts"
         title="お気に入り投稿"
         description="あなたがお気に入りに追加した投稿をまとめて確認できます。"
-        primaryCTA={{
+        primaryAction={{
           text: "掲示板を見る",
           href: "/board",
         }}
-        secondaryCTA={{
+        secondaryAction={{
           text: "新しい投稿を探す",
           href: "/board#search",
         }}

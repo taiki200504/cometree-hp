@@ -22,6 +22,7 @@ interface ModernHeroProps {
     onClick?: () => void
   }
   backgroundImage?: string
+  backgroundPattern?: boolean
   stats?: Array<{
     number: string
     label: string
@@ -42,6 +43,7 @@ export function ModernHero({
   primaryAction,
   secondaryAction,
   backgroundImage,
+  backgroundPattern = false,
   stats,
   features,
   variant = "default",
@@ -74,7 +76,7 @@ export function ModernHero({
       )}
 
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+      {backgroundPattern && <div className="absolute inset-0 bg-grid-pattern opacity-5" />}
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

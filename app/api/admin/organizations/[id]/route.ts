@@ -1,12 +1,18 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createAdminSupabaseClient()
+  try {
+    await requireAdmin(request)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
+
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('organizations')
     .select('*')
@@ -21,10 +27,16 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createAdminSupabaseClient()
+  try {
+    await requireAdmin(request)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
+
+  const supabase = createAdminClient()
   const organizationData = await request.json()
   
   const { data, error } = await supabase
@@ -41,7 +53,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -49,7 +61,7 @@ export async function DELETE(
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { error } = await supabase
     .from('organizations')
     .delete()

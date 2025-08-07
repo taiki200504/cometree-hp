@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Admin auth check
   const { data: { session } } = await supabase.auth.getSession()
@@ -42,14 +40,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to upload file: ${uploadError.message}` }, { status: 500 })
     }
 
-    const { data: publicUrlData, error: publicUrlError } = supabase.storage
+    const { data: publicUrlData } = supabase.storage
       .from('images')
       .getPublicUrl(filePath)
-
-    if (publicUrlError) {
-      console.error('Error getting public URL:', publicUrlError)
-      return NextResponse.json({ error: `Failed to get public URL: ${publicUrlError.message}` }, { status: 500 })
-    }
 
     return NextResponse.json({ success: true, url: publicUrlData.publicUrl })
   } catch (error) {

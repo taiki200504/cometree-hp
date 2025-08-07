@@ -1,11 +1,11 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
-    const supabase = createAdminSupabaseClient()
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -52,13 +52,13 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const organizationData = await request.json()
   
   const { data, error } = await supabase

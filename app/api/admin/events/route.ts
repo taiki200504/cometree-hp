@@ -1,15 +1,15 @@
-import { createAdminSupabaseClient } from '@/lib/supabaseServer'
-import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
   const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -55,9 +55,9 @@ export async function GET(request: Request) {
   }
 
   const now = new Date()
-  const upcomingEvents = metricsData?.filter(e => new Date(e.event_date) >= now).length || 0
-  const pastEvents = metricsData?.filter(e => new Date(e.event_date) < now).length || 0
-  const totalRegistrations = metricsData?.reduce((sum, e) => sum + (e.registration_count || 0), 0) || 0
+  const upcomingEvents = metricsData?.filter((e: { event_date: string | number | Date; }) => new Date(e.event_date) >= now).length || 0
+  const pastEvents = metricsData?.filter((e: { event_date: string | number | Date; }) => new Date(e.event_date) < now).length || 0
+  const totalRegistrations = metricsData?.reduce((sum: number, e: { registration_count: number; }) => sum + (e.registration_count || 0), 0) || 0
 
   // Calculate metrics
   const metrics = {
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     pastEvents,
     totalRegistrations,
     averageRegistrations: metricsData && metricsData.length > 0 
-      ? Math.round(metricsData.reduce((sum, e) => sum + (e.registration_count || 0), 0) / metricsData.length)
+      ? Math.round(metricsData.reduce((sum: number, e: { registration_count: number; }) => sum + (e.registration_count || 0), 0) / metricsData.length)
       : 0
   }
 
@@ -77,14 +77,14 @@ export async function GET(request: Request) {
   })
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 403 })
   }
   
-  const supabase = createAdminSupabaseClient()
+  const supabase = createAdminClient()
   const eventData = await request.json()
   
   // Validate required fields

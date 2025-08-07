@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { logAccess } from '@/lib/auth' // logAccessは引き続き使用
 import { checkRateLimit } from '@/lib/rate-limiter' // Import rate limiter
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
   console.log('[API] Login request received')
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'; // Get client IP address
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'; // Get client IP address
   const { allowed, remaining, resetAfter } = checkRateLimit(ip);
 
   if (!allowed) {
@@ -42,8 +41,7 @@ export async function POST(request: NextRequest) {
   const { email, password } = parsed.data;
   console.log('[API] Processing login for:', email)
 
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
   
   // signInWithPasswordはセッションを自動的にCookieに保存します
   const { data, error } = await supabase.auth.signInWithPassword({

@@ -42,10 +42,14 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
       speedY: number
       color: string
       opacity: number
+      canvasWidth: number
+      canvasHeight: number
 
-      constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = canvas.height + Math.random() * 100
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.canvasWidth = canvasWidth
+        this.canvasHeight = canvasHeight
+        this.x = Math.random() * this.canvasWidth
+        this.y = this.canvasHeight + Math.random() * 100
         this.size = Math.random() * 2 + 1
         this.speedY = Math.random() * 1 + 0.5
         this.color = Math.random() > 0.3 ? '#066ff2' : '#ec4faf'
@@ -55,13 +59,12 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
       update() {
         this.y -= this.speedY
         if (this.y < -10) {
-          this.y = canvas.height + 10
-          this.x = Math.random() * canvas.width
+          this.y = this.canvasHeight + 10
+          this.x = Math.random() * this.canvasWidth
         }
       }
 
-      draw() {
-        if (!ctx) return
+      draw(ctx: CanvasRenderingContext2D) {
         const rgb = this.color === '#066ff2' ? '6, 111, 242' : '236, 79, 175'
         ctx.fillStyle = `rgba(${rgb}, ${this.opacity})`
         ctx.beginPath()
@@ -71,10 +74,10 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
     }
 
     // パーティクル初期化
-    const initParticles = () => {
+    const initParticles = (canvasWidth: number, canvasHeight: number) => {
       particlesRef.current = []
       for (let i = 0; i < 300; i++) {
-        particlesRef.current.push(new Particle())
+        particlesRef.current.push(new Particle(canvasWidth, canvasHeight))
       }
     }
 
@@ -86,13 +89,13 @@ export default function OpeningAnimation({ onComplete }: OpeningAnimationProps) 
       
       for (let i = 0; i < particlesRef.current.length; i++) {
         particlesRef.current[i].update()
-        particlesRef.current[i].draw()
+        particlesRef.current[i].draw(ctx)
       }
       
       animationFrameRef.current = requestAnimationFrame(animate)
     }
 
-    initParticles()
+    initParticles(canvas.width, canvas.height)
     animate()
 
     return () => {

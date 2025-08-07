@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { sql } from '@supabase/supabase-js'
 
 // GET a single board post by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'
   const { allowed, remaining, resetAfter } = checkRateLimit(ip)
 
   if (!allowed) {
@@ -64,11 +63,10 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'
   const { allowed, remaining, resetAfter } = checkRateLimit(ip)
 
   if (!allowed) {
@@ -137,11 +135,10 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createClient()
 
   // Apply rate limiting
-  const ip = request.ip || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || 'unknown'
   const { allowed, remaining, resetAfter } = checkRateLimit(ip)
 
   if (!allowed) {

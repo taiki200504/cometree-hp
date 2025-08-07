@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
+import Link from "next/link"
 import {
   Shield,
   FileText,
@@ -135,22 +136,25 @@ const comingSoonServices = [
     title: "会議室無料貸し出し",
     icon: Building,
     description: "UNION事務局の会議室を加盟団体に無料で貸し出します",
-    status: "Coming Soon",
-    color: "bg-yellow-500",
+    status: "利用可能",
+    color: "bg-green-500",
+    href: "/community/portal/meeting-room",
   },
   {
     title: "イベント会場貸し出し",
     icon: MapPin,
     description: "大規模イベント用の会場を加盟団体に特別価格で貸し出します",
-    status: "Coming Soon",
+    status: "利用可能",
     color: "bg-red-500",
+    href: "/community/portal/event-venue",
   },
   {
     title: "動画制作支援",
     icon: Video,
     description: "プロの動画制作チームによる活動紹介動画の制作支援",
-    status: "Coming Soon",
+    status: "利用可能",
     color: "bg-teal-500",
+    href: "/community/portal/video-production",
   },
   {
     title: "専門研修プログラム",
@@ -303,6 +307,15 @@ export default function PortalPage() {
                       </div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">{service.description}</p>
+                      {service.href && (
+                        <div className="mt-4">
+                          <Button asChild className="w-full">
+                            <Link href={service.href}>
+                              利用する
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </AnimatedSection>
                 )
