@@ -33,6 +33,7 @@ import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 interface NewsArticle {
   id: string
@@ -111,32 +112,11 @@ export default function NewsManagementPage() {
   }, [currentPage, itemsPerPage, searchTerm, filterStatus, toast])
 
   useEffect(() => {
-    requireAdmin()
-  }, [requireAdmin])
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchArticles()
-    }
-  }, [isAdmin, fetchArticles])
+    fetchArticles()
+  }, [fetchArticles])
 
   // 認証チェック
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAdmin) {
-    return null
-  }
+  // レイアウト側で認証ガード済み
 
   const handleDelete = async (id: string) => {
     if (!confirm('この記事を削除しますか？この操作は元に戻せません。')) {
@@ -181,253 +161,165 @@ export default function NewsManagementPage() {
 
   if (loading && articles.length === 0) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING NEWS DATABASE...</div>
-            <div className="text-sm opacity-75 mt-2">Initializing content management system</div>
-          </div>
-        </div>
+      <div className="p-8 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">読み込み中...</span>
       </div>
     )
   }
-
+ 
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-red-400 font-mono flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-400" />
-          <div className="text-lg">SYSTEM ERROR</div>
-          <div className="text-sm opacity-75 mt-2">{error}</div>
-        </div>
+      <div className="p-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center text-red-500">
+              <p className="text-lg font-semibold mb-2">エラーが発生しました</p>
+              <p>{error}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
-
+ 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Header */}
-      <div className="bg-black/80 backdrop-blur-sm border-b border-green-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center border border-green-400">
-                  <FileText className="h-4 w-4 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    NEWS MANAGEMENT
-                  </h1>
-                  <div className="text-xs opacity-75">CONTENT OPERATIONS CENTER</div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button asChild className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-                <Link href="/admin/news/create">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  CREATE ARTICLE
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* System Metrics */}
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader title="ニュース管理" trail={[{ label: '管理' }, { label: 'ニュース' }]} createLink={{ href: '/admin/news/create', label: '新規記事' }} />
+      <div className="p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">TOTAL ARTICLES</p>
-                  <p className="text-2xl font-bold text-green-400">{systemMetrics.totalArticles}</p>
+                  <p className="text-xs text-gray-500">総記事数</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.totalArticles}</p>
                 </div>
-                <Database className="h-8 w-8 text-green-400" />
+                <Database className="h-6 w-6 text-gray-400" />
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">PUBLISHED</p>
-                  <p className="text-2xl font-bold text-green-400">{systemMetrics.publishedArticles}</p>
+                  <p className="text-xs text-gray-500">公開済み</p>
+                  <p className="text-2xl font-bold text-green-600">{systemMetrics.publishedArticles}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-400" />
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">DRAFTS</p>
-                  <p className="text-2xl font-bold text-yellow-400">{systemMetrics.draftArticles}</p>
+                  <p className="text-xs text-gray-500">下書き</p>
+                  <p className="text-2xl font-bold text-yellow-600">{systemMetrics.draftArticles}</p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-400" />
+                <Clock className="h-6 w-6 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">TOTAL VIEWS</p>
-                  <p className="text-2xl font-bold text-blue-400">{systemMetrics.totalViews.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">総閲覧数</p>
+                  <p className="text-2xl font-bold text-blue-600">{systemMetrics.totalViews.toLocaleString()}</p>
                 </div>
-                <Globe className="h-8 w-8 text-blue-400" />
+                <Globe className="h-6 w-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">AVG VIEWS</p>
-                  <p className="text-2xl font-bold text-purple-400">{systemMetrics.averageViews.toFixed(0)}</p>
+                  <p className="text-xs text-gray-500">平均閲覧</p>
+                  <p className="text-2xl font-bold text-purple-600">{systemMetrics.averageViews.toFixed(0)}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-purple-400" />
+                <TrendingUp className="h-6 w-6 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Search and Filter */}
         <div className="mb-6 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400 h-4 w-4" />
-            <Input
-              placeholder="Search articles..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 bg-black/50 border-green-400/50 text-green-400 placeholder:text-green-400/50 focus:border-green-400 focus:ring-green-400/20"
-            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input placeholder="記事を検索..." value={searchTerm} onChange={(e) => handleSearch(e.target.value)} className="pl-10" />
           </div>
           <div className="flex gap-2">
-            <Button
-              variant={filterStatus === 'all' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('all')}
-              className={filterStatus === 'all' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              ALL
-            </Button>
-            <Button
-              variant={filterStatus === 'published' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('published')}
-              className={filterStatus === 'published' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              PUBLISHED
-            </Button>
-            <Button
-              variant={filterStatus === 'draft' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('draft')}
-              className={filterStatus === 'draft' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              DRAFTS
-            </Button>
+            <Button variant={filterStatus === 'all' ? 'default' : 'outline'} onClick={() => handleFilterChange('all')}>すべて</Button>
+            <Button variant={filterStatus === 'published' ? 'default' : 'outline'} onClick={() => handleFilterChange('published')}>公開</Button>
+            <Button variant={filterStatus === 'draft' ? 'default' : 'outline'} onClick={() => handleFilterChange('draft')}>下書き</Button>
           </div>
         </div>
 
-        {/* Articles Table */}
-        <Card className="bg-black/50 border-green-400/30">
-          <CardHeader>
-            <CardTitle className="text-green-400">NEWS ARTICLES</CardTitle>
+        <Card className="border-0 shadow-lg bg-white">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-gray-900">記事一覧</CardTitle>
+            <Button asChild>
+              <Link href="/admin/news/create"><PlusCircle className="mr-2 h-4 w-4" /> 新規記事</Link>
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow className="border-green-400/30">
-                  <TableHead className="text-green-400">TITLE</TableHead>
-                  <TableHead className="text-green-400 w-32">STATUS</TableHead>
-                  <TableHead className="text-green-400 w-48">PUBLISHED</TableHead>
-                  <TableHead className="text-green-400 w-48">CREATED</TableHead>
-                  <TableHead className="text-green-400 w-20"></TableHead>
+                <TableRow>
+                  <TableHead>タイトル</TableHead>
+                  <TableHead className="w-32">ステータス</TableHead>
+                  <TableHead className="w-48">公開日</TableHead>
+                  <TableHead className="w-48">作成日</TableHead>
+                  <TableHead className="w-20"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {articles.length > 0 ? (
                   articles.map((article) => (
-                    <TableRow key={article.id} className="border-green-400/30 hover:bg-green-400/5">
-                      <TableCell className="font-medium text-green-400">
-                        <div className="max-w-xs truncate" title={article.title}>
-                          {article.title}
-                        </div>
+                    <TableRow key={article.id}>
+                      <TableCell className="font-medium">
+                        <div className="max-w-xs truncate" title={article.title}>{article.title}</div>
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={article.is_published ? 'default' : 'secondary'}
-                          className={article.is_published ? 'bg-green-400/20 text-green-400 border-green-400/30' : 'bg-yellow-400/20 text-yellow-400 border-yellow-400/30'}
-                        >
-                          {article.is_published ? 'PUBLISHED' : 'DRAFT'}
+                        <Badge variant={article.is_published ? 'default' : 'secondary'}>
+                          {article.is_published ? '公開' : '下書き'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm opacity-75">
+                      <TableCell className="text-sm text-gray-600">
                         {article.published_at ? new Date(article.published_at).toLocaleDateString() : '-'}
                       </TableCell>
-                      <TableCell className="text-sm opacity-75">
+                      <TableCell className="text-sm text-gray-600">
                         {new Date(article.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-400 hover:bg-green-400/10">
-                              <span className="sr-only">Open menu</span>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">メニューを開く</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-black border-green-400/30">
-                            <DropdownMenuItem 
-                              onClick={() => router.push(`/news/${article.id}`)}
-                              className="text-green-400 hover:bg-green-400/10"
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              PREVIEW
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => router.push(`/admin/news/${article.id}/edit`)}
-                              className="text-blue-400 hover:bg-blue-400/10"
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              EDIT
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDelete(article.id)} 
-                              className="text-red-400 hover:bg-red-400/10"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              DELETE
-                            </DropdownMenuItem>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/news/${article.id}`)}>プレビュー</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/news/${article.id}/edit`)}>編集</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(article.id)} className="text-red-600">削除</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow className="border-green-400/30">
-                    <TableCell colSpan={5} className="text-center text-green-400">
-                      No articles found.
-                    </TableCell>
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-gray-500">記事が見つかりません</TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
-            
             {totalPages > 1 && (
               <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </div>
             )}
           </CardContent>

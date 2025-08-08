@@ -14,17 +14,10 @@ import {
   FileText, 
   Edit, 
   Trash2, 
-  Eye, 
   Search,
-  Filter,
   Calendar,
-  User,
-  Globe,
-  Building,
   Loader2,
-  AlertTriangle,
-  CheckCircle,
-  Clock
+  AlertTriangle
 } from 'lucide-react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Pagination } from '@/components/ui/pagination'
@@ -33,7 +26,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import AdminHeader from '@/components/admin/AdminHeader'
 
 interface ContentItem {
@@ -83,7 +75,7 @@ export default function OrganizationContentPage() {
   })
   const itemsPerPage = 10
 
-  const { requireAuth, user, userRole } = useAdminAuthSimple()
+  const { user } = useAdminAuthSimple()
   const { toast } = useToast()
 
   const fetchOrganization = useCallback(async () => {
@@ -136,12 +128,10 @@ export default function OrganizationContentPage() {
   }, [organizationId, currentPage, itemsPerPage, searchTerm, filterType, filterStatus, toast])
 
   useEffect(() => {
-    const isAuthenticated = requireAuth()
-    if (isAuthenticated && user && userRole === 'admin') {
-      fetchOrganization()
-      fetchContentItems()
-    }
-  }, [requireAuth, user, userRole, fetchOrganization, fetchContentItems])
+    // レイアウトのAdminGuardで認証済みのため、ここでは追加の認証確認を行わない
+    fetchOrganization()
+    fetchContentItems()
+  }, [fetchOrganization, fetchContentItems])
 
   const handleCreateContent = async () => {
     try {
@@ -151,7 +141,7 @@ export default function OrganizationContentPage() {
         body: JSON.stringify({
           ...formData,
           organization_id: organizationId,
-          author_name: user?.name || '管理者'
+          author_name: user?.user_metadata?.name || user?.email?.split('@')[0] || '管理者'
         })
       })
 
