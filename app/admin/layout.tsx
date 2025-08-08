@@ -1,19 +1,17 @@
 import { NotificationProvider } from '@/components/ui/notification-system'
 import { Toaster } from '@/components/ui/toaster'
 import ErrorBoundary from '@/components/ui/error-boundary'
-import AdminSidebar from '@/components/admin/AdminSidebar'
+import AdminTopbar from '@/components/admin/AdminTopbar'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <NotificationProvider>
         <div className="min-h-screen bg-gray-50 text-gray-900">
-          <div className="flex min-h-screen">
-            <AdminSidebar />
-            <main className="flex-1 min-w-0">
-              {children}
-            </main>
-          </div>
+          <AdminTopbar />
+          <main className="min-w-0 pt-14">
+            {children}
+          </main>
           <Toaster />
         </div>
       </NotificationProvider>
