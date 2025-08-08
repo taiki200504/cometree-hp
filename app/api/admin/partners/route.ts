@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply pagination and ordering
-    const { data: partners, error, count } = await query
+    const { data: rawPartners, error, count } = await query
       .range(offset, offset + limit - 1)
       .order('created_at', { ascending: false })
 
@@ -51,10 +51,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message || 'Failed to fetch partners' }, { status: 500 })
     }
 
-    return NextResponse.json({
-      partners: partners || [],
-      totalCount: count || 0
-    })
+    // Shape DB → UI
+    const partners = (rawPartners || []).map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category ?? null,
+      is_active: (p.status ?? 'active') === 'active',
+      logo_url: p.logo_url ?? null,
+      website_url: p.website ?? null,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+    }))
+
+    return NextResponse.json({ partners, totalCount: count || partners.length })
   } catch (error) {
     console.error('[API] Unexpected error:', error)
     const message = error instanceof Error ? error.message : 'Internal server error'
@@ -84,12 +93,16 @@ export async function POST(request: NextRequest) {
 
     // Set default values
     const dataToInsert = {
-      ...partnerData,
-      status: partnerData.status || 'active',
+      name: partnerData.name,
+      description: partnerData.description ?? null,
+      category: partnerData.category ?? null,
+      logo_url: partnerData.logo_url ?? null,
+      website: partnerData.website_url ?? partnerData.website ?? null,
+      status: partnerData.is_active === false ? 'inactive' : (partnerData.status || 'active'),
       partnership_level: partnerData.partnership_level || 'basic',
       benefits: partnerData.benefits || [],
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
     
     const { data, error } = await supabase
