@@ -11,7 +11,7 @@ import { MoreHorizontal, PlusCircle, Handshake, Edit, Trash2, Loader2 } from 'lu
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
-import { useToast } from '@/components/ui/use-toast' // Import useToast // Import Pagination component
+import { useToast } from '@/hooks/use-toast'
 
 interface Partner {
   id: string
@@ -68,13 +68,9 @@ export default function PartnersManagementPage() {
   // 認証チェック
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <span className="ml-2 text-gray-600">読み込み中...</span>
       </div>
     )
   }
@@ -117,7 +113,12 @@ export default function PartnersManagementPage() {
   };
 
   if (loading) {
-    return <div className="p-8">読み込み中...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <span className="ml-2 text-gray-600">読み込み中...</span>
+      </div>
+    )
   }
 
   if (error) {
@@ -125,8 +126,9 @@ export default function PartnersManagementPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card>
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-4 md:p-8">
+      <Card className="border-0 shadow-lg bg-white">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-3">
             <Handshake className="h-6 w-6" />
@@ -189,13 +191,16 @@ export default function PartnersManagementPage() {
               )}
             </TableBody>
           </Table>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          <div className="mt-6 flex justify-center">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
