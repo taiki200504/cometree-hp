@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-screen bg-gray-50 text-gray-900">
           {!isLogin && <AdminTopbar />}
           <main className={`min-w-0 ${!isLogin ? 'pt-14' : ''}`}>
-            <div className="mx-auto max-w-screen-lg px-4 md:px-6 lg:px-8 py-4 md:py-6">
+            <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6">
               {isLogin ? (
                 children
               ) : (

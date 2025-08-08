@@ -16,17 +16,13 @@ import {
   Plus, 
   Edit, 
   Trash2, 
-  Eye, 
-  Calendar, 
-  Mic, 
-  ExternalLink,
   Play,
-  Settings,
-  BarChart3,
+  Mic,
   Link as LinkIcon
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 interface PodcastShow {
   id: string
@@ -71,8 +67,6 @@ export default function PodcastManagementPage() {
   const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('shows')
-  
-  // Dialog states
   const [showDialog, setShowDialog] = useState(false)
   const [editingShow, setEditingShow] = useState<PodcastShow | null>(null)
   const [showFormData, setShowFormData] = useState({
@@ -85,9 +79,8 @@ export default function PodcastManagementPage() {
     status: 'active' as 'active' | 'inactive' | 'archived'
   })
 
-  const { requireAuth, loading: authLoading } = useAdminAuthSimple()
-  const router = useRouter()
   const { toast } = useToast()
+  const router = useRouter()
 
   const fetchShows = useCallback(async () => {
     try {
@@ -126,89 +119,46 @@ export default function PodcastManagementPage() {
   }, [])
 
   useEffect(() => {
-    requireAuth()
-  }, [requireAuth])
-
-  useEffect(() => {
-    const isAuthenticated = requireAuth()
-    if (isAuthenticated) {
-      fetchShows()
-      fetchEpisodes()
-      fetchExternalLinks()
-      setLoading(false)
-    }
-  }, [requireAuth, fetchShows, fetchEpisodes, fetchExternalLinks])
+    Promise.all([fetchShows(), fetchEpisodes(), fetchExternalLinks()])
+      .finally(() => setLoading(false))
+  }, [fetchShows, fetchEpisodes, fetchExternalLinks])
 
   const handleShowSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     try {
-      const url = editingShow 
-        ? `/api/admin/podcasts/shows/${editingShow.id}`
-        : '/api/admin/podcasts/shows'
-      
+      const url = editingShow ? `/api/admin/podcasts/shows/${editingShow.id}` : '/api/admin/podcasts/shows'
       const method = editingShow ? 'PUT' : 'POST'
-      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(showFormData)
       })
-
       if (response.ok) {
-        toast({
-          title: editingShow ? "番組更新完了" : "番組作成完了",
-          description: editingShow ? "番組を正常に更新しました。" : "番組を正常に作成しました。",
-        })
+        toast({ title: editingShow ? '番組更新完了' : '番組作成完了' })
         setShowDialog(false)
         setEditingShow(null)
-        setShowFormData({
-          slug: '',
-          name: '',
-          description: '',
-          cover_image_url: '',
-          color_gradient: 'from-blue-400 to-blue-600',
-          total_episodes: 0,
-          status: 'active'
-        })
+        setShowFormData({ slug: '', name: '', description: '', cover_image_url: '', color_gradient: 'from-blue-400 to-blue-600', total_episodes: 0, status: 'active' })
         fetchShows()
       } else {
         throw new Error('Failed to save show')
       }
     } catch (error) {
-      toast({
-        title: "エラー",
-        description: "番組の保存中にエラーが発生しました。",
-        variant: "destructive"
-      })
+      toast({ title: 'エラー', description: '番組の保存中にエラーが発生しました。', variant: 'destructive' })
     }
   }
 
   const handleShowDelete = async (id: string) => {
-    if (!confirm('この番組を削除しますか？この操作は元に戻せません。')) {
-      return
-    }
-
+    if (!confirm('この番組を削除しますか？この操作は元に戻せません。')) return
     try {
-      const response = await fetch(`/api/admin/podcasts/shows/${id}`, {
-        method: 'DELETE'
-      })
-
+      const response = await fetch(`/api/admin/podcasts/shows/${id}`, { method: 'DELETE' })
       if (response.ok) {
-        toast({
-          title: "削除完了",
-          description: "番組を正常に削除しました。",
-        })
+        toast({ title: '削除完了', description: '番組を正常に削除しました。' })
         fetchShows()
       } else {
         throw new Error('Failed to delete show')
       }
     } catch (error) {
-      toast({
-        title: "削除エラー",
-        description: "番組の削除中にエラーが発生しました。",
-        variant: "destructive"
-      })
+      toast({ title: '削除エラー', description: '番組の削除中にエラーが発生しました。', variant: 'destructive' })
     }
   }
 
@@ -228,298 +178,204 @@ export default function PodcastManagementPage() {
 
   const handleShowCreate = () => {
     setEditingShow(null)
-    setShowFormData({
-      slug: '',
-      name: '',
-      description: '',
-      cover_image_url: '',
-      color_gradient: 'from-blue-400 to-blue-600',
-      total_episodes: 0,
-      status: 'active'
-    })
+    setShowFormData({ slug: '', name: '', description: '', cover_image_url: '', color_gradient: 'from-blue-400 to-blue-600', total_episodes: 0, status: 'active' })
     setShowDialog(true)
   }
 
-  if (authLoading) {
-    return <div>Loading...</div>
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center">
+        読み込み中...
+      </div>
+    )
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">
-          ポッドキャスト管理
-        </h1>
-        <p className="text-gray-600">
-          ポッドキャスト番組とエピソードを管理します
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader title="ポッドキャスト管理" trail={[{ label: '管理' }, { label: 'ポッドキャスト' }]} createLink={{ href: '#', label: '番組作成' }} />
+      <div className="p-4 md:p-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="shows">番組管理</TabsTrigger>
+            <TabsTrigger value="episodes">エピソード管理</TabsTrigger>
+            <TabsTrigger value="links">外部リンク管理</TabsTrigger>
+          </TabsList>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="shows">番組管理</TabsTrigger>
-          <TabsTrigger value="episodes">エピソード管理</TabsTrigger>
-          <TabsTrigger value="links">外部リンク管理</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="shows" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">番組一覧</h2>
-            <Button onClick={handleShowCreate} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              番組作成
-            </Button>
-          </div>
-
-          <div className="grid gap-4">
-            {shows.map((show) => (
-              <Card key={show.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gradient-to-r rounded-lg flex items-center justify-center">
-                        {show.cover_image_url ? (
-                          <Image 
-                            src={show.cover_image_url} 
-                            alt={show.name}
-                            width={64}
-                            height={64}
-                            className="w-16 h-16 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <Mic className="h-8 w-8 text-white" />
-                        )}
+          <TabsContent value="shows" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">番組一覧</h2>
+              <Button onClick={handleShowCreate} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                番組作成
+              </Button>
+            </div>
+            <div className="grid gap-4">
+              {shows.length === 0 && <p className="text-gray-500">番組がまだありません</p>}
+              {shows.map((show) => (
+                <Card key={show.id} className="border-0 bg-white shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                          {show.cover_image_url ? (
+                            <Image src={show.cover_image_url} alt={show.name} width={64} height={64} className="object-cover" />
+                          ) : (
+                            <Mic className="h-8 w-8 text-gray-400" />
+                          )}
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg text-gray-900">{show.name}</CardTitle>
+                          <p className="text-sm text-gray-600">{show.description}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant={show.status === 'active' ? 'default' : 'secondary'}>
+                              {show.status === 'active' ? '公開' : show.status === 'inactive' ? '非公開' : 'アーカイブ'}
+                            </Badge>
+                            <span className="text-sm text-gray-500">{show.total_episodes} エピソード</span>
+                          </div>
+                        </div>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => router.push(`/admin/podcasts/shows/${show.id}/episodes`)}>
+                          <Play className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleShowEdit(show)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleShowDelete(show.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="episodes" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">エピソード一覧</h2>
+              <Button onClick={() => router.push('/admin/podcasts/episodes/create')} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                エピソード作成
+              </Button>
+            </div>
+            <div className="grid gap-4">
+              {episodes.length === 0 && <p className="text-gray-500">エピソードがまだありません</p>}
+              {episodes.map((episode) => (
+                <Card key={episode.id} className="border-0 bg-white shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg">{show.name}</CardTitle>
-                        <p className="text-sm text-gray-600">{show.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant={show.status === 'active' ? 'default' : 'secondary'}>
-                            {show.status === 'active' ? '公開' : show.status === 'inactive' ? '非公開' : 'アーカイブ'}
-                          </Badge>
-                          <span className="text-sm text-gray-500">
-                            {show.total_episodes} エピソード
-                          </span>
+                        <CardTitle className="text-lg text-gray-900">{episode.title}</CardTitle>
+                        <p className="text-sm text-gray-600">{episode.description}</p>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                          <span>エピソード {episode.episode_number}</span>
+                          <span>{episode.duration_minutes}分</span>
+                          <span>{episode.view_count} 視聴</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/admin/podcasts/shows/${show.id}/episodes`)}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleShowEdit(show)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleShowDelete(show.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="episodes" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">エピソード一覧</h2>
-            <Button onClick={() => router.push('/admin/podcasts/episodes/create')}>
-              <Plus className="h-4 w-4 mr-2" />
-              エピソード作成
-            </Button>
-          </div>
-
-          <div className="grid gap-4">
-            {episodes.map((episode) => (
-              <Card key={episode.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{episode.title}</CardTitle>
-                      <p className="text-sm text-gray-600">{episode.description}</p>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                        <span>エピソード {episode.episode_number}</span>
-                        <span>{episode.duration_minutes}分</span>
-                        <span>{episode.view_count} 視聴</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={episode.status === 'published' ? 'default' : 'secondary'}>
-                        {episode.status === 'published' ? '公開' : episode.status === 'draft' ? '下書き' : 'アーカイブ'}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/admin/podcasts/episodes/${episode.id}/edit`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="links" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">外部リンク管理</h2>
-            <Button onClick={() => router.push('/admin/podcasts/external-links/create')}>
-              <Plus className="h-4 w-4 mr-2" />
-              リンク追加
-            </Button>
-          </div>
-
-          <div className="grid gap-4">
-            {externalLinks.map((link) => (
-              <Card key={link.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <LinkIcon className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <CardTitle className="text-lg capitalize">{link.platform}</CardTitle>
-                        <p className="text-sm text-gray-600">{link.url}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={link.is_active ? 'default' : 'secondary'}>
-                        {link.is_active ? '有効' : '無効'}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/admin/podcasts/external-links/${link.id}/edit`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingShow ? '番組編集' : '番組作成'}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleShowSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">スラッグ</label>
-                <Input
-                  value={showFormData.slug}
-                  onChange={(e) => setShowFormData({ ...showFormData, slug: e.target.value })}
-                  placeholder="yuniraji"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">ステータス</label>
-                <Select
-                  value={showFormData.status}
-                  onValueChange={(value) => setShowFormData({ ...showFormData, status: value as any })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">公開</SelectItem>
-                    <SelectItem value="inactive">非公開</SelectItem>
-                    <SelectItem value="archived">アーカイブ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  </CardHeader>
+                </Card>
+              ))}
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">番組名</label>
-              <Input
-                value={showFormData.name}
-                onChange={(e) => setShowFormData({ ...showFormData, name: e.target.value })}
-                placeholder="ユニラジ"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">説明</label>
-              <Textarea
-                value={showFormData.description}
-                onChange={(e) => setShowFormData({ ...showFormData, description: e.target.value })}
-                placeholder="番組の説明を入力"
-                rows={3}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">カバー画像URL</label>
-              <Input
-                value={showFormData.cover_image_url}
-                onChange={(e) => setShowFormData({ ...showFormData, cover_image_url: e.target.value })}
-                placeholder="/images/podcast/yuniraji.JPG"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">カラーグラデーション</label>
-                <Select
-                  value={showFormData.color_gradient}
-                  onValueChange={(value) => setShowFormData({ ...showFormData, color_gradient: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="from-blue-400 to-blue-600">ブルー</SelectItem>
-                    <SelectItem value="from-pink-400 to-pink-600">ピンク</SelectItem>
-                    <SelectItem value="from-purple-400 to-purple-600">パープル</SelectItem>
-                    <SelectItem value="from-green-400 to-green-600">グリーン</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">エピソード数</label>
-                <Input
-                  type="number"
-                  value={showFormData.total_episodes}
-                  onChange={(e) => setShowFormData({ ...showFormData, total_episodes: parseInt(e.target.value) || 0 })}
-                  min="0"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowDialog(false)}
-              >
-                キャンセル
-              </Button>
-              <Button type="submit">
-                {editingShow ? '更新' : '作成'}
+          </TabsContent>
+
+          <TabsContent value="links" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">外部リンク管理</h2>
+              <Button onClick={() => router.push('/admin/podcasts/external-links/create')} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                リンク追加
               </Button>
             </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+            <div className="grid gap-4">
+              {externalLinks.length === 0 && <p className="text-gray-500">外部リンクがまだありません</p>}
+              {externalLinks.map((link) => (
+                <Card key={link.id} className="border-0 bg-white shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <LinkIcon className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <CardTitle className="text-lg capitalize text-gray-900">{link.platform}</CardTitle>
+                          <p className="text-sm text-gray-600">{link.url}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingShow ? '番組編集' : '番組作成'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleShowSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">スラッグ</label>
+                  <Input value={showFormData.slug} onChange={(e) => setShowFormData({ ...showFormData, slug: e.target.value })} placeholder="yuniraji" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">ステータス</label>
+                  <Select value={showFormData.status} onValueChange={(value) => setShowFormData({ ...showFormData, status: value as any })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">公開</SelectItem>
+                      <SelectItem value="inactive">非公開</SelectItem>
+                      <SelectItem value="archived">アーカイブ</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">番組名</label>
+                <Input value={showFormData.name} onChange={(e) => setShowFormData({ ...showFormData, name: e.target.value })} placeholder="ユニラジ" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">説明</label>
+                <Textarea value={showFormData.description} onChange={(e) => setShowFormData({ ...showFormData, description: e.target.value })} placeholder="番組の説明を入力" rows={3} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">カバー画像URL</label>
+                <Input value={showFormData.cover_image_url} onChange={(e) => setShowFormData({ ...showFormData, cover_image_url: e.target.value })} placeholder="/images/podcast/yuniraji.JPG" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">カラーグラデーション</label>
+                  <Select value={showFormData.color_gradient} onValueChange={(value) => setShowFormData({ ...showFormData, color_gradient: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="from-blue-400 to-blue-600">ブルー</SelectItem>
+                      <SelectItem value="from-pink-400 to-pink-600">ピンク</SelectItem>
+                      <SelectItem value="from-purple-400 to-purple-600">パープル</SelectItem>
+                      <SelectItem value="from-green-400 to-green-600">グリーン</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">エピソード数</label>
+                  <Input type="number" value={showFormData.total_episodes} onChange={(e) => setShowFormData({ ...showFormData, total_episodes: parseInt(e.target.value) || 0 })} min="0" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>キャンセル</Button>
+                <Button type="submit">{editingShow ? '更新' : '作成'}</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 } 

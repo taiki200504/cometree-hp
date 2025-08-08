@@ -43,35 +43,35 @@ export default function AdminTopbar() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed inset-x-0 top-0 z-40 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="mx-auto max-w-screen-2xl px-4">
+    <div className="fixed inset-x-0 top-0 z-40 border-b bg-white">
+      <div className="px-4">
         <div className="h-14 flex items-center justify-between gap-3">
-          {/* Brand */}
+          {/* Brand & primary nav */}
           <div className="flex items-center gap-3">
             <Link href="/admin/dashboard" className="font-semibold tracking-tight text-gray-900">
               UNION 管理
             </Link>
             <Separator orientation="vertical" className="h-6" />
 
-            {/* Condensed primary links for lg+ */}
-            <nav className="hidden lg:flex items-center gap-1">
+            {/* Primary links always visible */}
+            <nav className="flex items-center gap-1">
               {menu.slice(0, 6).map(({ href, label, Icon }) => {
                 const active = pathname === href || pathname?.startsWith(href + '/')
                 return (
                   <Link
                     key={href}
                     href={href}
-                    className={`px-3 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 font-medium' : 'text-gray-700'}`}
+                    className={`px-3 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Icon className="h-4 w-4" />
-                    <span>{label}</span>
+                    <span className="whitespace-nowrap">{label}</span>
                   </Link>
                 )
               })}
               {/* More dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-1">
+                  <Button variant="ghost" size="sm" className="gap-1 text-gray-700">
                     その他
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -92,7 +92,7 @@ export default function AdminTopbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex text-gray-700">
               <Link href="/admin/help">
                 <BookOpen className="h-4 w-4 mr-2" />
                 運用ガイド
@@ -132,9 +132,9 @@ export default function AdminTopbar() {
         </div>
       </div>
 
-      {/* Small screens: compact horizontal scrollable nav */}
+      {/* Small screens: full labels in horizontal scroll */}
       <div className="lg:hidden border-t bg-white">
-        <div className="mx-auto max-w-screen-2xl px-2">
+        <div className="px-2">
           <div className="flex overflow-x-auto no-scrollbar gap-1 py-2">
             {menu.map(({ href, label, Icon }) => {
               const active = pathname === href || pathname?.startsWith(href + '/')
@@ -142,7 +142,7 @@ export default function AdminTopbar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 font-medium' : 'text-gray-700'}`}
+                  className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{label}</span>
