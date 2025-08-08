@@ -163,18 +163,18 @@ export default function BoardManagementPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>タイトル</TableHead>
-                    <TableHead>投稿者</TableHead>
-                    <TableHead>ステータス</TableHead>
-                    <TableHead>閲覧数</TableHead>
-                    <TableHead>いいね数</TableHead>
-                    <TableHead className="w-48">作成日</TableHead>
+                    <TableHead className="w-40">投稿者</TableHead>
+                    <TableHead className="w-32">ステータス</TableHead>
+                    <TableHead className="w-28">閲覧数</TableHead>
+                    <TableHead className="w-28">いいね数</TableHead>
+                    <TableHead className="w-40">作成日</TableHead>
                     <TableHead className="w-20"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {posts.map((post) => (
                     <TableRow key={post.id}>
-                      <TableCell className="font-medium max-w-xs truncate">
+                      <TableCell className="font-medium max-w-sm truncate" title={post.title}>
                         {post.title}
                       </TableCell>
                       <TableCell>{post.author_name || '管理者'}</TableCell>

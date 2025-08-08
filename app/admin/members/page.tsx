@@ -194,12 +194,10 @@ export default function MembersManagementPage() {
   // ローディング中の表示
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center text-gray-700">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-3 text-gray-400" />
+          <div className="text-sm">読み込み中...</div>
         </div>
       </div>
     )
@@ -357,11 +355,11 @@ export default function MembersManagementPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>メンバー</TableHead>
-                      <TableHead>役職</TableHead>
-                      <TableHead>大学</TableHead>
-                      <TableHead>カテゴリ</TableHead>
-                      <TableHead>代表者</TableHead>
-                      <TableHead>操作</TableHead>
+                      <TableHead className="w-40">役職</TableHead>
+                      <TableHead className="w-40">大学</TableHead>
+                      <TableHead className="w-28">カテゴリ</TableHead>
+                      <TableHead className="w-24">代表者</TableHead>
+                      <TableHead className="w-20">操作</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -382,17 +380,17 @@ export default function MembersManagementPage() {
                                 <User className="h-5 w-5 text-gray-500" />
                               )}
                             </div>
-                            <div>
-                              <p className="font-medium">{member.name}</p>
-                              <p className="text-sm text-gray-500">{member.email}</p>
+                            <div className="max-w-sm truncate">
+                              <p className="font-medium" title={member.name}>{member.name}</p>
+                              <p className="text-sm text-gray-500" title={member.email}>{member.email}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <p className="font-medium">{member.position}</p>
-                          <p className="text-sm text-gray-500">{member.role}</p>
+                          <p className="font-medium truncate" title={member.position}>{member.position}</p>
+                          <p className="text-sm text-gray-500" title={member.role}>{member.role}</p>
                         </TableCell>
-                        <TableCell>{member.university}</TableCell>
+                        <TableCell className="truncate" title={member.university}>{member.university}</TableCell>
                         <TableCell>
                           <Badge className={getCategoryColor(member.category)}>
                             {getCategoryLabel(member.category)}

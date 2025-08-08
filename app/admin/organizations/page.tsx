@@ -283,12 +283,12 @@ export default function OrganizationsManagementPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>団体</TableHead>
-                <TableHead>カテゴリ</TableHead>
-                <TableHead>地域</TableHead>
-                <TableHead>メンバー数</TableHead>
-                <TableHead>状態</TableHead>
-                <TableHead>認証</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead className="w-40">カテゴリ</TableHead>
+                <TableHead className="w-40">地域</TableHead>
+                <TableHead className="w-28">メンバー数</TableHead>
+                <TableHead className="w-28">状態</TableHead>
+                <TableHead className="w-28">認証</TableHead>
+                <TableHead className="w-20">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -303,14 +303,14 @@ export default function OrganizationsManagementPage() {
                           <Image src={`/placeholder.svg?height=40&width=40&text=${encodeURIComponent(org.name)}`} alt={org.name} width={40} height={40} className="object-cover opacity-70" />
                         )}
                       </div>
-                      <div>
-                        <div className="font-medium">{org.name}</div>
-                        <div className="text-xs text-gray-500">{org.contact_email}</div>
+                      <div className="max-w-sm truncate">
+                        <div className="font-medium" title={org.name}>{org.name}</div>
+                        <div className="text-xs text-gray-500" title={org.contact_email || ''}>{org.contact_email}</div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{org.category || '-'}</TableCell>
-                  <TableCell>{org.region || '-'}</TableCell>
+                  <TableCell className="truncate" title={org.category || ''}>{org.category || '-'}</TableCell>
+                  <TableCell className="truncate" title={org.region || ''}>{org.region || '-'}</TableCell>
                   <TableCell>{org.member_count}</TableCell>
                   <TableCell>
                     <Badge variant={org.status === 'active' ? 'default' : 'secondary'}>{org.status}</Badge>

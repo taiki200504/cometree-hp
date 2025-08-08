@@ -147,8 +147,8 @@ export default function EventsManagementPage() {
               <TableRow>
                 <TableHead>タイトル</TableHead>
                 <TableHead className="w-32">ステータス</TableHead>
-                <TableHead className="w-48">開催日</TableHead>
-                <TableHead>場所</TableHead>
+                <TableHead className="w-40">開催日</TableHead>
+                <TableHead className="w-48">場所</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
@@ -156,7 +156,7 @@ export default function EventsManagementPage() {
               {events.length > 0 ? (
                 events.map((event) => (
                   <TableRow key={event.id}>
-                    <TableCell className="font-medium">{event.title}</TableCell>
+                    <TableCell className="font-medium truncate" title={event.title}>{event.title}</TableCell>
                     <TableCell>
                       <Badge variant={event.is_published ? 'default' : 'secondary'}>
                         {event.is_published ? '公開済み' : '下書き'}

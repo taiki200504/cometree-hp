@@ -268,8 +268,8 @@ export default function NewsManagementPage() {
                 <TableRow>
                   <TableHead>タイトル</TableHead>
                   <TableHead className="w-32">ステータス</TableHead>
-                  <TableHead className="w-48">公開日</TableHead>
-                  <TableHead className="w-48">作成日</TableHead>
+                  <TableHead className="w-40">公開日</TableHead>
+                  <TableHead className="w-40">作成日</TableHead>
                   <TableHead className="w-20"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -278,7 +278,7 @@ export default function NewsManagementPage() {
                   articles.map((article) => (
                     <TableRow key={article.id}>
                       <TableCell className="font-medium">
-                        <div className="max-w-xs truncate" title={article.title}>{article.title}</div>
+                        <div className="max-w-sm truncate" title={article.title}>{article.title}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={article.is_published ? 'default' : 'secondary'}>

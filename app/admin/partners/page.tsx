@@ -144,8 +144,8 @@ export default function PartnersManagementPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>団体名</TableHead>
-                <TableHead>カテゴリ</TableHead>
-                <TableHead>ステータス</TableHead>
+                <TableHead className="w-40">カテゴリ</TableHead>
+                <TableHead className="w-32">ステータス</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
@@ -153,8 +153,8 @@ export default function PartnersManagementPage() {
               {partners.length > 0 ? (
                 partners.map((partner) => (
                   <TableRow key={partner.id}>
-                    <TableCell className="font-medium">{partner.name}</TableCell>
-                    <TableCell>{partner.category || '-'}</TableCell>
+                    <TableCell className="font-medium truncate" title={partner.name}>{partner.name}</TableCell>
+                    <TableCell className="truncate" title={partner.category || ''}>{partner.category || '-'}</TableCell>
                     <TableCell>
                       <Badge variant={partner.is_active ? 'default' : 'secondary'}>
                         {partner.is_active ? 'アクティブ' : '非アクティブ'}
