@@ -240,52 +240,52 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">総メンバー数</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-900">総メンバー数</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{isLoadingStats ? '...' : stats.totalMembers}</div>
-              <p className="text-xs text-gray-500">運営メンバー</p>
+              <div className="text-2xl font-bold text-gray-900">{isLoadingStats ? '...' : stats.totalMembers}</div>
+              <p className="text-xs text-gray-600">運営メンバー</p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">ニュース記事</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-900">ニュース記事</CardTitle>
               <FileText className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{isLoadingStats ? '...' : stats.totalNews}</div>
-              <p className="text-xs text-gray-500">公開済み記事</p>
+              <div className="text-2xl font-bold text-gray-900">{isLoadingStats ? '...' : stats.totalNews}</div>
+              <p className="text-xs text-gray-600">公開済み記事</p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">イベント数</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-900">イベント数</CardTitle>
               <Calendar className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{isLoadingStats ? '...' : stats.totalEvents}</div>
-              <p className="text-xs text-gray-500">登録済みイベント</p>
+              <div className="text-2xl font-bold text-gray-900">{isLoadingStats ? '...' : stats.totalEvents}</div>
+              <p className="text-xs text-gray-600">登録済みイベント</p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">加盟団体</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-900">加盟団体</CardTitle>
               <Building className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{isLoadingStats ? '...' : stats.totalOrganizations}</div>
-              <p className="text-xs text-gray-500">加盟団体数</p>
+              <div className="text-2xl font-bold text-gray-900">{isLoadingStats ? '...' : stats.totalOrganizations}</div>
+              <p className="text-xs text-gray-600">加盟団体数</p>
             </CardContent>
           </Card>
         </div>
 
         {/* クイックアクション */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">クイックアクション</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">クイックアクション</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action, index) => (
               <Card key={index} className="border-0 shadow-lg bg-white hover:shadow-xl transition-shadow">
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
                         {section.icon}
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{section.title}</CardTitle>
+                        <CardTitle className="text-lg text-gray-900">{section.title}</CardTitle>
                         <p className="text-sm text-gray-600">{section.description}</p>
                       </div>
                     </div>
