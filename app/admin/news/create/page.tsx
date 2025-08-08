@@ -23,6 +23,8 @@ import {
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useToast } from '@/components/ui/use-toast'
 import { PreviewModal } from '@/components/ui/preview-modal'
+import AdminHeading from '@/components/admin/AdminHeading'
+import RichTextEditor from '@/components/ui/rich-text-editor'
 
 export default function CreateNewsPage() {
   const [title, setTitle] = useState('')
@@ -106,12 +108,7 @@ export default function CreateNewsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-4 flex items-center justify-between">
-          <Button variant="outline" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" /> 戻る
-          </Button>
-          <h1 className="text-xl font-bold text-gray-900">ニュース作成</h1>
-        </div>
+        <AdminHeading title="ニュース作成" />
         <Card className="bg-white border-0 shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-gray-900">
@@ -140,15 +137,8 @@ export default function CreateNewsPage() {
 
               {/* Content */}
               <div className="space-y-2">
-                <Label htmlFor="content">コンテンツ *</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="ニュースの内容を入力してください"
-                  rows={10}
-                  required
-                />
+                <Label>コンテンツ *</Label>
+                <RichTextEditor value={content} onChange={setContent} placeholder="ニュースの内容を入力してください" />
               </div>
 
               {/* Published Status */}
