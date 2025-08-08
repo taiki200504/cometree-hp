@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
-  ArrowLeft,
   TrendingUp,
   TrendingDown,
   Users,
@@ -19,7 +18,7 @@ import {
   Activity,
   Globe
 } from 'lucide-react'
-import Link from 'next/link'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 export default function AdminStats() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
@@ -28,6 +27,7 @@ export default function AdminStats() {
     overview: { totalViews: 0, totalUsers: 0, totalNews: 0, totalEvents: 0 },
     topPages: [] as Array<{ path: string; views: number; change: string }>,
     recentActivity: [] as Array<{ type: string; action: string; title: string; time: string }>,
+    trends: { views: { change: '+0%' }, users: { change: '+0%' }, news: { change: '+0%' } } as any,
   }))
 
   const fetchStats = useCallback(async () => {
@@ -35,16 +35,15 @@ export default function AdminStats() {
       const res = await fetch('/api/admin/stats', { cache: 'no-store' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || '統計データの取得に失敗しました')
-      setStats({
+      setStats((prev) => ({
+        ...prev,
         overview: {
           totalViews: data.views ?? 0,
           totalUsers: data.users ?? 0,
           totalNews: data.news ?? 0,
           totalEvents: data.events ?? 0,
         },
-        topPages: [],
-        recentActivity: [],
-      })
+      }))
     } catch (e) {
       // silent fail; page still renders
     }
@@ -99,35 +98,21 @@ export default function AdminStats() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/dashboard">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボード
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="h-6 w-6 text-orange-600" />
-                <h1 className="text-xl font-bold text-gray-900">統計情報</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                更新
+      <div className="px-4 sm:px-6 lg:px-8">
+        <AdminHeading
+          title="統計情報"
+          actions={(
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={fetchStats}>
+                <RefreshCw className="h-4 w-4 mr-2" />更新
               </Button>
               <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                エクスポート
+                <Download className="h-4 w-4 mr-2" />エクスポート
               </Button>
             </div>
-          </div>
-        </div>
-      </header>
+          )}
+        />
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

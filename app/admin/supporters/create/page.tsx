@@ -12,7 +12,6 @@ import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { 
-  ArrowLeft, 
   Save, 
   Loader2, 
   Heart, 
@@ -26,6 +25,7 @@ import {
   DollarSign
 } from 'lucide-react'
 import Link from 'next/link'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 export default function CreateSupporterPage() {
   const [loading, setLoading] = useState(false)
@@ -103,14 +103,10 @@ export default function CreateSupporterPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/admin/supporters">
-              <ArrowLeft className="mr-2 h-4 w-4" /> 戻る
-            </Link>
-          </Button>
-          <h1 className="text-xl font-bold">支援者の新規追加</h1>
-        </div>
+        <AdminHeading
+          title="支援者の新規追加"
+          actions={(<Button asChild variant="outline" size="sm"><Link href="/admin/supporters">一覧へ</Link></Button>)}
+        />
         <Card className="bg-white border-0 shadow">
           <CardHeader>
             <CardTitle>支援者情報</CardTitle>

@@ -8,13 +8,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { 
-  ArrowLeft,
   TestTube,
   CheckCircle,
   XCircle,
   AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 export default function AdminTest() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
@@ -181,28 +181,16 @@ export default function AdminTest() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/dashboard">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボード
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <TestTube className="h-6 w-6 text-blue-600" />
-                <h1 className="text-xl font-bold text-gray-900">動作確認テスト</h1>
-              </div>
-            </div>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <AdminHeading
+          title="動作確認テスト"
+          actions={(
             <Button onClick={runTests} disabled={isRunning}>
               {isRunning ? 'テスト実行中...' : 'テスト実行'}
             </Button>
-          </div>
-        </div>
-      </header>
+          )}
+        />
+      </div>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

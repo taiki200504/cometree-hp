@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { 
-  ArrowLeft,
   Plus,
   Search,
   Eye,
@@ -21,6 +20,7 @@ import {
   MoreHorizontal
 } from 'lucide-react'
 import Link from 'next/link'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 export default function AdminUsers() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
@@ -112,31 +112,18 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/dashboard">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボード
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-6 w-6 text-purple-600" />
-                <h1 className="text-xl font-bold text-gray-900">ユーザー管理</h1>
-              </div>
-            </div>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <AdminHeading
+          title="ユーザー管理"
+          actions={(
             <Button asChild>
               <Link href="/admin/users/create">
-                <Plus className="h-4 w-4 mr-2" />
-                新規追加
+                <Plus className="h-4 w-4 mr-2" />新規追加
               </Link>
             </Button>
-          </div>
-        </div>
-      </header>
+          )}
+        />
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
