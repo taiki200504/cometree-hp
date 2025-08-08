@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient()
+  try {
+    await requireAdmin(request)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Forbidden' }, { status: 403 })
+  }
 
-  // Admin auth check
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-  }
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
-    .single()
-  if (userError || user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const supabase = createAdminClient()
 
   try {
     const formData = await request.formData()
@@ -29,10 +22,10 @@ export async function POST(request: NextRequest) {
 
     const fileExt = file.name.split('.').pop()
     const fileName = `${uuidv4()}.${fileExt}`
-    const filePath = `public/${fileName}` // Assuming a 'public' bucket
+    const filePath = `public/${fileName}`
 
-    const { data, error: uploadError } = await supabase.storage
-      .from('images') // Assuming a bucket named 'images'
+    const { error: uploadError } = await supabase.storage
+      .from('images')
       .upload(filePath, file, { cacheControl: '3600', upsert: false })
 
     if (uploadError) {
