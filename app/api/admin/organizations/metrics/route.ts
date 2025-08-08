@@ -5,6 +5,9 @@ import { requireAdmin } from '@/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: 'Server DB configuration missing' }, { status: 500 })
+    }
     const supabase = createAdminClient()
 
     // Get total organizations
@@ -18,11 +21,17 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active')
 
-    // Get verified organizations
-    const { count: verifiedOrganizations } = await supabase
-      .from('organizations')
-      .select('*', { count: 'exact', head: true })
-      .in('verification_level', ['verified', 'premium'])
+    // Get verified organizations (if the column exists)
+    let verifiedOrganizations = 0
+    try {
+      const { count } = await supabase
+        .from('organizations')
+        .select('*', { count: 'exact', head: true })
+        .in('verification_level', ['verified', 'premium'])
+      verifiedOrganizations = count || 0
+    } catch (_) {
+      verifiedOrganizations = 0
+    }
 
     // Get total members
     const { data: memberCounts } = await supabase
@@ -31,17 +40,29 @@ export async function GET(request: NextRequest) {
 
     const totalMembers = memberCounts?.reduce((sum: number, org: { member_count: number; }) => sum + (org.member_count || 0), 0) || 0
 
-    // Get pending applications
-    const { count: pendingApplications } = await supabase
-      .from('organization_applications')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending')
+    // Get pending applications (optional table)
+    let pendingApplications = 0
+    try {
+      const { count } = await supabase
+        .from('organization_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending')
+      pendingApplications = count || 0
+    } catch (_) {
+      pendingApplications = 0
+    }
 
-    // Get approved events
-    const { count: approvedEvents } = await supabase
-      .from('organization_events')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'approved')
+    // Get approved events (optional table)
+    let approvedEvents = 0
+    try {
+      const { count } = await supabase
+        .from('organization_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved')
+      approvedEvents = count || 0
+    } catch (_) {
+      approvedEvents = 0
+    }
 
     const metrics = {
       totalOrganizations: totalOrganizations || 0,
@@ -54,6 +75,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ metrics })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }
 } 

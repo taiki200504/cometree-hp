@@ -141,12 +141,10 @@ export default function OrganizationsManagementPage() {
   // 認証チェック
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
+      <div className="p-8">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>読み込み中...</span>
         </div>
       </div>
     )
@@ -210,310 +208,154 @@ export default function OrganizationsManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-          <div className="text-lg">LOADING ORGANIZATIONS...</div>
-          <div className="text-sm opacity-75 mt-2">Initializing organization management system</div>
+      <div className="p-8">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>読み込み中...</span>
         </div>
       </div>
     )
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-black text-red-400 font-mono flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-400" />
-          <div className="text-lg">SYSTEM ERROR</div>
-          <div className="text-sm opacity-75 mt-2">{error}</div>
-        </div>
-      </div>
-    )
+    return <div className="p-8 text-red-500">エラー: {error}</div>
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Header */}
-      <div className="bg-black/80 backdrop-blur-sm border-b border-green-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center border border-green-400">
-                  <Building className="h-4 w-4 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    ORGANIZATION MANAGEMENT
-                  </h1>
-                  <div className="text-xs opacity-75">MANAGE ORGANIZATIONS AND MEMBERS</div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button asChild className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-                <Link href="/admin/organizations/dashboard">
-                  <Database className="mr-2 h-4 w-4" />
-                  DASHBOARD
-                </Link>
-              </Button>
-              <Button asChild className="bg-blue-400/20 text-blue-400 border-blue-400/30 hover:bg-blue-400/30">
-                <Link href="/admin/organizations/create">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  ADD ORGANIZATION
-                </Link>
-              </Button>
-            </div>
+    <div className="p-4 md:p-8">
+      <Card className="max-w-screen-lg mx-auto">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Building className="h-6 w-6 text-gray-700" />
+            <CardTitle>加盟団体管理</CardTitle>
           </div>
-        </div>
-      </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/admin/organizations/dashboard">
+                <Database className="mr-2 h-4 w-4" />ダッシュボード
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/admin/organizations/create">
+                <PlusCircle className="mr-2 h-4 w-4" />新規追加
+              </Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">総数</div><div className="text-2xl font-semibold">{systemMetrics.totalOrganizations}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">アクティブ</div><div className="text-2xl font-semibold">{systemMetrics.activeOrganizations}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">認証済</div><div className="text-2xl font-semibold">{systemMetrics.verifiedOrganizations}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">メンバー総数</div><div className="text-2xl font-semibold">{systemMetrics.totalMembers}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">承認済イベント</div><div className="text-2xl font-semibold">{systemMetrics.approvedEvents}</div></CardContent></Card>
+          </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* System Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">TOTAL ORGANIZATIONS</p>
-                  <p className="text-2xl font-bold text-green-400">{systemMetrics.totalOrganizations}</p>
-                </div>
-                <Database className="h-8 w-8 text-green-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">ACTIVE</p>
-                  <p className="text-2xl font-bold text-blue-400">{systemMetrics.activeOrganizations}</p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-blue-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">VERIFIED</p>
-                  <p className="text-2xl font-bold text-purple-400">{systemMetrics.verifiedOrganizations}</p>
-                </div>
-                <Star className="h-8 w-8 text-purple-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">TOTAL MEMBERS</p>
-                  <p className="text-2xl font-bold text-orange-400">{systemMetrics.totalMembers}</p>
-                </div>
-                <Users className="h-8 w-8 text-orange-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">PENDING APPLICATIONS</p>
-                  <p className="text-2xl font-bold text-yellow-400">{systemMetrics.pendingApplications}</p>
-                </div>
-                <Clock className="h-8 w-8 text-yellow-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">APPROVED EVENTS</p>
-                  <p className="text-2xl font-bold text-red-400">{systemMetrics.approvedEvents}</p>
-                </div>
-                <Calendar className="h-8 w-8 text-red-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Search and Filters */}
-        <Card className="bg-black/50 border-green-400/30 mb-8">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-400" />
-                <Input
-                  placeholder="Search organizations..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-black/30 border-green-400/30 text-green-400 placeholder-green-400/50"
-                />
-              </div>
-              
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-black/30 border border-green-400/30 text-green-400 rounded-md px-3 py-2"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
-                <option value="suspended">Suspended</option>
-              </select>
-              
-              <select
-                value={filterVerification}
-                onChange={(e) => setFilterVerification(e.target.value)}
-                className="bg-black/30 border border-green-400/30 text-green-400 rounded-md px-3 py-2"
-              >
-                <option value="all">All Verification</option>
-                <option value="basic">Basic</option>
-                <option value="verified">Verified</option>
-                <option value="premium">Premium</option>
-              </select>
-              
-              <Button 
-                onClick={() => fetchOrganizations()}
-                className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                APPLY FILTERS
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Organizations Table */}
-        <Card className="bg-black/50 border-green-400/30">
-          <CardHeader>
-            <CardTitle className="text-green-400">ORGANIZATIONS LIST</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-green-400/30">
-                    <TableHead className="text-green-400">ORGANIZATION</TableHead>
-                    <TableHead className="text-green-400">CATEGORY</TableHead>
-                    <TableHead className="text-green-400">REGION</TableHead>
-                    <TableHead className="text-green-400">MEMBERS</TableHead>
-                    <TableHead className="text-green-400">STATUS</TableHead>
-                    <TableHead className="text-green-400">VERIFICATION</TableHead>
-                    <TableHead className="text-green-400">ACTIONS</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {organizations.length > 0 ? (
-                    organizations.map((org) => (
-                      <TableRow key={org.id} className="border-green-400/20 hover:bg-green-400/5">
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center">
-                              {org.logo_url ? (
-                                <Image
-                                  src={org.logo_url}
-                                  alt={org.name}
-                                  width={40}
-                                  height={40}
-                                  className="rounded-lg"
-                                />
-                              ) : (
-                                <Building className="h-5 w-5 text-black" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="font-medium text-green-400">{org.name}</div>
-                              <div className="text-sm opacity-75">{org.contact_email}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-green-400">{org.category || '-'}</TableCell>
-                        <TableCell className="text-green-400">{org.region || '-'}</TableCell>
-                        <TableCell className="text-green-400">{org.member_count}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(org.status)}>
-                            {org.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getVerificationColor(org.verification_level)}>
-                            {org.verification_level}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0 text-green-400 hover:bg-green-400/20">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-black border-green-400/30">
-                              <DropdownMenuItem
-                                onClick={() => router.push(`/admin/organizations/${org.id}/edit`)}
-                                className="text-blue-400 hover:bg-blue-400/20"
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => router.push(`/admin/organizations/${org.id}/content`)}
-                                className="text-green-400 hover:bg-green-400/20"
-                              >
-                                <FileText className="mr-2 h-4 w-4" />
-                                Content
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => router.push(`/admin/organizations/${org.id}`)}
-                                className="text-purple-400 hover:bg-purple-400/20"
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDelete(org.id)} 
-                                className="text-red-400 hover:bg-red-400/20"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow className="border-green-400/20">
-                      <TableCell colSpan={7} className="text-center text-green-400">
-                        No organizations found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            
-            <div className="mt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="団体を検索…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="border rounded-md px-3 py-2">
+              <option value="all">全ステータス</option>
+              <option value="active">アクティブ</option>
+              <option value="inactive">非アクティブ</option>
+              <option value="pending">審査中</option>
+              <option value="suspended">停止</option>
+            </select>
+            <select value={filterVerification} onChange={(e) => setFilterVerification(e.target.value)} className="border rounded-md px-3 py-2">
+              <option value="all">全認証レベル</option>
+              <option value="basic">Basic</option>
+              <option value="verified">Verified</option>
+              <option value="premium">Premium</option>
+            </select>
+            <Button onClick={() => fetchOrganizations()} variant="outline">
+              <Filter className="mr-2 h-4 w-4" />絞り込み
+            </Button>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>団体</TableHead>
+                <TableHead>カテゴリ</TableHead>
+                <TableHead>地域</TableHead>
+                <TableHead>メンバー数</TableHead>
+                <TableHead>状態</TableHead>
+                <TableHead>認証</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {organizations.length > 0 ? organizations.map((org) => (
+                <TableRow key={org.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100">
+                        {org.logo_url ? (
+                          <Image src={org.logo_url} alt={org.name} width={40} height={40} className="object-cover" />
+                        ) : (
+                          <Image src={`/placeholder.svg?height=40&width=40&text=${encodeURIComponent(org.name)}`} alt={org.name} width={40} height={40} className="object-cover opacity-70" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium">{org.name}</div>
+                        <div className="text-xs text-gray-500">{org.contact_email}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{org.category || '-'}</TableCell>
+                  <TableCell>{org.region || '-'}</TableCell>
+                  <TableCell>{org.member_count}</TableCell>
+                  <TableCell>
+                    <Badge variant={org.status === 'active' ? 'default' : 'secondary'}>{org.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{org.verification_level}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">メニューを開く</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/organizations/${org.id}/edit`)}>
+                          <Edit className="mr-2 h-4 w-4" />編集
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/organizations/${org.id}/content`)}>
+                          <FileText className="mr-2 h-4 w-4" />コンテンツ
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/organizations/${org.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />詳細
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(org.id)} className="text-red-600">
+                          <Trash2 className="mr-2 h-4 w-4" />削除
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-gray-500">加盟団体がありません。</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          <div className="mt-6">
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

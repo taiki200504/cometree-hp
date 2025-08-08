@@ -12,6 +12,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[API] Supabase env missing: check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+      return NextResponse.json({ error: 'Server is not configured for database access. Please set SUPABASE_SERVICE_ROLE_KEY on the server.' }, { status: 500 })
+    }
     const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
@@ -48,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[API] Database error:', error)
-      return NextResponse.json({ error: 'Failed to fetch partners' }, { status: 500 })
+      return NextResponse.json({ error: error.message || 'Failed to fetch partners' }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -57,7 +61,8 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('[API] Unexpected error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -71,6 +76,10 @@ export async function POST(request: NextRequest) {
   }
   
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[API] Supabase env missing: check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+      return NextResponse.json({ error: 'Server is not configured for database access. Please set SUPABASE_SERVICE_ROLE_KEY on the server.' }, { status: 500 })
+    }
     const supabase = createAdminClient()
     const partnerData = await request.json()
     
@@ -98,12 +107,13 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[API] Database error:', error)
-      return NextResponse.json({ error: 'Failed to create partner' }, { status: 500 })
+      return NextResponse.json({ error: error.message || 'Failed to create partner' }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
     console.error('[API] Unexpected error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

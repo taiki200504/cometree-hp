@@ -134,12 +134,10 @@ export default function SupportersManagementPage() {
   // 認証チェック
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
+      <div className="p-8">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>読み込み中...</span>
         </div>
       </div>
     )
@@ -222,13 +220,10 @@ export default function SupportersManagementPage() {
 
   if (loading && supporters.length === 0) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING SUPPORTERS DATABASE...</div>
-            <div className="text-sm opacity-75 mt-2">Initializing supporter management system</div>
-          </div>
+      <div className="p-8">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>読み込み中...</span>
         </div>
       </div>
     )
@@ -236,315 +231,144 @@ export default function SupportersManagementPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-red-400 font-mono flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-400" />
-          <div className="text-lg">SYSTEM ERROR</div>
-          <div className="text-sm opacity-75 mt-2">{error}</div>
-        </div>
-      </div>
+      <div className="p-8 text-red-500">エラー: {error}</div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Header */}
-      <div className="bg-black/80 backdrop-blur-sm border-b border-green-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center border border-green-400">
-                  <Heart className="h-4 w-4 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    SUPPORTERS MANAGEMENT
-                  </h1>
-                  <div className="text-xs opacity-75">SPONSOR OPERATIONS CENTER</div>
-                </div>
-              </div>
+    <div className="p-4 md:p-8">
+      <Card className="max-w-screen-lg mx-auto">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Heart className="h-6 w-6 text-gray-700" />
+            <CardTitle>支援者管理</CardTitle>
+          </div>
+          <Button asChild>
+            <Link href="/admin/supporters/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              新規追加
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6 flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="支援者を検索…"
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-10"
+              />
             </div>
-            <div className="flex items-center space-x-4">
-              <Button asChild className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-                <Link href="/admin/supporters/create">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  ADD SUPPORTER
-                </Link>
-              </Button>
+            <div className="flex gap-2">
+              <Button variant={filterSupportType === 'all' ? 'default' : 'outline'} onClick={() => handleFilterChange('all')}>すべて</Button>
+              <Button variant={filterSupportType === 'financial' ? 'default' : 'outline'} onClick={() => handleFilterChange('financial')}>資金</Button>
+              <Button variant={filterSupportType === 'media' ? 'default' : 'outline'} onClick={() => handleFilterChange('media')}>メディア</Button>
+              <Button variant={filterSupportType === 'collaboration' ? 'default' : 'outline'} onClick={() => handleFilterChange('collaboration')}>連携</Button>
+              <Button variant={filterSupportType === 'individual' ? 'default' : 'outline'} onClick={() => handleFilterChange('individual')}>個人</Button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* System Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">TOTAL SUPPORTERS</p>
-                  <p className="text-2xl font-bold text-green-400">{systemMetrics.totalSupporters}</p>
-                </div>
-                <Database className="h-8 w-8 text-green-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">ACTIVE</p>
-                  <p className="text-2xl font-bold text-blue-400">{systemMetrics.activeSupporters}</p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-blue-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">FINANCIAL</p>
-                  <p className="text-2xl font-bold text-purple-400">{systemMetrics.financialSupporters}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-purple-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">MEDIA</p>
-                  <p className="text-2xl font-bold text-orange-400">{systemMetrics.mediaSupporters}</p>
-                </div>
-                <Award className="h-8 w-8 text-orange-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">COLLABORATION</p>
-                  <p className="text-2xl font-bold text-yellow-400">{systemMetrics.collaborationSupporters}</p>
-                </div>
-                <Users className="h-8 w-8 text-yellow-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-black/50 border-green-400/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs opacity-75">INDIVIDUAL</p>
-                  <p className="text-2xl font-bold text-red-400">{systemMetrics.individualSupporters}</p>
-                </div>
-                <Heart className="h-8 w-8 text-red-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="mb-6 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400 h-4 w-4" />
-            <Input
-              placeholder="Search supporters..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 bg-black/50 border-green-400/50 text-green-400 placeholder:text-green-400/50 focus:border-green-400 focus:ring-green-400/20"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">総数</div><div className="text-2xl font-semibold">{systemMetrics.totalSupporters}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">アクティブ</div><div className="text-2xl font-semibold">{systemMetrics.activeSupporters}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">資金</div><div className="text-2xl font-semibold">{systemMetrics.financialSupporters}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">メディア</div><div className="text-2xl font-semibold">{systemMetrics.mediaSupporters}</div></CardContent></Card>
+            <Card><CardContent className="p-4"><div className="text-xs text-gray-500">連携</div><div className="text-2xl font-semibold">{systemMetrics.collaborationSupporters}</div></CardContent></Card>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={filterSupportType === 'all' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('all')}
-              className={filterSupportType === 'all' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              ALL
-            </Button>
-            <Button
-              variant={filterSupportType === 'financial' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('financial')}
-              className={filterSupportType === 'financial' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              FINANCIAL
-            </Button>
-            <Button
-              variant={filterSupportType === 'media' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('media')}
-              className={filterSupportType === 'media' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              MEDIA
-            </Button>
-            <Button
-              variant={filterSupportType === 'collaboration' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('collaboration')}
-              className={filterSupportType === 'collaboration' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              COLLABORATION
-            </Button>
-            <Button
-              variant={filterSupportType === 'individual' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange('individual')}
-              className={filterSupportType === 'individual' ? 'bg-green-400 text-black' : 'border-green-400/30 text-green-400 hover:bg-green-400/10'}
-            >
-              INDIVIDUAL
-            </Button>
-          </div>
-        </div>
 
-        {/* Supporters Table */}
-        <Card className="bg-black/50 border-green-400/30">
-          <CardHeader>
-            <CardTitle className="text-green-400">SUPPORTERS</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-green-400/30">
-                  <TableHead className="text-green-400">SUPPORTER</TableHead>
-                  <TableHead className="text-green-400">TYPE</TableHead>
-                  <TableHead className="text-green-400">SUPPORT TYPE</TableHead>
-                  <TableHead className="text-green-400">AMOUNT</TableHead>
-                  <TableHead className="text-green-400">STATUS</TableHead>
-                  <TableHead className="text-green-400 w-20"></TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>支援者</TableHead>
+                <TableHead>区分</TableHead>
+                <TableHead>支援タイプ</TableHead>
+                <TableHead>金額等</TableHead>
+                <TableHead>状態</TableHead>
+                <TableHead className="w-20" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {supporters.length > 0 ? supporters.map((supporter) => (
+                <TableRow key={supporter.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100">
+                        {supporter.logo_url ? (
+                          <Image src={supporter.logo_url} alt={supporter.name} fill className="object-cover" />
+                        ) : (
+                          <Image src={`/placeholder.svg?height=40&width=40&text=${encodeURIComponent(supporter.name)}`} alt={supporter.name} fill className="object-cover opacity-70" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium">{supporter.name}</div>
+                        <div className="text-xs text-gray-500 line-clamp-1">{supporter.description}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{supporter.type}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getSupportTypeIcon(supporter.support_type)}
+                      <Badge variant="outline">{getSupportTypeLabel(supporter.support_type)}</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">{supporter.amount}</TableCell>
+                  <TableCell>
+                    <Badge variant={supporter.is_active ? 'default' : 'secondary'}>
+                      {supporter.is_active ? 'アクティブ' : '非アクティブ'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">メニューを開く</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/admin/supporters/${supporter.id}/edit`)}>
+                          <Edit className="mr-2 h-4 w-4" />編集
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/supporters/${supporter.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />表示
+                        </DropdownMenuItem>
+                        {supporter.website_url && (
+                          <DropdownMenuItem onClick={() => window.open(supporter.website_url!, '_blank')}>
+                            <ExternalLink className="mr-2 h-4 w-4" />公式サイト
+                          </DropdownMenuItem>
+                        )}
+                        {supporter.contact_email && (
+                          <DropdownMenuItem onClick={() => window.open(`mailto:${supporter.contact_email}`)}>
+                            <Mail className="mr-2 h-4 w-4" />メール
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => handleDelete(supporter.id)} className="text-red-600">
+                          <Trash2 className="mr-2 h-4 w-4" />削除
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {supporters.length > 0 ? (
-                  supporters.map((supporter) => (
-                    <TableRow key={supporter.id} className="border-green-400/30 hover:bg-green-400/5">
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                            {supporter.logo_url ? (
-                              <Image
-                                src={supporter.logo_url}
-                                alt={supporter.name}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                                <Building2 className="h-5 w-5 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-medium text-green-400">{supporter.name}</div>
-                            <div className="text-sm opacity-75">{supporter.description}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-blue-400/20 text-blue-400 border-blue-400/30">
-                          {supporter.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {getSupportTypeIcon(supporter.support_type)}
-                          <Badge className={getSupportTypeColor(supporter.support_type)}>
-                            {getSupportTypeLabel(supporter.support_type)}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm opacity-75">
-                        {supporter.amount}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          className={supporter.is_active ? 'bg-green-400/20 text-green-400 border-green-400/30' : 'bg-red-400/20 text-red-400 border-red-400/30'}
-                        >
-                          {supporter.is_active ? 'ACTIVE' : 'INACTIVE'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-400 hover:bg-green-400/10">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-black border-green-400/30">
-                            <DropdownMenuItem 
-                              onClick={() => router.push(`/admin/supporters/${supporter.id}/edit`)}
-                              className="text-blue-400 hover:bg-blue-400/10"
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              EDIT
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => router.push(`/admin/supporters/${supporter.id}`)}
-                              className="text-green-400 hover:bg-green-400/10"
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              VIEW
-                            </DropdownMenuItem>
-                            {supporter.website_url && (
-                              <DropdownMenuItem 
-                                onClick={() => window.open(supporter.website_url, '_blank')}
-                                className="text-purple-400 hover:bg-purple-400/10"
-                              >
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                WEBSITE
-                              </DropdownMenuItem>
-                            )}
-                            {supporter.contact_email && (
-                              <DropdownMenuItem 
-                                onClick={() => window.open(`mailto:${supporter.contact_email}`)}
-                                className="text-orange-400 hover:bg-orange-400/10"
-                              >
-                                <Mail className="mr-2 h-4 w-4" />
-                                EMAIL
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem 
-                              onClick={() => handleDelete(supporter.id)} 
-                              className="text-red-400 hover:bg-red-400/10"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              DELETE
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow className="border-green-400/30">
-                    <TableCell colSpan={6} className="text-center text-green-400">
-                      No supporters found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-            
-            {totalPages > 1 && (
-              <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-gray-500">支援者がありません。</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 } 
