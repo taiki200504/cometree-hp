@@ -95,49 +95,46 @@ export default function AdminLogin() {
   // ユーザーが既にログインしている場合は何も表示しない（リダイレクト中）
   if (user && isAdmin) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">REDIRECTING TO DASHBOARD...</div>
-            <div className="text-sm opacity-75 mt-2">Authentication successful</div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-700">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-3 text-gray-400" />
+          <div className="text-sm">ダッシュボードへリダイレクト中...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
+    <div className="min-h-screen bg-gray-50">
       <div className="flex items-center justify-center h-screen">
-        <Card className="w-full max-w-md p-8 space-y-6 bg-black/70 border border-green-400/30 rounded-lg shadow-lg">
+        <Card className="w-full max-w-md p-8 space-y-6 bg-white border-0 shadow">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-green-400 mb-2">UNION OPERATIONS CENTER</CardTitle>
-            <p className="text-sm opacity-75">ADMIN LOGIN</p>
+            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">UNION 管理ログイン</CardTitle>
+            <p className="text-sm text-gray-600">管理者アカウントでサインイン</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-green-400">Email</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 block w-full bg-black/50 border-green-400/30 text-green-400 placeholder-green-700 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50"
+                  className="mt-1"
                   placeholder="admin@example.com"
                   autoComplete="username"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-green-400">Password</label>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
                 <Input
                   id="password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="mt-1 block w-full bg-black/50 border-green-400/30 text-green-400 placeholder-green-700 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50"
+                  className="mt-1"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   required
@@ -145,7 +142,7 @@ export default function AdminLogin() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out"
+                className="w-full"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -153,21 +150,13 @@ export default function AdminLogin() {
                 ) : (
                   <LogIn className="mr-2 h-4 w-4" />
                 )}
-                {isSubmitting ? 'AUTHENTICATING...' : 'LOGIN'}
+                {isSubmitting ? '認証中...' : 'ログイン'}
               </Button>
             </form>
             {error && (
-              <div className="mt-4 p-3 bg-red-900/20 border border-red-400/30 rounded-md">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-red-400" />
-                  <p className="text-sm text-red-400">{error}</p>
-                </div>
-                <button 
-                  onClick={() => window.location.reload()} 
-                  className="mt-2 text-xs text-red-400 hover:text-red-300 underline"
-                >
-                  ページを再読み込み
-                </button>
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                <p>{error}</p>
               </div>
             )}
           </CardContent>

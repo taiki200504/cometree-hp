@@ -4,6 +4,7 @@ import { NotificationProvider } from '@/components/ui/notification-system'
 import { Toaster } from '@/components/ui/toaster'
 import ErrorBoundary from '@/components/ui/error-boundary'
 import AdminTopbar from '@/components/admin/AdminTopbar'
+import AdminContainer from '@/components/admin/AdminContainer'
 import AdminGuard from '@/components/admin/AdminGuard'
 import { usePathname } from 'next/navigation'
 
@@ -17,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-screen bg-gray-50 text-gray-900">
           {!isLogin && <AdminTopbar />}
           <main className={`min-w-0 ${!isLogin ? 'pt-14' : ''}`}>
-            <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6">
+            <AdminContainer className="py-4 md:py-6">
               {isLogin ? (
                 children
               ) : (
@@ -25,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {children}
                 </AdminGuard>
               )}
-            </div>
+            </AdminContainer>
           </main>
           <Toaster />
         </div>

@@ -208,13 +208,10 @@ export default function OrganizationDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING ORGANIZATION DASHBOARD...</div>
-            <div className="text-sm opacity-75 mt-2">Initializing organization management system</div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-700">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-3 text-gray-400" />
+          <div className="text-sm">読み込み中...</div>
         </div>
       </div>
     )
@@ -222,119 +219,107 @@ export default function OrganizationDashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-red-400 font-mono flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-400" />
-          <div className="text-lg">SYSTEM ERROR</div>
-          <div className="text-sm opacity-75 mt-2">{error}</div>
+          <AlertTriangle className="h-10 w-10 mx-auto mb-3 text-red-500" />
+          <div className="text-gray-900 font-medium">エラーが発生しました</div>
+          <div className="text-sm text-gray-600 mt-1">{error}</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Header */}
-      <div className="bg-black/80 backdrop-blur-sm border-b border-green-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center border border-green-400">
-                  <Building className="h-4 w-4 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    ORGANIZATION DASHBOARD
-                  </h1>
-                  <div className="text-xs opacity-75">ORGANIZATION MANAGEMENT CENTER</div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button asChild className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-                <Link href="/admin/organizations">
-                  <Building className="mr-2 h-4 w-4" />
-                  MANAGE ORGANIZATIONS
-                </Link>
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">加盟団体ダッシュボード</h1>
+            <p className="text-gray-600 mt-1">加盟団体データと申請・レポートの概況</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link href="/admin/organizations/create">
+                <Plus className="mr-2 h-4 w-4" /> 新規団体
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/admin/organizations">
+                <Building className="mr-2 h-4 w-4" /> 団体一覧
+              </Link>
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* System Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">TOTAL ORGANIZATIONS</p>
-                  <p className="text-2xl font-bold text-green-400">{systemMetrics.totalOrganizations}</p>
+                  <p className="text-xs text-gray-500">総団体数</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.totalOrganizations}</p>
                 </div>
-                <Database className="h-8 w-8 text-green-400" />
+                <Database className="h-6 w-6 text-gray-400" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">ACTIVE</p>
-                  <p className="text-2xl font-bold text-blue-400">{systemMetrics.activeOrganizations}</p>
+                  <p className="text-xs text-gray-500">稼働中</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.activeOrganizations}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-blue-400" />
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">VERIFIED</p>
-                  <p className="text-2xl font-bold text-purple-400">{systemMetrics.verifiedOrganizations}</p>
+                  <p className="text-xs text-gray-500">認証済み</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.verifiedOrganizations}</p>
                 </div>
-                <Star className="h-8 w-8 text-purple-400" />
+                <Star className="h-6 w-6 text-purple-600" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">TOTAL MEMBERS</p>
-                  <p className="text-2xl font-bold text-orange-400">{systemMetrics.totalMembers}</p>
+                  <p className="text-xs text-gray-500">総メンバー</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.totalMembers}</p>
                 </div>
-                <Users className="h-8 w-8 text-orange-400" />
+                <Users className="h-6 w-6 text-orange-600" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">PENDING APPLICATIONS</p>
-                  <p className="text-2xl font-bold text-yellow-400">{systemMetrics.pendingApplications}</p>
+                  <p className="text-xs text-gray-500">承認待ち</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.pendingApplications}</p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-400" />
+                <Clock className="h-6 w-6 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs opacity-75">APPROVED EVENTS</p>
-                  <p className="text-2xl font-bold text-red-400">{systemMetrics.approvedEvents}</p>
+                  <p className="text-xs text-gray-500">承認済イベント</p>
+                  <p className="text-2xl font-bold text-gray-900">{systemMetrics.approvedEvents}</p>
                 </div>
-                <Calendar className="h-8 w-8 text-red-400" />
+                <Calendar className="h-6 w-6 text-red-600" />
               </div>
             </CardContent>
           </Card>
@@ -342,21 +327,21 @@ export default function OrganizationDashboardPage() {
 
         {/* Recent Organizations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardHeader>
-              <CardTitle className="text-green-400">RECENT ORGANIZATIONS</CardTitle>
+              <CardTitle className="text-gray-900">最近の加盟団体</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {organizations.map((org) => (
-                  <div key={org.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-green-400/20">
+                  <div key={org.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center">
-                        <Building className="h-5 w-5 text-black" />
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Building className="h-5 w-5 text-gray-600" />
                       </div>
                       <div>
-                        <div className="font-medium text-green-400">{org.name}</div>
-                        <div className="text-sm opacity-75">{org.category || 'No category'}</div>
+                        <div className="font-medium text-gray-900">{org.name}</div>
+                        <div className="text-sm text-gray-600">{org.category || '未分類'}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -371,38 +356,36 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <Button asChild className="w-full bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30">
-                  <Link href="/admin/organizations">
-                    VIEW ALL ORGANIZATIONS
-                  </Link>
+                <Button asChild className="w-full">
+                  <Link href="/admin/organizations">すべての加盟団体を見る</Link>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
           {/* Recent Events */}
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardHeader>
-              <CardTitle className="text-green-400">RECENT EVENTS</CardTitle>
+              <CardTitle className="text-gray-900">最近のイベント</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recentEvents.map((event) => (
-                  <div key={event.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-green-400/20">
+                  <div key={event.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
                         {getEventTypeIcon(event.event_type)}
                       </div>
                       <div>
-                        <div className="font-medium text-green-400">{event.title}</div>
-                        <div className="text-sm opacity-75">{event.event_type}</div>
+                        <div className="font-medium text-gray-900">{event.title}</div>
+                        <div className="text-sm text-gray-600">{event.event_type}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge className={getStatusColor(event.status)}>
                         {event.status}
                       </Badge>
-                      <div className="text-xs opacity-75">
+                      <div className="text-xs text-gray-600">
                         {event.current_participants}/{event.max_participants}
                       </div>
                     </div>
@@ -410,10 +393,8 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-              <Button asChild className="w-full bg-blue-400/20 text-blue-400 border-blue-400/30 hover:bg-blue-400/30">
-                <Link href="/admin/organizations/events">
-                    VIEW ALL EVENTS
-                  </Link>
+                <Button asChild className="w-full">
+                  <Link href="/admin/organizations/events">すべてのイベントを見る</Link>
                 </Button>
               </div>
             </CardContent>
@@ -422,28 +403,28 @@ export default function OrganizationDashboardPage() {
 
         {/* Recent Applications and Reports */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardHeader>
-              <CardTitle className="text-green-400">RECENT APPLICATIONS</CardTitle>
+              <CardTitle className="text-gray-900">最近の申請</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recentApplications.map((app) => (
-                  <div key={app.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-green-400/20">
+                  <div key={app.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
                         {getApplicationTypeIcon(app.application_type)}
                       </div>
                       <div>
-                        <div className="font-medium text-green-400">{app.title}</div>
-                        <div className="text-sm opacity-75">{app.application_type}</div>
+                        <div className="font-medium text-gray-900">{app.title}</div>
+                        <div className="text-sm text-gray-600">{app.application_type}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge className={getStatusColor(app.status)}>
                         {app.status}
                       </Badge>
-                      <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400/30">
+                      <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">
                         {app.priority}
                       </Badge>
                     </div>
@@ -451,30 +432,28 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-              <Button asChild className="w-full bg-purple-400/20 text-purple-400 border-purple-400/30 hover:bg-purple-400/30">
-                <Link href="/admin/organizations/applications">
-                    VIEW ALL APPLICATIONS
-                  </Link>
+                <Button asChild className="w-full">
+                  <Link href="/admin/organizations/applications">すべての申請を見る</Link>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-black/50 border-green-400/30">
+          <Card className="bg-white border-0 shadow">
             <CardHeader>
-              <CardTitle className="text-green-400">RECENT REPORTS</CardTitle>
+              <CardTitle className="text-gray-900">最近のレポート</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recentReports.map((report) => (
-                  <div key={report.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-green-400/20">
+                  <div key={report.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-400 rounded-lg flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-black" />
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-gray-600" />
                       </div>
                       <div>
-                        <div className="font-medium text-green-400">{report.title}</div>
-                        <div className="text-sm opacity-75">{report.report_type}</div>
+                        <div className="font-medium text-gray-900">{report.title}</div>
+                        <div className="text-sm text-gray-600">{report.report_type}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -486,10 +465,8 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-              <Button asChild className="w-full bg-orange-400/20 text-orange-400 border-orange-400/30 hover:bg-orange-400/30">
-                <Link href="/admin/organizations/reports">
-                    VIEW ALL REPORTS
-                  </Link>
+                <Button asChild className="w-full">
+                  <Link href="/admin/organizations/reports">すべてのレポートを見る</Link>
                 </Button>
               </div>
             </CardContent>

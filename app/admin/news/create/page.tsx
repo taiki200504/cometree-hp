@@ -94,92 +94,59 @@ export default function CreateNewsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-700">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-3 text-gray-400" />
+          <div className="text-sm">読み込み中...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Header */}
-      <div className="bg-black/80 backdrop-blur-sm border-b border-green-400/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                onClick={() => router.back()}
-                className="text-green-400 hover:text-green-300"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                BACK
-              </Button>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center border border-green-400">
-                  <FileText className="h-4 w-4 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    CREATE NEWS
-                  </h1>
-                  <div className="text-xs opacity-75">NEWS MANAGEMENT SYSTEM</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="bg-black/50 border-green-400/30">
+        <div className="mb-4 flex items-center justify-between">
+          <Button variant="outline" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> 戻る
+          </Button>
+          <h1 className="text-xl font-bold text-gray-900">ニュース作成</h1>
+        </div>
+        <Card className="bg-white border-0 shadow">
           <CardHeader>
-            <CardTitle className="text-green-400 flex items-center space-x-2">
-              <FileText className="h-5 w-5" />
-              <span>新規ニュース作成</span>
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <FileText className="h-5 w-5" /> 新規ニュース作成
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-green-400">
-                  タイトル *
-                </Label>
+                <Label htmlFor="title">タイトル *</Label>
                 <Input
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="ニュースのタイトルを入力してください"
-                  className="bg-black/50 border-green-400/30 text-green-400 placeholder:text-green-400/50"
                   required
                 />
               </div>
 
               {/* Header Image */}
               <div className="space-y-2">
-                <Label className="text-green-400">ヘッダー画像</Label>
+                <Label>ヘッダー画像</Label>
                 <ImageUpload value={headerImage} onChange={setHeaderImage} />
               </div>
 
               {/* Content */}
               <div className="space-y-2">
-                <Label htmlFor="content" className="text-green-400">
-                  コンテンツ *
-                </Label>
+                <Label htmlFor="content">コンテンツ *</Label>
                 <Textarea
                   id="content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="ニュースの内容を入力してください"
                   rows={10}
-                  className="bg-black/50 border-green-400/30 text-green-400 placeholder:text-green-400/50"
                   required
                 />
               </div>
@@ -191,7 +158,7 @@ export default function CreateNewsPage() {
                   checked={isPublished}
                   onCheckedChange={setIsPublished}
                 />
-                <Label htmlFor="published" className="text-green-400">
+                <Label htmlFor="published">
                   {isPublished ? (
                     <span className="flex items-center space-x-1">
                       <Eye className="h-4 w-4" />
@@ -208,47 +175,28 @@ export default function CreateNewsPage() {
 
               {/* Error Message */}
               {error && (
-                <div className="flex items-center space-x-2 p-4 bg-red-400/10 border border-red-400/30 rounded-lg">
-                  <AlertTriangle className="h-4 w-4 text-red-400" />
-                  <span className="text-red-400">{error}</span>
+                <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  <span className="text-red-600 text-sm">{error}</span>
                 </div>
               )}
 
               {/* Action Buttons */}
               <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowPreview(true)}
-                  disabled={!title.trim() || !content.trim()}
-                  className="border-green-400/30 text-green-400 hover:bg-green-400/10"
-                >
-                  <EyeIcon className="mr-2 h-4 w-4" />
-                  プレビュー
+                <Button type="button" variant="outline" onClick={() => setShowPreview(true)} disabled={!title.trim() || !content.trim()}>
+                  <EyeIcon className="mr-2 h-4 w-4" /> プレビュー
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  className="border-green-400/30 text-green-400 hover:bg-green-400/10"
-                >
+                <Button type="button" variant="outline" onClick={() => router.back()}>
                   キャンセル
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-green-400/20 text-green-400 border-green-400/30 hover:bg-green-400/30"
-                >
+                <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       作成中...
                     </>
                   ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      作成
-                    </>
+                    <><Save className="mr-2 h-4 w-4" />作成</>
                   )}
                 </Button>
               </div>

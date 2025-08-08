@@ -33,7 +33,8 @@ import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast'
-import AdminHeader from '@/components/admin/AdminHeader'
+import AdminHeading from '@/components/admin/AdminHeading'
+import AdminContainer from '@/components/admin/AdminContainer'
 
 interface NewsArticle {
   id: string
@@ -185,8 +186,8 @@ export default function NewsManagementPage() {
  
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminHeader title="ニュース管理" trail={[{ label: '管理' }, { label: 'ニュース' }]} createLink={{ href: '/admin/news/create', label: '新規記事' }} />
-      <div className="p-4 md:p-8">
+      <AdminContainer>
+        <AdminHeading title="ニュース管理" subtitle="UNIONオウンドメディアの記事を管理します" actions={<Button asChild><Link href="/admin/news/create"><PlusCircle className="mr-2 h-4 w-4"/>新規記事</Link></Button>} />
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card className="border-0 shadow-lg bg-white">
             <CardContent className="p-4">
@@ -260,9 +261,6 @@ export default function NewsManagementPage() {
         <Card className="border-0 shadow-lg bg-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-gray-900">記事一覧</CardTitle>
-            <Button asChild>
-              <Link href="/admin/news/create"><PlusCircle className="mr-2 h-4 w-4" /> 新規記事</Link>
-            </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -324,7 +322,7 @@ export default function NewsManagementPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </AdminContainer>
     </div>
   )
 }
