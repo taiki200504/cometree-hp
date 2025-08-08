@@ -34,6 +34,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 interface ContentItem {
   id: string
@@ -272,28 +273,23 @@ export default function OrganizationContentPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="mb-6">
-        <Button variant="outline" size="sm" onClick={() => router.push('/admin/organizations')}>
-          <Building className="mr-2 h-4 w-4" />
-          組織一覧に戻る
-        </Button>
-      </div>
-
-      {organization && (
+    <div className="">
+      <AdminHeader
+        title={organization ? `${organization.name} - コンテンツ管理` : 'コンテンツ管理'}
+        trail={[{label:'加盟団体', href:'/admin/organizations'}, {label: organization?.name || '読み込み中'}, {label:'コンテンツ'}]}
+        createLink={{ href: '#', label: '新規コンテンツ' }}
+      />
+      <div className="p-4 md:p-8">
+ 
+      {organization && organization.description && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              {organization.name} - コンテンツ管理
-            </CardTitle>
-            {organization.description && (
-              <p className="text-gray-600">{organization.description}</p>
-            )}
+            <CardTitle className="text-base">団体概要</CardTitle>
+            <p className="text-gray-600">{organization.description}</p>
           </CardHeader>
         </Card>
       )}
-
+ 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -517,6 +513,7 @@ export default function OrganizationContentPage() {
           )}
         </CardContent>
       </Card>
+    </div>
     </div>
   )
 }

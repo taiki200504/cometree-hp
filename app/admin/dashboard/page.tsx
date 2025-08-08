@@ -24,6 +24,7 @@ import {
   Star
 } from 'lucide-react'
 import Link from 'next/link'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 interface DashboardStats {
   totalMembers: number
@@ -232,26 +233,9 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader title="UNION 管理者ダッシュボード" trail={[{label:'管理'}, {label:'ダッシュボード'}]} />
       <div className="p-4 md:p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">UNION 管理者ダッシュボード</h1>
-              <p className="text-gray-600">システム全体の管理と監視</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant={stats.systemHealth === 'excellent' ? 'default' : 'secondary'}>
-                {stats.systemHealth === 'excellent' ? 'システム正常' : 'システム警告'}
-              </Badge>
-              <Button variant="outline" onClick={signOut}>
-                ログアウト
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* 統計カード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="border-0 shadow-lg bg-white">
