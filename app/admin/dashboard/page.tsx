@@ -59,51 +59,23 @@ export default function AdminDashboard() {
   const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true)
-      
-      const [membersRes, newsRes, eventsRes, organizationsRes, partnersRes, supportersRes, boardRes] = await Promise.all([
-        fetch('/api/admin/members'),
-        fetch('/api/admin/news'),
-        fetch('/api/admin/events'),
-        fetch('/api/admin/organizations'),
-        fetch('/api/admin/partners'),
-        fetch('/api/admin/supporters'),
-        fetch('/api/admin/board')
-      ])
-
-      const members = await membersRes.json()
-      const news = await newsRes.json()
-      const events = await eventsRes.json()
-      const organizations = await organizationsRes.json()
-      const partners = await partnersRes.json()
-      const supporters = await supportersRes.json()
-      const board = await boardRes.json()
-
-      const totalMembers = members.totalCount ?? members.members?.length ?? 0
-      const totalNews = news.totalCount ?? news.news?.length ?? 0
-      const totalEvents = events.totalCount ?? events.events?.length ?? 0
-      const totalOrganizations = organizations.totalCount ?? organizations.organizations?.length ?? 0
-      const totalPartners = partners.totalCount ?? partners.partners?.length ?? 0
-      const totalSupporters = supporters.totalCount ?? supporters.supporters?.length ?? 0
-      const totalBoardPosts = board.totalCount ?? board.posts?.length ?? 0
-
+      const res = await fetch('/api/admin/stats', { cache: 'no-store' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error || 'Failed to load stats')
       setStats({
-        totalMembers,
-        totalNews,
-        totalEvents,
-        totalOrganizations,
-        totalPartners,
-        totalSupporters,
-        totalBoardPosts,
-        recentActivity: totalMembers + totalNews + totalEvents,
-        systemHealth: 'excellent'
+        totalMembers: json.members ?? 0,
+        totalNews: json.news ?? 0,
+        totalEvents: json.events ?? 0,
+        totalOrganizations: json.organizations ?? 0,
+        totalPartners: json.partners ?? 0,
+        totalSupporters: json.supporters ?? 0,
+        totalBoardPosts: json.boardPosts ?? 0,
+        recentActivity: (json.members ?? 0) + (json.news ?? 0) + (json.events ?? 0),
+        systemHealth: 'excellent',
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
-      toast({
-        title: "エラー",
-        description: "統計データの取得に失敗しました",
-        variant: "destructive"
-      })
+      toast({ title: 'エラー', description: '統計データの取得に失敗しました', variant: 'destructive' })
     } finally {
       setIsLoadingStats(false)
     }
@@ -116,6 +88,20 @@ export default function AdminDashboard() {
       fetchStats()
     }
   }, [requireAuth, fetchStats])
+
+  // 画面復帰/フォーカス時と定期で再取得
+  useEffect(() => {
+    const onFocus = () => fetchStats()
+    const onVisibility = () => { if (document.visibilityState === 'visible') fetchStats() }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibility)
+    const timer = window.setInterval(fetchStats, 30000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.clearInterval(timer)
+    }
+  }, [fetchStats])
 
   // 認証チェック（一度だけ実行）
   useEffect(() => {

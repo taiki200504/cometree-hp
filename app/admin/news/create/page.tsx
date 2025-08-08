@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import ImageUpload from '@/components/ui/image-upload'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { 
@@ -27,6 +28,7 @@ export default function CreateNewsPage() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isPublished, setIsPublished] = useState(false)
+  const [headerImage, setHeaderImage] = useState<string | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
@@ -61,6 +63,7 @@ export default function CreateNewsPage() {
           title: title.trim(),
           content: content.trim(),
           is_published: isPublished,
+          header_image_url: headerImage,
         }),
       })
 
@@ -157,6 +160,12 @@ export default function CreateNewsPage() {
                   className="bg-black/50 border-green-400/30 text-green-400 placeholder:text-green-400/50"
                   required
                 />
+              </div>
+
+              {/* Header Image */}
+              <div className="space-y-2">
+                <Label className="text-green-400">ヘッダー画像</Label>
+                <ImageUpload value={headerImage} onChange={setHeaderImage} />
               </div>
 
               {/* Content */}

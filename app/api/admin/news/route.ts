@@ -51,8 +51,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch news' }, { status: 500 })
     }
 
+    const shaped = (news || []).map((n: any) => ({
+      ...n,
+      is_published: n.status === 'published'
+    }))
+
     return NextResponse.json({
-      news: news || [],
+      news: shaped,
       totalCount: count || 0
     })
   } catch (error) {
@@ -81,12 +86,15 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    const wantPublished = !!newsData.is_published || newsData.status === 'published'
     // Set default values
     const dataToInsert = {
       ...newsData,
-      status: newsData.status || 'draft',
+      status: wantPublished ? 'published' : (newsData.status || 'draft'),
       category: newsData.category || 'general',
       tags: newsData.tags || [],
+      header_image_url: newsData.header_image_url || null,
+      published_at: wantPublished ? (newsData.published_at || new Date().toISOString()) : null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
