@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
@@ -12,11 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('[API] Supabase env missing: check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
-      return NextResponse.json({ error: 'Server is not configured for database access. Please set SUPABASE_SERVICE_ROLE_KEY on the server.' }, { status: 500 })
-    }
-    const supabase = createAdminClient()
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : createClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '10', 10)
@@ -89,11 +85,7 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('[API] Supabase env missing: check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
-      return NextResponse.json({ error: 'Server is not configured for database access. Please set SUPABASE_SERVICE_ROLE_KEY on the server.' }, { status: 500 })
-    }
-    const supabase = createAdminClient()
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : createClient()
     const organizationData = await request.json()
     
     // Validate required fields

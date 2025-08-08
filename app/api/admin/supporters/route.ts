@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
@@ -12,13 +12,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createAdminClient()
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : createClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '10', 10)
     const search = searchParams.get('search') || ''
     const status = searchParams.get('status') || 'all'
-    const supporterType = searchParams.get('supporter_type') || 'all'
+    const supporterType = searchParams.get('support_type') || 'all'
     const offset = (page - 1) * limit
 
     // Build query
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     // Apply supporter type filter
     if (supporterType !== 'all') {
-      query = query.eq('supporter_type', supporterType)
+      query = query.eq('support_type', supporterType)
     }
 
     // Apply pagination and ordering
@@ -51,9 +51,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch supporters' }, { status: 500 })
     }
 
+    // metrics (counts by type/active)
+    const all = supporters || []
+    const metrics = {
+      totalSupporters: count || all.length,
+      activeSupporters: all.filter((s: any) => s.is_active).length,
+      financialSupporters: all.filter((s: any) => s.support_type === 'financial').length,
+      mediaSupporters: all.filter((s: any) => s.support_type === 'media').length,
+      collaborationSupporters: all.filter((s: any) => s.support_type === 'collaboration').length,
+      individualSupporters: all.filter((s: any) => s.support_type === 'individual').length,
+    }
+
     return NextResponse.json({
-      supporters: supporters || [],
-      totalCount: count || 0
+      supporters: all,
+      totalCount: count || all.length,
+      metrics
     })
   } catch (error) {
     console.error('[API] Unexpected error:', error)
@@ -71,13 +83,13 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    const supabase = createAdminClient()
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : createClient()
     const supporterData = await request.json()
     
     // Validate required fields
-    if (!supporterData.name || !supporterData.email) {
+    if (!supporterData.name) {
       return NextResponse.json({ 
-        error: '名前とメールアドレスは必須項目です。' 
+        error: '名前は必須項目です。' 
       }, { status: 400 })
     }
 
@@ -85,7 +97,7 @@ export async function POST(request: NextRequest) {
     const dataToInsert = {
       ...supporterData,
       status: supporterData.status || 'active',
-      supporter_type: supporterData.supporter_type || 'individual',
+      support_type: supporterData.support_type || 'individual',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }

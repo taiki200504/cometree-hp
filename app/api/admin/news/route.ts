@@ -87,13 +87,17 @@ export async function POST(request: NextRequest) {
     }
 
     const wantPublished = !!newsData.is_published || newsData.status === 'published'
-    // Set default values
+    // Map header_image_url -> featured_image (DB column)
+    const featuredImage: string | null = newsData.header_image_url ?? newsData.featured_image ?? null
+    // Set default values (avoid unknown columns)
     const dataToInsert = {
-      ...newsData,
-      status: wantPublished ? 'published' : (newsData.status || 'draft'),
+      title: newsData.title,
+      content: newsData.content,
+      excerpt: newsData.excerpt ?? null,
       category: newsData.category || 'general',
+      status: wantPublished ? 'published' : (newsData.status || 'draft'),
       tags: newsData.tags || [],
-      header_image_url: newsData.header_image_url || null,
+      featured_image: featuredImage,
       published_at: wantPublished ? (newsData.published_at || new Date().toISOString()) : null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,53 +24,38 @@ import Link from 'next/link'
 export default function AdminStats() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
   const [timeRange, setTimeRange] = useState('30d')
-
-  // サンプルデータ
-  const [stats] = useState(() => ({
-    overview: {
-      totalViews: 12470,
-      totalUsers: 345,
-      totalNews: 12,
-      totalEvents: 5
-    },
-    trends: {
-      views: {
-        current: 12470,
-        previous: 11890,
-        change: '+4.9%'
-      },
-      users: {
-        current: 345,
-        previous: 312,
-        change: '+10.6%'
-      },
-      news: {
-        current: 12,
-        previous: 10,
-        change: '+20.0%'
-      }
-    },
-    topPages: [
-      { path: '/', views: 3240, change: '+12%' },
-      { path: '/about', views: 1890, change: '+8%' },
-      { path: '/news', views: 1560, change: '+15%' },
-      { path: '/events', views: 980, change: '+5%' },
-      { path: '/contact', views: 720, change: '+3%' }
-    ],
-    recentActivity: [
-      { type: 'news', action: '新規作成', title: 'UNIÓN新年度活動開始のお知らせ', time: '2時間前' },
-      { type: 'event', action: '更新', title: '加盟団体交流会', time: '4時間前' },
-      { type: 'user', action: 'ログイン', title: 'gakusei.union226@gmail.com', time: '6時間前' },
-      { type: 'stats', action: '統計更新', title: '日次統計データ', time: '1日前' }
-    ]
+  const [stats, setStats] = useState(() => ({
+    overview: { totalViews: 0, totalUsers: 0, totalNews: 0, totalEvents: 0 },
+    topPages: [] as Array<{ path: string; views: number; change: string }>,
+    recentActivity: [] as Array<{ type: string; action: string; title: string; time: string }>,
   }))
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/stats', { cache: 'no-store' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '統計データの取得に失敗しました')
+      setStats({
+        overview: {
+          totalViews: data.views ?? 0,
+          totalUsers: data.users ?? 0,
+          totalNews: data.news ?? 0,
+          totalEvents: data.events ?? 0,
+        },
+        topPages: [],
+        recentActivity: [],
+      })
+    } catch (e) {
+      // silent fail; page still renders
+    }
+  }, [])
 
   useEffect(() => {
     const isAuthenticated = requireAuth()
     if (isAuthenticated) {
-      // fetchStats() // This function is not defined in the original file, so it's commented out.
+      fetchStats()
     }
-  }, [requireAuth])
+  }, [requireAuth, fetchStats])
 
   if (loading) {
     return (
