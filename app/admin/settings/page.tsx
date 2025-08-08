@@ -21,6 +21,7 @@ import {
   Key
 } from 'lucide-react'
 import Link from 'next/link'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 export default function AdminSettings() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
@@ -91,32 +92,16 @@ export default function AdminSettings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/dashboard">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボード
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Settings className="h-6 w-6 text-gray-600" />
-                <h1 className="text-xl font-bold text-gray-900">設定</h1>
-              </div>
-            </div>
-            <Button onClick={handleSave}>
-              <Save className="h-4 w-4 mr-2" />
-              保存
-            </Button>
-          </div>
-        </div>
-      </header>
-
+      <AdminHeading
+        title="設定"
+        actions={(
+          <Button onClick={handleSave}>
+            <Save className="h-4 w-4 mr-2" />保存
+          </Button>
+        )}
+      />
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="space-y-6">
           {/* Site Settings */}
           <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">

@@ -23,6 +23,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import AdminHeader from '@/components/admin/AdminHeader'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface PodcastShow {
   id: string
@@ -192,8 +193,16 @@ export default function PodcastManagementPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminHeader title="ポッドキャスト管理" trail={[{ label: '管理' }, { label: 'ポッドキャスト' }]} createLink={{ href: '#', label: '番組作成' }} />
       <div className="p-4 md:p-8">
+        <AdminHeading
+          title="ポッドキャスト管理"
+          actions={(
+            <Button onClick={handleShowCreate} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              番組作成
+            </Button>
+          )}
+        />
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="shows">番組管理</TabsTrigger>
@@ -204,10 +213,7 @@ export default function PodcastManagementPage() {
           <TabsContent value="shows" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">番組一覧</h2>
-              <Button onClick={handleShowCreate} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                番組作成
-              </Button>
+              <div />
             </div>
             <div className="grid gap-4">
               {shows.length === 0 && <p className="text-gray-500">番組がまだありません</p>}

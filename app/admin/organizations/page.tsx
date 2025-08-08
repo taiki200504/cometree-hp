@@ -40,6 +40,7 @@ import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast'
 import Image from 'next/image'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface Organization {
   id: string
@@ -222,13 +223,10 @@ export default function OrganizationsManagementPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card className="max-w-screen-lg mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Building className="h-6 w-6 text-gray-700" />
-            <CardTitle>加盟団体管理</CardTitle>
-          </div>
+    <>
+      <AdminHeading
+        title="加盟団体管理"
+        actions={(
           <div className="flex items-center gap-2">
             <Button asChild variant="outline">
               <Link href="/admin/organizations/dashboard">
@@ -241,7 +239,9 @@ export default function OrganizationsManagementPage() {
               </Link>
             </Button>
           </div>
-        </CardHeader>
+        )}
+      />
+      <Card className="max-w-screen-lg mx-auto">
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
             <Card><CardContent className="p-4"><div className="text-xs text-gray-500">総数</div><div className="text-2xl font-semibold">{systemMetrics.totalOrganizations}</div></CardContent></Card>
@@ -356,6 +356,6 @@ export default function OrganizationsManagementPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 }

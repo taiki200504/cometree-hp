@@ -12,6 +12,7 @@ import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/hooks/use-toast'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface BoardPost {
   id: string
@@ -139,23 +140,22 @@ export default function BoardManagementPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <MessageSquare className="h-6 w-6" />
-            <CardTitle>掲示板管理</CardTitle>
-            <Badge variant="secondary" className="ml-2">
-              {totalCount}件
-            </Badge>
+    <>
+      <AdminHeading
+        title="掲示板管理"
+        actions={(
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{totalCount}件</Badge>
+            <Button asChild>
+              <Link href="/admin/board/create">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                新規投稿
+              </Link>
+            </Button>
           </div>
-          <Button asChild>
-            <Link href="/admin/board/create">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              新規投稿
-            </Link>
-          </Button>
-        </CardHeader>
+        )}
+      />
+      <Card>
         <CardContent>
           {posts.length > 0 ? (
             <>
@@ -239,6 +239,6 @@ export default function BoardManagementPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 }

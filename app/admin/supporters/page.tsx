@@ -37,6 +37,7 @@ import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast'
 import Image from 'next/image'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface Supporter {
   id: string
@@ -236,20 +237,18 @@ export default function SupportersManagementPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card className="max-w-screen-lg mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Heart className="h-6 w-6 text-gray-700" />
-            <CardTitle>支援者管理</CardTitle>
-          </div>
+    <>
+      <AdminHeading
+        title="支援者管理"
+        actions={(
           <Button asChild>
             <Link href="/admin/supporters/create">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              新規追加
+              <PlusCircle className="mr-2 h-4 w-4" />新規追加
             </Link>
           </Button>
-        </CardHeader>
+        )}
+      />
+      <Card className="max-w-screen-lg mx-auto">
         <CardContent>
           <div className="mb-6 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -369,6 +368,6 @@ export default function SupportersManagementPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 } 

@@ -12,6 +12,7 @@ import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast' // Import useToast
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface Event {
   id: string
@@ -127,20 +128,19 @@ export default function EventsManagementPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Calendar className="h-6 w-6" />
-            <CardTitle>イベント管理</CardTitle>
-          </div>
+    <>
+      <AdminHeading
+        title="イベント管理"
+        actions={(
           <Button asChild>
             <Link href="/admin/events/create">
               <PlusCircle className="mr-2 h-4 w-4" />
               新規作成
             </Link>
           </Button>
-        </CardHeader>
+        )}
+      />
+      <Card>
         <CardContent>
           <Table>
             <TableHeader>
@@ -204,6 +204,6 @@ export default function EventsManagementPage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 }

@@ -12,6 +12,7 @@ import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/hooks/use-toast'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface Partner {
   id: string
@@ -126,21 +127,18 @@ export default function PartnersManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="p-4 md:p-8">
-      <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Handshake className="h-6 w-6" />
-            <CardTitle>提携団体管理</CardTitle>
-          </div>
+    <>
+      <AdminHeading
+        title="提携団体管理"
+        actions={(
           <Button asChild>
             <Link href="/admin/partners/create">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              新規追加
+              <PlusCircle className="mr-2 h-4 w-4" />新規追加
             </Link>
           </Button>
-        </CardHeader>
+        )}
+      />
+      <Card className="border-0 shadow-lg bg-white">
         <CardContent>
           <Table>
             <TableHeader>
@@ -200,7 +198,6 @@ export default function PartnersManagementPage() {
           </div>
         </CardContent>
       </Card>
-      </div>
-    </div>
+    </>
   )
 }

@@ -35,6 +35,7 @@ import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/hooks/use-toast'
 import Image from 'next/image'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface Member {
   id: string
@@ -219,23 +220,19 @@ export default function MembersManagementPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="p-4 md:p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">メンバー管理</h1>
-              <p className="text-gray-600">運営メンバーの管理と編集</p>
-            </div>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link href="/admin/members/create">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                メンバー追加
-              </Link>
-            </Button>
-          </div>
-        </div>
+    <>
+      <AdminHeading
+        title="メンバー管理"
+        subtitle="運営メンバーの管理と編集"
+        actions={(
+          <Button asChild>
+            <Link href="/admin/members/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              メンバー追加
+            </Link>
+          </Button>
+        )}
+      />
 
         {/* システムメトリクス */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
@@ -453,7 +450,6 @@ export default function MembersManagementPage() {
             />
           </div>
         )}
-      </div>
-    </div>
+    </>
   )
 }
