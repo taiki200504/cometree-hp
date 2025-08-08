@@ -1,67 +1,67 @@
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
-    
-    // 管理者認証チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
-    }
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
+  } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
 
-    // 管理者権限チェック
-    const { data: userRole, error: roleError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (roleError || userRole?.role !== 'admin') {
-      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 })
-    }
-
+  try {
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
-    const status = searchParams.get('status')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '10', 10)
+    const search = searchParams.get('search') || ''
+    const type = searchParams.get('type') || 'all'
+    const status = searchParams.get('status') || 'all'
     const offset = (page - 1) * limit
 
+    // Build query
     let query = supabase
       .from('organization_content')
-      .select('*, organizations(name, category)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('organization_id', params.id)
 
-    if (type) {
+    // Apply search filter
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%,author_name.ilike.%${search}%`)
+    }
+
+    // Apply type filter
+    if (type !== 'all') {
       query = query.eq('type', type)
     }
-    if (status) {
+
+    // Apply status filter
+    if (status !== 'all') {
       query = query.eq('status', status)
     }
 
-    const { data, error, count } = await query
-      .order('created_at', { ascending: false })
+    // Apply pagination and ordering
+    const { data: contentItems, error, count } = await query
       .range(offset, offset + limit - 1)
+      .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Database error:', error)
-      return NextResponse.json({ error: 'コンテンツの取得に失敗しました' }, { status: 500 })
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to fetch content items' }, { status: 500 })
     }
 
     return NextResponse.json({
-      content: data,
-      totalCount: count,
-      currentPage: page,
-      totalPages: Math.ceil((count || 0) / limit)
+      contentItems: contentItems || [],
+      totalCount: count || 0
     })
   } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -70,54 +70,52 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const user = await requireAdmin(request)
+    console.log('[API] Admin access granted for user:', user.email)
+  } catch (error: any) {
+    console.error('[API] Admin access denied:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 403 })
+  }
+  
+  try {
+    const supabase = createAdminClient()
+    const contentData = await request.json()
     
-    // 管理者認証チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+    // Validate required fields
+    if (!contentData.title || !contentData.content) {
+      return NextResponse.json({ 
+        error: 'タイトルとコンテンツは必須項目です。' 
+      }, { status: 400 })
     }
 
-    // 管理者権限チェック
-    const { data: userRole, error: roleError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (roleError || userRole?.role !== 'admin') {
-      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 })
+    // Set default values
+    const dataToInsert = {
+      ...contentData,
+      organization_id: params.id,
+      author_name: contentData.author_name || '管理者',
+      status: contentData.status || 'draft',
+      type: contentData.type || 'news',
+      tags: contentData.tags || [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
-
-    const body = await request.json()
-    const { title, content, type, status } = body
-
-    // バリデーション
-    if (!title || !content || !type) {
-      return NextResponse.json({ error: '必須項目が不足しています' }, { status: 400 })
-    }
-
+    
     const { data, error } = await supabase
       .from('organization_content')
-      .insert({
-        title,
-        content,
-        type,
-        status: status || 'draft',
-        organization_id: params.id,
-        created_by: user.id,
-      })
+      .insert([dataToInsert])
       .select()
-      .single()
 
     if (error) {
-      console.error('Database error:', error)
-      return NextResponse.json({ error: 'コンテンツの作成に失敗しました' }, { status: 500 })
+      console.error('[API] Database error:', error)
+      return NextResponse.json({ error: 'Failed to create content' }, { status: 500 })
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json({ 
+      success: true, 
+      content: data?.[0] 
+    })
   } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
+    console.error('[API] Unexpected error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

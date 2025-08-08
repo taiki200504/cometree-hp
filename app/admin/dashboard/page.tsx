@@ -32,6 +32,7 @@ interface DashboardStats {
   totalOrganizations: number
   totalPartners: number
   totalSupporters: number
+  totalBoardPosts: number
   recentActivity: number
   systemHealth: 'excellent' | 'good' | 'warning' | 'critical'
 }
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
     totalOrganizations: 0,
     totalPartners: 0,
     totalSupporters: 0,
+    totalBoardPosts: 0,
     recentActivity: 0,
     systemHealth: 'excellent'
   })
@@ -57,14 +59,14 @@ export default function AdminDashboard() {
     try {
       setIsLoadingStats(true)
       
-      // 各APIエンドポイントからデータを取得
-      const [membersRes, newsRes, eventsRes, organizationsRes, partnersRes, supportersRes] = await Promise.all([
+      const [membersRes, newsRes, eventsRes, organizationsRes, partnersRes, supportersRes, boardRes] = await Promise.all([
         fetch('/api/admin/members'),
         fetch('/api/admin/news'),
         fetch('/api/admin/events'),
         fetch('/api/admin/organizations'),
         fetch('/api/admin/partners'),
-        fetch('/api/admin/supporters')
+        fetch('/api/admin/supporters'),
+        fetch('/api/admin/board')
       ])
 
       const members = await membersRes.json()
@@ -73,15 +75,25 @@ export default function AdminDashboard() {
       const organizations = await organizationsRes.json()
       const partners = await partnersRes.json()
       const supporters = await supportersRes.json()
+      const board = await boardRes.json()
+
+      const totalMembers = members.totalCount ?? members.members?.length ?? 0
+      const totalNews = news.totalCount ?? news.news?.length ?? 0
+      const totalEvents = events.totalCount ?? events.events?.length ?? 0
+      const totalOrganizations = organizations.totalCount ?? organizations.organizations?.length ?? 0
+      const totalPartners = partners.totalCount ?? partners.partners?.length ?? 0
+      const totalSupporters = supporters.totalCount ?? supporters.supporters?.length ?? 0
+      const totalBoardPosts = board.totalCount ?? board.posts?.length ?? 0
 
       setStats({
-        totalMembers: members.length || 0,
-        totalNews: news.length || 0,
-        totalEvents: events.length || 0,
-        totalOrganizations: organizations.length || 0,
-        totalPartners: partners.length || 0,
-        totalSupporters: supporters.length || 0,
-        recentActivity: (members.length || 0) + (news.length || 0) + (events.length || 0),
+        totalMembers,
+        totalNews,
+        totalEvents,
+        totalOrganizations,
+        totalPartners,
+        totalSupporters,
+        totalBoardPosts,
+        recentActivity: totalMembers + totalNews + totalEvents,
         systemHealth: 'excellent'
       })
     } catch (error) {
@@ -184,6 +196,14 @@ export default function AdminDashboard() {
       href: "/admin/events",
       count: stats.totalEvents,
       color: "text-purple-600"
+    },
+    {
+      title: "掲示板管理",
+      description: "掲示板投稿の管理",
+      icon: <MessageSquare className="h-5 w-5" />,
+      href: "/admin/board",
+      count: stats.totalBoardPosts,
+      color: "text-violet-600"
     },
     {
       title: "加盟団体管理",

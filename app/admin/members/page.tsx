@@ -93,19 +93,21 @@ export default function MembersManagementPage() {
       }
       
       const data = await response.json()
-      setMembers(data)
+      const membersArray = Array.isArray(data) ? data : (data.members || [])
+      setMembers(membersArray)
       
       // システムメトリクスを計算
       const metrics = {
-        totalMembers: data.length,
-        coreMembers: data.filter((m: Member) => m.category === 'core').length,
-        advisors: data.filter((m: Member) => m.category === 'advisor').length,
-        staffMembers: data.filter((m: Member) => m.category === 'staff').length,
-        representatives: data.filter((m: Member) => m.is_representative).length
+        totalMembers: membersArray.length,
+        coreMembers: membersArray.filter((m: Member) => m.category === 'core').length,
+        advisors: membersArray.filter((m: Member) => m.category === 'advisor').length,
+        staffMembers: membersArray.filter((m: Member) => m.category === 'staff').length,
+        representatives: membersArray.filter((m: Member) => m.is_representative).length
       }
       setSystemMetrics(metrics)
       
-      setTotalPages(Math.ceil(data.length / itemsPerPage))
+      const total = typeof data?.totalCount === 'number' ? data.totalCount : membersArray.length
+      setTotalPages(Math.ceil(total / itemsPerPage))
     } catch (error) {
       console.error('Error fetching members:', error)
       setError(error instanceof Error ? error.message : 'Failed to fetch members')

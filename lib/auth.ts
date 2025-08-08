@@ -1,5 +1,7 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 // ユーザー型定義
 export interface User {
@@ -7,13 +9,14 @@ export interface User {
   email: string
   name?: string
   role?: string
-  organization_id?: string
+  organization_id?: string | null
 }
 
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const supabase = createClient()
+    // Route Handler向けの公式クライアントを使用（テストでモック可能）
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
@@ -22,7 +25,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // 開発環境でのテスト管理者チェック
     if (process.env.NODE_ENV === 'development') {
-      const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+      const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
       if (testAdminEmails.includes(user.email!)) {
         console.log('[Auth] Development mode: treating test admin as admin')
         return {
@@ -36,7 +39,7 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     // 本番環境での管理者チェック
-    const productionAdminEmails = ['gakusei.union266@gmail.com']
+    const productionAdminEmails = ['gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
     if (productionAdminEmails.includes(user.email!)) {
       console.log('[Auth] Production mode: treating production admin as admin')
       return {
@@ -72,7 +75,7 @@ export async function getCurrentUser(): Promise<User | null> {
       email: user.email!,
       name: profile?.name || user.user_metadata?.name,
       role: profile?.role || 'user',
-      organization_id: profile?.organization_id
+      organization_id: profile?.organization_id ?? null
     }
   } catch (error) {
     console.error('getCurrentUser error:', error)
@@ -83,7 +86,7 @@ export async function getCurrentUser(): Promise<User | null> {
 // サインアップ
 export async function signUp(email: string, password: string, name?: string) {
   try {
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -126,7 +129,7 @@ export async function requireAdmin(request: NextRequest) {
   
   // 開発環境でのテスト管理者チェック
   if (process.env.NODE_ENV === 'development') {
-    const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com']
+    const testAdminEmails = ['admin@union.example.com', 'gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
     if (testAdminEmails.includes(user.email)) {
       console.log('[Auth] Development mode: allowing test admin access')
       return user
@@ -134,7 +137,7 @@ export async function requireAdmin(request: NextRequest) {
   }
   
   // 本番環境での管理者チェック
-  const productionAdminEmails = ['gakusei.union266@gmail.com']
+  const productionAdminEmails = ['gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
   if (productionAdminEmails.includes(user.email)) {
     console.log('[Auth] Production mode: allowing production admin access')
     return user
