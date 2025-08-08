@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import ImageUpload from '@/components/ui/image-upload'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -231,12 +232,10 @@ export default function CreateMemberPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image_url">プロフィール画像URL</Label>
-              <Input
-                id="image_url"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                {...form.register('image_url')}
+              <Label htmlFor="image_url">プロフィール画像</Label>
+              <ImageUpload
+                value={form.watch('image_url')}
+                onChange={(url) => form.setValue('image_url', url || '')}
               />
             </div>
 

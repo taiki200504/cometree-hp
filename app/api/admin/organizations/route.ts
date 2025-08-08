@@ -25,30 +25,43 @@ export async function GET(request: NextRequest) {
     const verification = searchParams.get('verification') || 'all'
     const offset = (page - 1) * limit
 
-    // Build query
-    let query = supabase
+    // Build base query
+    let baseQuery = supabase
       .from('organizations')
       .select('*', { count: 'exact' })
 
     // Apply search filter
     if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`)
+      // Search only on columns that certainly exist in schema
+      baseQuery = baseQuery.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
     }
 
     // Apply status filter
     if (status !== 'all') {
-      query = query.eq('status', status)
+      baseQuery = baseQuery.eq('status', status)
     }
 
     // Apply verification filter
+    // Apply verification filter if column exists; if not, skip gracefully below
+    let query = baseQuery
     if (verification !== 'all') {
-      query = query.eq('verification_level', verification)
+      query = baseQuery.eq('verification_level', verification)
     }
 
     // Apply pagination and ordering
-    const { data: organizations, error, count } = await query
+    let { data: organizations, error, count } = await query
       .range(offset, offset + limit - 1)
       .order('created_at', { ascending: false })
+
+    // If error due to missing verification_level, retry without that filter
+    if (error && (error.message?.includes('verification_level') || error.message?.includes('column') && error.message?.includes('does not exist'))) {
+      const retry = await baseQuery
+        .range(offset, offset + limit - 1)
+        .order('created_at', { ascending: false })
+      organizations = retry.data || []
+      count = retry.count || 0
+      error = retry.error as any
+    }
 
     if (error) {
       console.error('[API] Database error:', error)
