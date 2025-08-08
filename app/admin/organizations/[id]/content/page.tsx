@@ -26,7 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import AdminHeader from '@/components/admin/AdminHeader'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 interface ContentItem {
   id: string
@@ -164,7 +164,8 @@ export default function OrganizationContentPage() {
         type: 'news',
         status: 'draft',
         featured_image: '',
-        tags: []
+        tags: [],
+        visibility: 'private'
       })
       fetchContentItems()
     } catch (error) {
@@ -266,13 +267,15 @@ export default function OrganizationContentPage() {
   }
 
   return (
-    <div className="">
-      <AdminHeader
+    <div className="p-4 md:p-8">
+      <AdminHeading
         title={organization ? `${organization.name} - コンテンツ管理` : 'コンテンツ管理'}
-        trail={[{label:'加盟団体', href:'/admin/organizations'}, {label: organization?.name || '読み込み中'}, {label:'コンテンツ'}]}
-        createLink={{ href: '#', label: '新規コンテンツ' }}
+        actions={
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" /> 新規コンテンツ
+          </Button>
+        }
       />
-      <div className="p-4 md:p-8">
  
       {organization && organization.description && (
         <Card className="mb-6">
@@ -293,12 +296,6 @@ export default function OrganizationContentPage() {
             </Badge>
           </div>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                新規コンテンツ
-              </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>新規コンテンツ作成</DialogTitle>
@@ -349,6 +346,22 @@ export default function OrganizationContentPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="visibility">公開範囲 *</Label>
+                  <Select
+                    value={formData.visibility}
+                    onValueChange={(value) => setFormData({ ...formData, visibility: value as any })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">公開（フロント反映）</SelectItem>
+                      <SelectItem value="private">限定（加盟団体のみ）</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -516,7 +529,6 @@ export default function OrganizationContentPage() {
           )}
         </CardContent>
       </Card>
-    </div>
     </div>
   )
 }
