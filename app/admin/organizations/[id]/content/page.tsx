@@ -63,6 +63,7 @@ export default function OrganizationContentPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'news' | 'event' | 'document' | 'announcement'>('all')
   const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published' | 'archived'>('all')
+  const [filterVisibility, setFilterVisibility] = useState<'all' | 'public' | 'private'>('all')
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null)
   const [formData, setFormData] = useState({
@@ -71,7 +72,8 @@ export default function OrganizationContentPage() {
     type: 'news' as 'news' | 'event' | 'document' | 'announcement',
     status: 'draft' as 'draft' | 'published' | 'archived',
     featured_image: '',
-    tags: [] as string[]
+    tags: [] as string[],
+    visibility: 'private' as 'public' | 'private'
   })
   const itemsPerPage = 10
 
@@ -102,7 +104,8 @@ export default function OrganizationContentPage() {
         limit: itemsPerPage.toString(),
         search: searchTerm,
         type: filterType,
-        status: filterStatus
+        status: filterStatus,
+        visibility: filterVisibility
       })
       
       const response = await fetch(`/api/admin/organizations/${organizationId}/content?${params}`)
@@ -125,7 +128,7 @@ export default function OrganizationContentPage() {
     } finally {
       setLoading(false)
     }
-  }, [organizationId, currentPage, itemsPerPage, searchTerm, filterType, filterStatus, toast])
+  }, [organizationId, currentPage, itemsPerPage, searchTerm, filterType, filterStatus, filterVisibility, toast])
 
   useEffect(() => {
     // レイアウトのAdminGuardで認証済みのため、ここでは追加の認証確認を行わない
@@ -418,6 +421,16 @@ export default function OrganizationContentPage() {
                   <SelectItem value="draft">下書き</SelectItem>
                   <SelectItem value="published">公開</SelectItem>
                   <SelectItem value="archived">アーカイブ</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterVisibility} onValueChange={(value) => setFilterVisibility(value as any)}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">公開範囲: すべて</SelectItem>
+                  <SelectItem value="public">公開（フロント反映）</SelectItem>
+                  <SelectItem value="private">限定（加盟団体のみ）</SelectItem>
                 </SelectContent>
               </Select>
             </div>

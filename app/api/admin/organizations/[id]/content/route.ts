@@ -22,6 +22,7 @@ export async function GET(
     const search = searchParams.get('search') || ''
     const type = searchParams.get('type') || 'all'
     const status = searchParams.get('status') || 'all'
+    const visibility = searchParams.get('visibility') || 'all'
     const offset = (page - 1) * limit
 
     // Build query
@@ -43,6 +44,11 @@ export async function GET(
     // Apply status filter
     if (status !== 'all') {
       query = query.eq('status', status)
+    }
+
+    // Apply visibility filter
+    if (visibility !== 'all') {
+      query = query.eq('visibility', visibility)
     }
 
     // Apply pagination and ordering

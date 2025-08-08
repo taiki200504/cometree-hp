@@ -68,16 +68,7 @@ const portalSections = [
       { title: "ネットワーキングイベント", date: "2024-03-10", status: "企画中" },
     ],
   },
-  {
-    title: "統計・レポート",
-    icon: BarChart3,
-    description: "UNION全体の活動統計や各種レポートを閲覧できます",
-    items: [
-      { title: "2023年度活動報告書", period: "年次", updated: "2024-01-05" },
-      { title: "月次活動統計", period: "月次", updated: "2024-01-01" },
-      { title: "メンバー動向レポート", period: "四半期", updated: "2023-12-31" },
-    ],
-  },
+  // removed on request: 統計・レポート
 ]
 
 const availableServices = [
@@ -166,7 +157,7 @@ const comingSoonServices = [
 ]
 
 const quickActions = [
-  { title: "お問い合わせ", icon: MessageSquare, href: "https://chlorinated-handspring-b13.notion.site/12be5094912580878799d04c56c963a6?pvs=105" },
+  { title: "加盟団体限定フォーム", icon: MessageSquare, href: "https://union-information.notion.site/18b23f8602bf813fa179f9c2641c94c9?pvs=105" },
   { title: "資料ダウンロード", icon: Download, href: "/community/portal/documents" },
   { title: "イベント申込", icon: Calendar, href: "/community/portal/events" },
   { title: "プロフィール更新", icon: Settings, href: "/community/portal/profile" },

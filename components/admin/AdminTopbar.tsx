@@ -43,15 +43,15 @@ export default function AdminTopbar() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed inset-x-0 top-0 z-40 border-b bg-white">
+    <div className="fixed inset-x-0 top-0 z-40 border-b bg-gray-900 text-white">
       <div className="px-4">
         <div className="h-14 flex items-center justify-between gap-3">
           {/* Brand & primary nav */}
           <div className="flex items-center gap-3">
-            <Link href="/admin/dashboard" className="font-semibold tracking-tight text-gray-900">
+            <Link href="/admin/dashboard" className="font-semibold tracking-tight text-white">
               UNION 管理
             </Link>
-            <Separator orientation="vertical" className="h-6" />
+            <Separator orientation="vertical" className="h-6 bg-white/20" />
 
             {/* Primary links always visible */}
             <nav className="flex items-center gap-1">
@@ -61,7 +61,7 @@ export default function AdminTopbar() {
                   <Link
                     key={href}
                     href={href}
-                    className={`px-3 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-3 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-white/10 text-white font-medium' : 'text-white/80 hover:bg-white/10'}`}
                   >
                     <Icon className="h-4 w-4" />
                     <span className="whitespace-nowrap">{label}</span>
@@ -71,7 +71,7 @@ export default function AdminTopbar() {
               {/* More dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-1 text-gray-700">
+                  <Button variant="ghost" size="sm" className="gap-1 text-white">
                     その他
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -92,7 +92,7 @@ export default function AdminTopbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex text-gray-700">
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex text-white border-white/30 hover:bg-white/10">
               <Link href="/admin/help">
                 <BookOpen className="h-4 w-4 mr-2" />
                 運用ガイド
@@ -100,7 +100,7 @@ export default function AdminTopbar() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" size="sm" className="gap-2">
+                <Button variant="default" size="sm" className="gap-2 bg-white text-gray-900 hover:bg-white/90">
                   すぐに作成
                   <ChevronDown className="h-4 w-4" />
                 </Button>
@@ -133,7 +133,7 @@ export default function AdminTopbar() {
       </div>
 
       {/* Small screens: full labels in horizontal scroll */}
-      <div className="lg:hidden border-t bg-white">
+      <div className="lg:hidden border-t bg-gray-900">
         <div className="px-2">
           <div className="flex overflow-x-auto no-scrollbar gap-1 py-2">
             {menu.map(({ href, label, Icon }) => {
@@ -142,7 +142,7 @@ export default function AdminTopbar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 ${active ? 'bg-white/10 text-white font-medium' : 'text-white/80 hover:bg-white/10'}`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{label}</span>

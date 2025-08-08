@@ -51,8 +51,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
+    // Normalize fields for admin UI expectations
+    const normalized = (events || []).map((e: any) => ({
+      ...e,
+      start_date: e.date || e.start_date || null,
+      is_published: e.status && e.status !== 'cancelled'
+    }))
+
     return NextResponse.json({
-      events: events || [],
+      events: normalized,
       totalCount: count || 0
     })
   } catch (error) {
@@ -75,16 +82,24 @@ export async function POST(request: NextRequest) {
     const eventData = await request.json()
     
     // Validate required fields
-    if (!eventData.title || !eventData.date) {
+    if (!eventData.title || (!eventData.date && !eventData.start_date)) {
       return NextResponse.json({ 
-        error: 'タイトルと日付は必須項目です。' 
+        error: 'タイトルと日時は必須項目です。' 
       }, { status: 400 })
     }
 
     // Set default values
+    const startDate: string = eventData.start_date || eventData.date
+    const parsed = new Date(startDate)
     const dataToInsert = {
-      ...eventData,
-      status: eventData.status || 'upcoming',
+      title: eventData.title,
+      description: eventData.description || null,
+      image_url: eventData.image_url || null,
+      date: isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10),
+      time: isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(11, 19),
+      end_time: eventData.end_date ? new Date(eventData.end_date).toISOString().slice(11, 19) : null,
+      location: eventData.location || null,
+      status: eventData.status || (eventData.is_published ? 'upcoming' : 'cancelled'),
       category: eventData.category || 'general',
       current_participants: eventData.current_participants || 0,
       registration_required: eventData.registration_required || false,

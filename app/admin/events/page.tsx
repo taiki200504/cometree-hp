@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, PlusCircle, Calendar, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
-import { useAdminAuth } from '@/hooks/use-admin-auth'
+import { useAdminAuthSimple } from '@/hooks/use-admin-auth-simple'
 import { useRouter } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 import { useToast } from '@/components/ui/use-toast' // Import useToast
@@ -29,7 +29,7 @@ export default function EventsManagementPage() {
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 10 // 1ページあたりの表示件数
 
-  const { user, loading: authLoading, requireAuth } = useAdminAuth()
+  const { user, loading: authLoading, requireAuth } = useAdminAuthSimple()
   const router = useRouter()
   const { toast } = useToast() // Initialize useToast
 
@@ -69,13 +69,9 @@ export default function EventsManagementPage() {
   // 認証チェック
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <span className="ml-2 text-gray-600">読み込み中...</span>
       </div>
     )
   }
@@ -118,7 +114,12 @@ export default function EventsManagementPage() {
   };
 
   if (loading) {
-    return <div className="p-8">読み込み中...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <span className="ml-2 text-gray-600">読み込み中...</span>
+      </div>
+    )
   }
 
   if (error) {

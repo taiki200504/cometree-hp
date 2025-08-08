@@ -55,6 +55,14 @@ export default function AdminSettings() {
     if (!isAuthenticated) {
       return
     }
+    // load settings from server
+    fetch('/api/admin/settings')
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json()
+        if (data?.settings) setSettings(data.settings)
+      })
+      .catch(() => {})
   }, [requireAuth])
 
   if (loading) {
@@ -73,9 +81,12 @@ export default function AdminSettings() {
     return null
   }
 
-  const handleSave = () => {
-    // 設定保存処理
-    console.log('Settings saved:', settings)
+  const handleSave = async () => {
+    await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings })
+    })
   }
 
   return (
