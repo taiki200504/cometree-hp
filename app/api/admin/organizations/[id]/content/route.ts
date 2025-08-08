@@ -102,6 +102,8 @@ export async function POST(
       status: contentData.status || 'draft',
       type: contentData.type || 'news',
       tags: contentData.tags || [],
+      featured_image: contentData.featured_image || null,
+      visibility: contentData.visibility || 'private',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }

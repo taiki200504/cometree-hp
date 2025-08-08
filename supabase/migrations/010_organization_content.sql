@@ -1,3 +1,16 @@
+-- 依存テーブル（organization_members）が存在しない環境に備え、先に最低限の定義を用意
+CREATE TABLE IF NOT EXISTS public.organization_members (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT DEFAULT 'member' CHECK (role IN ('member','admin','leader')),
+  is_active BOOLEAN DEFAULT TRUE,
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE (organization_id, user_id)
+);
+
 -- 加盟団体専用コンテンツ管理テーブル
 CREATE TABLE public.organization_content (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

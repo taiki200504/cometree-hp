@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdmin(request)
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.error('[API] Supabase env missing for external-links')
       return NextResponse.json({ error: 'Server DB configuration missing' }, { status: 500 })
@@ -21,6 +23,37 @@ export async function GET() {
     return NextResponse.json(data)
   } catch (error) {
     console.error('Error in podcast external links GET:', error)
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await requireAdmin(request)
+    const body = await request.json()
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[API] Supabase env missing for external-links POST')
+      return NextResponse.json({ error: 'Server DB configuration missing' }, { status: 500 })
+    }
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('podcast_external_links')
+      .insert({
+        show_id: body.show_id,
+        platform: body.platform,
+        url: body.url,
+        is_active: body.is_active ?? true,
+      })
+      .select()
+      .single()
+    if (error) {
+      console.error('Error creating external link:', error)
+      return NextResponse.json({ error: error.message || 'Failed to create external link' }, { status: 500 })
+    }
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error in podcast external links POST:', error)
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })
   }
