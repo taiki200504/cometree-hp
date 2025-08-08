@@ -14,7 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import ImageUpload from '@/components/ui/image-upload'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const eventFormSchema = z.object({
   title: z.string().min(3, { message: 'タイトルは3文字以上で入力してください。' }),
@@ -78,19 +79,16 @@ export default function CreateEventPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/events">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            イベント一覧に戻る
-          </Link>
-        </Button>
-      </div>
+      <AdminHeading
+        title="イベントの新規作成"
+        subtitle="新しいイベントの情報を入力してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/events">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>イベントの新規作成</CardTitle>
-          <CardDescription>新しいイベントの情報を入力してください。</CardDescription>
-        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

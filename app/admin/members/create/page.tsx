@@ -10,12 +10,13 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { ArrowLeft, Loader2, User, Crown, Award, Users } from 'lucide-react'
+import { Loader2, User, Crown, Award, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useToast } from '@/hooks/use-toast'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const memberFormSchema = z.object({
   name: z.string().min(1, '名前は必須です'),
@@ -111,25 +112,16 @@ export default function CreateMemberPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/members">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            メンバー一覧に戻る
-          </Link>
-        </Button>
-      </div>
-      
+      <AdminHeading
+        title="メンバーの新規追加"
+        subtitle="新しいメンバーの情報を入力してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/members">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            メンバーの新規追加
-          </CardTitle>
-          <CardDescription>
-            新しいメンバーの情報を入力してください。
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

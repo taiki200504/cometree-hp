@@ -14,7 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import ImageUpload from '@/components/ui/image-upload'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const memberFormSchema = z.object({
   name: z.string().min(1, '名前は必須です'),
@@ -122,19 +123,16 @@ export default function EditMemberPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/members">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            運営メンバー一覧に戻る
-          </Link>
-        </Button>
-      </div>
+      <AdminHeading
+        title="運営メンバーの編集"
+        subtitle="メンバーの情報を更新してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/members">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>運営メンバーの編集</CardTitle>
-          <CardDescription>メンバーの情報を更新してください。</CardDescription>
-        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

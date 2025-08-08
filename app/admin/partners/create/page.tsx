@@ -14,7 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import ImageUpload from '@/components/ui/image-upload' // Import ImageUpload
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const partnerFormSchema = z.object({
   name: z.string().min(2, { message: '団体名は2文字以上で入力してください。' }),
@@ -76,18 +77,16 @@ export default function CreatePartnerPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/partners">
-            戻る
-          </Link>
-        </Button>
-      </div>
+      <AdminHeading
+        title="提携団体の新規追加"
+        subtitle="新しい団体の情報を入力してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/partners">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>提携団体の新規追加</CardTitle>
-          <CardDescription>新しい団体の情報を入力してください。</CardDescription>
-        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

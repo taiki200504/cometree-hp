@@ -14,7 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import ImageUpload from '@/components/ui/image-upload' // Import ImageUpload
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const orgFormSchema = z.object({
   name: z.string().min(2, { message: '団体名は2文字以上で入力してください。' }),
@@ -111,19 +112,16 @@ export default function EditOrganizationPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/organizations">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            加盟団体一覧に戻る
-          </Link>
-        </Button>
-      </div>
+      <AdminHeading
+        title="加盟団体の編集"
+        subtitle="団体の情報を更新してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/organizations">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>加盟団体の編集</CardTitle>
-          <CardDescription>団体の情報を更新してください。</CardDescription>
-        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

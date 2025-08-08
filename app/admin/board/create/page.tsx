@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -12,9 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import dynamic from 'next/dynamic'
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
-import { useAdminAuth } from '@/hooks/use-admin-auth'
-import { requireAdmin } from '@/lib/auth'
+import { Loader2 } from 'lucide-react'
+import AdminHeading from '@/components/admin/AdminHeading'
 
 const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor'), { ssr: false })
 
@@ -29,7 +28,6 @@ export default function CreateBoardPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-    const { user, loading: authLoading, requireAuth } = useAdminAuth()
 
   const form = useForm<BoardFormValues>({
     resolver: zodResolver(boardFormSchema),
@@ -38,10 +36,6 @@ export default function CreateBoardPage() {
       content: '',
     },
   })
-
-  useEffect(() => {
-    requireAuth()
-  }, [requireAuth])
 
   const onSubmit = async (data: BoardFormValues) => {
     setLoading(true)
@@ -73,38 +67,18 @@ export default function CreateBoardPage() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-green-400 font-mono">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-green-400" />
-            <div className="text-lg">LOADING...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return null
-  }
-
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/board">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            掲示板一覧に戻る
-          </Link>
-        </Button>
-      </div>
+      <AdminHeading
+        title="掲示板の新規投稿"
+        subtitle="新しい投稿の情報を入力してください。"
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/board">一覧へ</Link>
+          </Button>
+        }
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>掲示板の新規投稿</CardTitle>
-          <CardDescription>新しい投稿の情報を入力してください。</CardDescription>
-        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
