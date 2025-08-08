@@ -112,7 +112,7 @@ export default function OrganizationDashboardPage() {
       setLoading(true)
       
       // Fetch organizations
-      const orgResponse = await fetch('/api/admin/organizations?limit=5')
+      const orgResponse = await fetch('/api/admin/organizations?limit=5', { cache: 'no-store' })
       if (!orgResponse.ok) {
         throw new Error('加盟団体データの取得に失敗しました。')
       }
@@ -120,28 +120,28 @@ export default function OrganizationDashboardPage() {
       setOrganizations(orgData.organizations || [])
       
       // Fetch recent events
-      const eventsResponse = await fetch('/api/admin/organization-events?limit=5')
+      const eventsResponse = await fetch('/api/admin/organizations/events?limit=5', { cache: 'no-store' })
       if (eventsResponse.ok) {
         const eventsData = await eventsResponse.json()
         setRecentEvents(eventsData.events || [])
       }
-      
+
       // Fetch recent reports
-      const reportsResponse = await fetch('/api/admin/organization-reports?limit=5')
+      const reportsResponse = await fetch('/api/admin/organizations/reports?limit=5', { cache: 'no-store' })
       if (reportsResponse.ok) {
         const reportsData = await reportsResponse.json()
         setRecentReports(reportsData.reports || [])
       }
-      
+
       // Fetch recent applications
-      const applicationsResponse = await fetch('/api/admin/organization-applications?limit=5')
+      const applicationsResponse = await fetch('/api/admin/organizations/applications?limit=5', { cache: 'no-store' })
       if (applicationsResponse.ok) {
         const applicationsData = await applicationsResponse.json()
         setRecentApplications(applicationsData.applications || [])
       }
       
       // Fetch system metrics
-      const metricsResponse = await fetch('/api/admin/organizations/metrics')
+      const metricsResponse = await fetch('/api/admin/organizations/metrics', { cache: 'no-store' })
       if (metricsResponse.ok) {
         const metricsData = await metricsResponse.json()
         setSystemMetrics(metricsData.metrics || systemMetrics)
@@ -410,8 +410,8 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <Button asChild className="w-full bg-blue-400/20 text-blue-400 border-blue-400/30 hover:bg-blue-400/30">
-                  <Link href="/admin/organization-events">
+              <Button asChild className="w-full bg-blue-400/20 text-blue-400 border-blue-400/30 hover:bg-blue-400/30">
+                <Link href="/admin/organizations/events">
                     VIEW ALL EVENTS
                   </Link>
                 </Button>
@@ -451,8 +451,8 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <Button asChild className="w-full bg-purple-400/20 text-purple-400 border-purple-400/30 hover:bg-purple-400/30">
-                  <Link href="/admin/organization-applications">
+              <Button asChild className="w-full bg-purple-400/20 text-purple-400 border-purple-400/30 hover:bg-purple-400/30">
+                <Link href="/admin/organizations/applications">
                     VIEW ALL APPLICATIONS
                   </Link>
                 </Button>
@@ -486,8 +486,8 @@ export default function OrganizationDashboardPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <Button asChild className="w-full bg-orange-400/20 text-orange-400 border-orange-400/30 hover:bg-orange-400/30">
-                  <Link href="/admin/organization-reports">
+              <Button asChild className="w-full bg-orange-400/20 text-orange-400 border-orange-400/30 hover:bg-orange-400/30">
+                <Link href="/admin/organizations/reports">
                     VIEW ALL REPORTS
                   </Link>
                 </Button>
