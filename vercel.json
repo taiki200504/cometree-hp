@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/sync-notion?secret=d4a3c3b3-2b1a-4f8c-9e3a-1b1b1b1b1b1b",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
