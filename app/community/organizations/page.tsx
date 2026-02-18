@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
+import Link from "next/link"
 import { Search, Filter, Users, MapPin, Calendar, ExternalLink, Loader2 } from "lucide-react"
 
 interface Organization {
@@ -211,7 +212,9 @@ export default function Organizations() {
                       </span>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{org.name}</h3>
+                    <Link href={`/community/organizations/${org.id}`}>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 hover:text-[#066ff2] transition-colors">{org.name}</h3>
+                    </Link>
                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{org.description}</p>
 
                     <div className="space-y-2 mb-4">
@@ -223,10 +226,12 @@ export default function Organizations() {
                         <Users className="h-4 w-4 mr-2" />
                         {org.member_count}名
                       </div>
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        {org.established_year}年設立
-                      </div>
+                      {org.established_year != null && (
+                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {org.established_year}年設立
+                        </div>
+                      )}
                     </div>
 
                     <div className="mb-4">
@@ -246,21 +251,32 @@ export default function Organizations() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <a
-                        href={`mailto:${org.contact_email}`}
-                        className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium"
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        href={`/community/organizations/${org.id}`}
+                        className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium inline-flex items-center gap-1"
                       >
-                        お問い合わせ
-                      </a>
-                      <a
-                        href={org.website_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
+                        詳細を見る
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                      {org.contact_email && (
+                        <a
+                          href={`mailto:${org.contact_email}`}
+                          className="text-[#066ff2] hover:text-[#ec4faf] text-sm font-medium"
+                        >
+                          お問い合わせ
+                        </a>
+                      )}
+                      {(org.website_url || (org as { website?: string }).website) && (
+                        <a
+                          href={(org.website_url || (org as { website?: string }).website)?.startsWith("http") ? (org.website_url || (org as { website?: string }).website) : `https://${org.website_url || (org as { website?: string }).website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>

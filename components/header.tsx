@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import NextImage from "next/image"
-import { ChevronDown, Menu, X, Grid3X3 } from "lucide-react"
+import { ChevronDown, Menu, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 
@@ -11,10 +11,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isAllMenuOpen, setIsAllMenuOpen] = useState(false)
   const { theme, resolvedTheme } = useTheme()
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const allMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // スクロール処理
   useEffect(() => {
@@ -30,7 +28,6 @@ export default function Header() {
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false)
     setActiveDropdown(null)
-    setIsAllMenuOpen(false)
   }, [])
 
   // ESCキーでメニューを閉じる
@@ -41,153 +38,47 @@ export default function Header() {
       }
     }
 
-    if (isMenuOpen || activeDropdown || isAllMenuOpen) {
+    if (isMenuOpen || activeDropdown) {
       document.addEventListener("keydown", handleEscape)
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape)
     }
-  }, [isMenuOpen, activeDropdown, isAllMenuOpen, closeMenu])
+  }, [isMenuOpen, activeDropdown, closeMenu])
 
   const navigationLinks = [
     { href: "/", label: "ホーム" },
     {
-      href: "/about",
-      label: "About",
+      href: "/for-students",
+      label: "学生向け",
       hasDropdown: true,
       dropdownItems: [
-        { href: "/about", label: "理念・組織概要" },
-        { href: "/about/members", label: "運営メンバー紹介" },
-        { href: "/about/initiatives", label: "事業内容" },
-        { href: "/about/supporters", label: "ご支援者様" },
-        { href: "/join/staff", label: "運営メンバーになる" },
+        { href: "/for-students", label: "学生向けトップ" },
+        { href: "/for-students/unimate", label: "UNIMATE（個人）" },
+        { href: "/for-students/union", label: "UNION（団体）" },
+        { href: "/for-students/faq", label: "よくある質問" },
       ],
     },
     {
-      href: "/services",
-      label: "サービス",
+      href: "/for-corporate",
+      label: "法人向け",
       hasDropdown: true,
       dropdownItems: [
-        { href: "/services?tab=student", label: "学生向けサービス" },
-        { href: "/services?tab=corporate", label: "企業向けサービス" },
+        { href: "/for-corporate", label: "法人向けトップ" },
+        { href: "/for-corporate/service", label: "サービス紹介" },
+        { href: "/for-corporate/benefits", label: "法人のメリット" },
+        { href: "/for-corporate/plan", label: "プラン" },
+        { href: "/for-corporate/flow", label: "導入フロー" },
+        { href: "/for-corporate/projects", label: "案件募集" },
+        { href: "/for-corporate/events", label: "イベント連携" },
+        { href: "/for-corporate/contact", label: "相談・お問い合わせ" },
+        { href: "/for-corporate/faq", label: "よくある質問" },
       ],
     },
-    {
-      href: "/media",
-      label: "メディア",
-      hasDropdown: true,
-      dropdownItems: [
-        { href: "/media", label: "メディア事業概要" },
-        { href: "/media/podcast", label: "ポッドキャスト" },
-        { href: "/media/studentnews", label: "UNION Weekly News" },
-        { href: "/board", label: "掲示板" },
-      ],
-    },
-    {
-      href: "/community",
-      label: "コミュニティ",
-      hasDropdown: true,
-      dropdownItems: [
-        { href: "/community", label: "コミュニティ概要" },
-        { href: "/community/organizations", label: "加盟団体一覧" },
-        { href: "/community/partners", label: "提携企業一覧" },
-        { href: "/community/slack", label: "Slackコミュニティ" },
-        { href: "/community/guild", label: "Media Guild" },
-        { href: "/community/portal/login", label: "加盟団体専用" },
-      ],
-    },
-
-    { href: "/news", label: "お知らせ" },
-    {
-      href: "/join",
-      label: "参加する",
-      hasDropdown: true,
-      dropdownItems: [
-        { href: "/join", label: "参加方法のご案内" },
-        { href: "/join/organization", label: "団体として加盟" },
-        { href: "/join/corporate", label: "企業として提携/協賛" },
-      ],
-    },
-    {
-      href: "/contact",
-      label: "お問い合わせ",
-      hasDropdown: true,
-      dropdownItems: [
-        { href: "/contact", label: "お問い合わせ" },
-        { href: "/join/donate", label: "ご寄付について" },
-        { href: "/contact/services", label: "提供サービス申し込み一覧" },
-      ],
-    },
-  ]
-
-  // 全ページリスト（ALLボタン用）
-  const allPages = [
-    {
-      category: "基本ページ",
-      items: [
-        { href: "/", label: "ホーム" },
-        { href: "/news", label: "お知らせ" },
-      ],
-    },
-    {
-      category: "About",
-      items: [
-        { href: "/about", label: "理念・組織概要" },
-        { href: "/about/members", label: "運営メンバー紹介" },
-        { href: "/about/initiatives", label: "事業内容" },
-        { href: "/about/supporters", label: "ご支援者様" },
-      ],
-    },
-    {
-      category: "サービス",
-      items: [
-        { href: "/services", label: "サービス概要" },
-        { href: "/services?tab=student", label: "学生向けサービス" },
-        { href: "/services?tab=corporate", label: "企業向けサービス" },
-      ],
-    },
-    {
-      category: "メディア",
-      items: [
-        { href: "/media", label: "メディア事業概要" },
-        { href: "/media/podcast", label: "ポッドキャスト" },
-        { href: "/media/studentnews", label: "UNION Weekly News" },
-        { href: "/board", label: "掲示板" },
-        { href: "/board/favorites", label: "お気に入り掲示板" },
-      ],
-    },
-    {
-      category: "コミュニティ",
-      items: [
-        { href: "/community", label: "コミュニティ概要" },
-        { href: "/community/organizations", label: "加盟団体一覧" },
-        { href: "/community/partners", label: "提携企業一覧" },
-        { href: "/community/slack", label: "Slackコミュニティ" },
-        { href: "/community/guild", label: "Media Guild" },
-        { href: "/community/portal/login", label: "加盟団体専用" },
-      ],
-    },
-    {
-      category: "参加・お問い合わせ",
-      items: [
-        { href: "/join", label: "参加方法のご案内" },
-        { href: "/join/staff", label: "運営メンバーになる" },
-        { href: "/join/organization", label: "団体として加盟" },
-        { href: "/join/corporate", label: "企業として提携/協賛" },
-        { href: "/join/donate", label: "ご寄付について" },
-        { href: "/contact", label: "お問い合わせ" },
-        { href: "/contact/services", label: "提供サービス申し込み一覧" },
-      ],
-    },
-    {
-      category: "その他",
-      items: [
-        { href: "/favorites", label: "お気に入り" },
-        { href: "/brand", label: "ブランドガイドライン" },
-        { href: "/privacy", label: "プライバシーポリシー" },
-      ],
-    },
+    { href: "/events", label: "イベント" },
+    { href: "/media", label: "メディア" },
+    { href: "/about", label: "運営会社" },
   ]
 
   // ダークモードかどうかを判定（ハイドレーションエラーを防ぐため、mounted状態を確認）
@@ -214,40 +105,19 @@ export default function Header() {
     }, 150)
   }, [])
 
-  // ALLメニューのホバー処理
-  const handleAllMenuEnter = useCallback(() => {
-    if (allMenuTimeoutRef.current) {
-      clearTimeout(allMenuTimeoutRef.current)
-      allMenuTimeoutRef.current = null
-    }
-    setIsAllMenuOpen(true)
-  }, [])
-
-  const handleAllMenuLeave = useCallback(() => {
-    allMenuTimeoutRef.current = setTimeout(() => {
-      setIsAllMenuOpen(false)
-    }, 150)
-  }, [])
-
   // ドロップダウンアイテムクリック時の処理（メニューを閉じない）
   const handleDropdownItemClick = useCallback(() => {
     // ドロップダウンメニューは開いたままにする
     setIsMenuOpen(false) // モバイルメニューのみ閉じる
   }, [])
 
-  // ALLメニューアイテムクリック時の処理
-  const handleAllMenuItemClick = useCallback(() => {
-    setIsAllMenuOpen(false)
-    setIsMenuOpen(false)
-  }, [])
-
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
           isScrolled
-            ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700"
-            : "bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800"
+            ? "bg-[var(--union-section-alt)]/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-[var(--union-border)]"
+            : "bg-[var(--union-section-alt)]/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-[var(--union-border)]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -276,7 +146,7 @@ export default function Header() {
                       onMouseEnter={() => handleDropdownEnter(link.label)}
                       onMouseLeave={handleDropdownLeave}
                     >
-                      <button className="flex items-center text-gray-700 dark:text-gray-300 hover:text-[#066ff2] dark:hover:text-[#066ff2] transition-colors duration-200 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">
+                      <button className="flex items-center text-[var(--union-text)] hover:text-[#066ff2] transition-colors duration-200 font-medium px-3 py-2 rounded-lg hover:bg-[var(--union-section-bg)] text-sm">
                         {link.label}
                         <ChevronDown
                           className={`ml-1 h-4 w-4 transition-transform duration-200 ${
@@ -295,13 +165,13 @@ export default function Header() {
                         onMouseEnter={() => handleDropdownEnter(link.label)}
                         onMouseLeave={handleDropdownLeave}
                       >
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-2 overflow-hidden">
+                        <div className="bg-[var(--union-section-alt)] rounded-lg shadow-lg border border-[var(--union-border)] py-2 overflow-hidden">
                           {link.dropdownItems?.map((item) => (
                             <Link
                               key={item.href}
                               href={item.href}
                               onClick={handleDropdownItemClick}
-                              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-[#066ff2] dark:hover:text-[#066ff2] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                              className="block px-4 py-2 text-sm text-[var(--union-text)] hover:text-[#066ff2] hover:bg-[var(--union-section-bg)] transition-colors duration-200"
                             >
                               {item.label}
                             </Link>
@@ -312,7 +182,7 @@ export default function Header() {
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-gray-700 dark:text-gray-300 hover:text-[#066ff2] dark:hover:text-[#066ff2] transition-colors duration-200 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
+                      className="text-[var(--union-text)] hover:text-[#066ff2] transition-colors duration-200 font-medium px-3 py-2 rounded-lg hover:bg-[var(--union-section-bg)] text-sm"
                     >
                       {link.label}
                     </Link>
@@ -321,58 +191,20 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* 右側のアクション */}
-            <div className="flex items-center space-x-3">
+            {/* 右側：主CTA + テーマ + ハンバーガー */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/for-students"
+                className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-[var(--union-primary)] hover:bg-[var(--union-primary-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--union-primary)] focus-visible:ring-offset-2"
+              >
+                参加する
+              </Link>
               <ThemeToggle />
-
-              {/* デスクトップALLボタン */}
-              <div className="hidden lg:block relative">
-                <div onMouseEnter={handleAllMenuEnter} onMouseLeave={handleAllMenuLeave}>
-                  <button className="flex items-center bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity duration-200 text-sm">
-                    <Grid3X3 className="h-4 w-4 mr-2" />
-                    ALL
-                    <ChevronDown
-                      className={`ml-1 h-4 w-4 transition-transform duration-200 ${
-                        isAllMenuOpen ? "rotate-180" : "rotate-0"
-                      }`}
-                    />
-                  </button>
-
-                  {/* ALLメニュードロップダウン */}
-                  <div
-                    className={`absolute top-full right-0 mt-1 w-80 transition-all duration-200 ${
-                      isAllMenuOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
-                    }`}
-                    onMouseEnter={handleAllMenuEnter}
-                    onMouseLeave={handleAllMenuLeave}
-                  >
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-2 overflow-hidden max-h-96 overflow-y-auto">
-                      {allPages.map((category) => (
-                        <div key={category.category} className="mb-2">
-                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700">
-                            {category.category}
-                          </div>
-                          {category.items.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              onClick={handleAllMenuItemClick}
-                              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-[#066ff2] dark:hover:text-[#066ff2] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* ハンバーガーメニューボタン */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                className="lg:hidden relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--union-border)] bg-[var(--union-section-alt)] text-[var(--union-text)] hover:bg-[var(--union-section-bg)] transition-colors duration-200"
                 aria-label={isMenuOpen ? "メニューを閉じる" : "メニューを開く"}
                 aria-expanded={isMenuOpen}
               >
@@ -404,14 +236,22 @@ export default function Header() {
         className={`fixed top-16 left-0 right-0 z-50 lg:hidden transition-all duration-300 ${
           isMenuOpen ? "translate-y-0 opacity-100 visible" : "-translate-y-full opacity-0 invisible"
         }`}
+        data-mobile-menu={isMenuOpen ? "open" : "closed"}
       >
-        <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="bg-[var(--union-section-alt)] border-b border-[var(--union-border)] shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="px-4 py-6 space-y-2">
+                <Link
+                  href="/for-students"
+                  className="flex items-center justify-center w-full py-3 rounded-lg text-sm font-semibold text-white bg-[var(--union-primary)] hover:opacity-90 mb-4"
+                  onClick={closeMenu}
+                >
+                  参加する
+                </Link>
             {navigationLinks.map((link) => (
               <div key={link.href}>
                 <Link
                   href={link.href}
-                  className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-[#066ff2] dark:hover:text-[#066ff2] transition-colors duration-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="block px-4 py-3 text-[var(--union-text)] hover:text-[#066ff2] transition-colors duration-200 font-medium rounded-lg hover:bg-[var(--union-section-bg)]"
                   onClick={closeMenu}
                 >
                   {link.label}
@@ -422,7 +262,7 @@ export default function Header() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="block px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#066ff2] dark:hover:text-[#066ff2] transition-colors duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="block px-3 py-2 text-sm text-[var(--union-text-muted)] hover:text-[#066ff2] transition-colors duration-200 rounded-lg hover:bg-[var(--union-section-bg)]"
                         onClick={closeMenu}
                       >
                         {item.label}
@@ -432,35 +272,6 @@ export default function Header() {
                 )}
               </div>
             ))}
-
-            {/* モバイル用ALLメニュー */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white px-4 py-3 rounded-lg font-medium text-center mb-4">
-                <Grid3X3 className="h-4 w-4 inline mr-2" />
-                全ページ一覧
-              </div>
-              <div className="space-y-4">
-                {allPages.map((category) => (
-                  <div key={category.category}>
-                    <div className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      {category.category}
-                    </div>
-                    <div className="ml-2 space-y-1">
-                      {category.items.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="block px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#066ff2] dark:hover:text-[#066ff2] transition-colors duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-                          onClick={closeMenu}
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

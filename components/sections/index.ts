@@ -1,0 +1,6 @@
+export { SectionHeading } from "./SectionHeading"
+export { HomePurposeCards } from "./HomePurposeCards"
+export { HomeValueProps } from "./HomeValueProps"
+export { HomeFaq } from "./HomeFaq"
+export { HomeFinalCta } from "./HomeFinalCta"
+export { HomeNewsEventsMedia } from "./HomeNewsEventsMedia"

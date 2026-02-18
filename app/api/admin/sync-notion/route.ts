@@ -14,7 +14,9 @@ export async function POST(req: NextRequest) {
   try {
     // 1. 認証 (Cron Job or Admin Login)
     const secret = req.nextUrl.searchParams.get('secret');
-    if (secret === process.env.CRON_SECRET) {
+    const cronHeader = req.headers.get('x-vercel-cron');
+    const cronSecret = process.env.CRON_SECRET || process.env.NEXT_PUBLIC_CRON_SECRET;
+    if (cronHeader === '1' || (secret && cronSecret && secret === cronSecret)) {
       // Cron Jobからのリクエスト
       console.log('[Sync Notion API] Authenticated via Cron Secret.');
     } else {
@@ -23,9 +25,9 @@ export async function POST(req: NextRequest) {
       console.log('[Sync Notion API] Authenticated via Admin session.');
     }
 
-    const notionDatabaseId = process.env.NOTION_NEWS_DATABASE_ID;
+    const notionDatabaseId = process.env.NOTION_NEWS_DATABASE_ID || process.env.NOTION_NEWS_DB_ID;
     if (!notionDatabaseId) {
-      throw new Error('NOTION_NEWS_DATABASE_ID is not set in environment variables.');
+      throw new Error('NOTION_NEWS_DATABASE_ID (or NOTION_NEWS_DB_ID) is not set in environment variables.');
     }
 
     // 2. Notionから公開済みの記事を取得

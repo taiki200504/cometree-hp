@@ -13,7 +13,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # NextAuth設定
 NEXTAUTH_SECRET=your_nextauth_secret_key
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3001
 
 # その他の設定
 NODE_ENV=development

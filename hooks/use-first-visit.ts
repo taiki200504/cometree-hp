@@ -1,6 +1,20 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
-// テスト用: 毎回アニメーションを表示
+const FIRST_VISIT_KEY = 'union_first_visit_done'
+
 export function useFirstVisit() {
-  return { isFirstVisit: true, isLoading: false }
+  const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const done = sessionStorage.getItem(FIRST_VISIT_KEY)
+      setIsFirstVisit(!done)
+    } catch {
+      setIsFirstVisit(false)
+    }
+  }, [])
+
+  const isLoading = isFirstVisit === null
+  return { isFirstVisit: isFirstVisit === true, isLoading }
 } 

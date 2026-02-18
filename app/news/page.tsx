@@ -1,36 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
+import { listNews, type NewsRecord } from '@/lib/news'
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ModernHero from "@/components/modern-hero"
-import { Calendar, Tag } from "lucide-react"
+import { Calendar } from "lucide-react"
 import Link from "next/link"
 
-interface NewsItem {
-  id: string
-  title: string
-  content: string
-  excerpt: string
-  category: string
-  is_published: boolean
-  published_at: string
-  created_at: string
-  updated_at: string
-  image_url?: string
-}
-
-async function getNews() {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('news')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching news:', error)
-    return []
-  }
-  return data
+async function getNews(): Promise<NewsRecord[]> {
+  const { items } = await listNews({ status: 'published', limit: 60 })
+  return items
 }
 
 export default async function News() {
@@ -58,22 +35,26 @@ export default async function News() {
                 <div className="p-5 flex-1 flex flex-col">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded">
-                      {item.category}
+                      {item.category ?? 'general'}
                     </span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
-                      {new Date(item.published_at).toLocaleDateString('ja-JP', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
+                    {item.published_at && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {new Date(item.published_at).toLocaleDateString('ja-JP', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    )}
                   </div>
                   <h3 className="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">
                     {item.title}
                   </h3>
-                  <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 flex-1 line-clamp-3">
-                    {item.excerpt}
-                  </p>
+                  {item.excerpt && (
+                    <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 flex-1 line-clamp-3">
+                      {item.excerpt}
+                    </p>
+                  )}
                   <Link
                     href={`/news/${item.id}`}
                     className="inline-flex items-center text-[#066ff2] dark:text-blue-400 hover:text-[#ec4faf] dark:hover:text-pink-400 text-sm font-medium mt-auto"

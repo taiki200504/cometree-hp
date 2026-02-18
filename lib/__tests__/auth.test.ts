@@ -44,7 +44,7 @@ describe('lib/auth.ts', () => {
 
     it('should return user with profile', async () => {
       const mockUser = { id: '123', email: 'test@example.com', user_metadata: { name: 'Test User' } };
-      const mockProfile = { name: 'Profile Name', role: 'admin', organization_id: 'org-123' };
+      const mockProfile = { full_name: 'Profile Name', role: 'admin' };
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
       mockSingle.mockResolvedValue({ data: mockProfile, error: null });
 
@@ -55,10 +55,11 @@ describe('lib/auth.ts', () => {
         email: 'test@example.com',
         name: 'Profile Name',
         role: 'admin',
-        organization_id: 'org-123',
+        organization_id: null,
       });
       expect(createRouteHandlerClient).toHaveBeenCalledWith({ cookies: expect.any(Function) });
       expect(mockFrom).toHaveBeenCalledWith('users');
+      expect(mockSelect).toHaveBeenCalledWith('full_name, role');
       expect(mockEq).toHaveBeenCalledWith('id', '123');
     });
   });
@@ -72,7 +73,7 @@ describe('lib/auth.ts', () => {
     it('should return user if authenticated', async () => {
       const mockUser = { id: '123', email: 'test@example.com' };
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      mockSingle.mockResolvedValue({ data: { name: 'Test' }, error: null }); // Just need to return a profile
+      mockSingle.mockResolvedValue({ data: { full_name: 'Test', role: 'user' }, error: null });
 
       const user = await requireAuth({} as any);
       expect(user?.id).toBe('123');
@@ -87,7 +88,7 @@ describe('lib/auth.ts', () => {
 
     it('should throw error if user is not an admin', async () => {
       const mockUser = { id: '123', email: 'test@example.com' };
-      const mockProfile = { role: 'user' };
+      const mockProfile = { full_name: null, role: 'user' };
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
       mockSingle.mockResolvedValue({ data: mockProfile, error: null });
 
@@ -96,7 +97,7 @@ describe('lib/auth.ts', () => {
 
     it('should return user if user is an admin', async () => {
       const mockUser = { id: '123', email: 'test@example.com' };
-      const mockProfile = { role: 'admin' };
+      const mockProfile = { full_name: 'Admin', role: 'admin' };
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
       mockSingle.mockResolvedValue({ data: mockProfile, error: null });
 

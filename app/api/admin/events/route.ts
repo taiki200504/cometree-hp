@@ -1,4 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { DATABASES, NotionDatabase } from '@/lib/notion-client'
+import { getCmsConfig } from '@/lib/settings'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 
@@ -12,14 +14,57 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createAdminClient()
+    const { mode, useNotion } = await getCmsConfig()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '10', 10)
-    const search = searchParams.get('search') || ''
+    const searchRaw = searchParams.get('search') || ''
+    const search = searchRaw.toLowerCase()
     const status = searchParams.get('status') || 'all'
     const category = searchParams.get('category') || 'all'
     const offset = (page - 1) * limit
+
+    const notionConfigured = !!process.env.NOTION_TOKEN && !!DATABASES.EVENTS
+    const shouldUseNotion = notionConfigured && useNotion && (mode === 'notion' || mode === 'hybrid')
+
+    if (shouldUseNotion) {
+      try {
+        const notionDb = new NotionDatabase(DATABASES.EVENTS)
+        const { data } = await notionDb.query(undefined, undefined, 200)
+        let items = (data || []) as any[]
+
+        // Normalize for UI expectations
+        items = items.map((e) => ({
+          ...e,
+          start_date: e.date || e.start_date || null,
+          is_published: e.status && e.status !== 'cancelled'
+        }))
+
+        if (search) {
+          items = items.filter((e) => {
+            const hay = `${e.title || ''} ${e.description || ''} ${e.location || ''}`.toLowerCase()
+            return hay.includes(search)
+          })
+        }
+        if (status !== 'all') {
+          items = items.filter((e) => (e.status || null) === status)
+        }
+        if (category !== 'all') {
+          items = items.filter((e) => (e.category || null) === category)
+        }
+
+        items.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+
+        const totalCount = items.length
+        const paged = items.slice(offset, offset + limit)
+        return NextResponse.json({ events: paged, totalCount, source: 'notion' })
+      } catch (e) {
+        console.error('[API][events] Notion path error; falling back to Supabase:', e)
+        // Fall back below
+      }
+    }
+
+    const supabase = createAdminClient()
 
     // Build query
     let query = supabase
@@ -27,8 +72,8 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact' })
 
     // Apply search filter
-    if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
+    if (searchRaw) {
+      query = query.or(`title.ilike.%${searchRaw}%,description.ilike.%${searchRaw}%,location.ilike.%${searchRaw}%`)
     }
 
     // Apply status filter
@@ -60,7 +105,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       events: normalized,
-      totalCount: count || 0
+      totalCount: count || 0,
+      source: 'supabase'
     })
   } catch (error) {
     console.error('[API] Unexpected error:', error)

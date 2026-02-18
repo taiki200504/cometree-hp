@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { CmsToggle } from '@/components/admin/CmsToggle'
 import { 
   ArrowLeft,
   Settings,
@@ -22,15 +23,21 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import AdminHeading from '@/components/admin/AdminHeading'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function AdminSettings() {
   const { user, loading, requireAuth } = useAdminAuthSimple()
+  const { toast } = useToast()
   const [settings, setSettings] = useState({
     site: {
       name: 'UNIÓN',
       description: '学生団体連合UNIÓNの公式サイト',
-      url: 'https://gakusei-union-6dcmvhfeb-union-022b7003.vercel.app',
+      url: process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com',
       contactEmail: 'gakusei.union226@gmail.com'
+    },
+    cms: {
+      mode: process.env.NEXT_PUBLIC_CMS_MODE || 'supabase',
+      useNotion: process.env.NEXT_PUBLIC_USE_NOTION_FOR_CONTENT === 'true'
     },
     notifications: {
       emailNotifications: true,
@@ -61,7 +68,18 @@ export default function AdminSettings() {
       .then(async (res) => {
         if (!res.ok) return
         const data = await res.json()
-        if (data?.settings) setSettings(data.settings)
+        if (data?.settings) {
+          const s = data.settings
+          setSettings((prev) => ({
+            ...prev,
+            ...s,
+            site: { ...prev.site, ...(s.site || {}) },
+            cms: { ...prev.cms, ...(s.cms || {}) },
+            notifications: { ...prev.notifications, ...(s.notifications || {}) },
+            security: { ...prev.security, ...(s.security || {}) },
+            appearance: { ...prev.appearance, ...(s.appearance || {}) }
+          }))
+        }
       })
       .catch(() => {})
   }, [requireAuth])
@@ -83,11 +101,20 @@ export default function AdminSettings() {
   }
 
   const handleSave = async () => {
-    await fetch('/api/admin/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ settings })
-    })
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settings })
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || '設定の保存に失敗しました')
+      }
+      toast({ title: '保存しました', description: '設定が正常に更新されました。' })
+    } catch (e: any) {
+      toast({ title: 'エラー', description: e?.message || '不明なエラーが発生しました。', variant: 'destructive' })
+    }
   }
 
   return (
@@ -165,6 +192,62 @@ export default function AdminSettings() {
               </div>
             </CardContent>
           </Card>
+
+          {/* CMS Configuration */}
+          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Database className="h-5 w-5" />
+                <span>CMS設定</span>
+              </CardTitle>
+              <CardDescription>
+                コンテンツ管理のモードを設定します（Supabase / Notion / Hybrid / WordPress）
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="cmsMode">CMSモード</Label>
+                  <select
+                    id="cmsMode"
+                    value={(settings as any).cms?.mode}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      cms: { ...(settings as any).cms, mode: e.target.value }
+                    })}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="supabase">Supabase</option>
+                    <option value="notion">Notion</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="wordpress">WordPress</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="useNotion">Notionを使用</Label>
+                    <p className="text-sm text-gray-500">コンテンツをNotionデータベースから取得</p>
+                  </div>
+                  <Switch
+                    id="useNotion"
+                    checked={Boolean((settings as any).cms?.useNotion)}
+                    onCheckedChange={(checked) => setSettings({
+                      ...settings,
+                      cms: { ...(settings as any).cms, useNotion: checked }
+                    })}
+                  />
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground p-3 bg-muted rounded">
+                <p>
+                  変更は保存後に反映されます。必要に応じて再デプロイ/再起動が必要です。
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CMS Status Overview */}
+          <CmsToggle />
 
           {/* Notification Settings */}
           <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg">

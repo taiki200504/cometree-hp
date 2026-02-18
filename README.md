@@ -36,6 +36,15 @@ NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your_google_site_verification
 
 # Google Analytics Service Account
 GOOGLE_APPLICATION_CREDENTIALS_JSON=your_service_account_json
+
+# Notion API Key
+NOTION_API_KEY=your_notion_api_key
+
+# Notion DB IDs
+NOTION_NEWS_DB_ID=your_news_database_id
+
+# Cron Secret for scheduled sync (match vercel.json or set there to ?secret=$CRON_SECRET)
+CRON_SECRET=your_cron_secret
 ```
 
 ### 2. Supabase設定

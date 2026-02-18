@@ -70,13 +70,11 @@ const nextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-    domains: ['localhost'],
+    domains: ['localhost', 'images.unsplash.com', 'cdn.jsdelivr.net', 'pbs.twimg.com'],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
+      // WordPress media host; override via env at runtime if needed
+      process.env.WORDPRESS_BASE_URL ? (() => { try { const u = new URL(process.env.WORDPRESS_BASE_URL); return { protocol: u.protocol.replace(':',''), hostname: u.hostname } } catch { return undefined } })() : undefined,
+    ].filter(Boolean),
   },
   // 本運用向け実験的機能
   experimental: {

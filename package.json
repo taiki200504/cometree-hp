@@ -2,16 +2,22 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "lint": "next lint",
     "start": "next start",
-    "test": "vitest"
+    "test": "vitest",
+    "open": "open http://localhost:3001"
   },
   "dependencies": {
     "@google-analytics/data": "^5.2.0",
     "@hookform/resolvers": "^3.9.1",
+    "@notionhq/client": "^2.2.3",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -67,6 +73,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
     "vaul": "latest",
+    "vercel": "^48.1.6",
     "zod": "^3.24.1"
   },
   "devDependencies": {

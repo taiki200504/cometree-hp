@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/lib/supabase/server"
+import { checkRateLimit } from "@/lib/rate-limiter"
 
-// モックイベントデータ
+// モックイベントデータ（DB未使用時のフォールバック）
 const mockEvents = [
   {
     id: 1,
@@ -66,41 +68,88 @@ const mockEvents = [
 ]
 
 export async function GET(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown"
+  const { allowed, remaining, resetAfter } = checkRateLimit(ip, false)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", retryAfter: Math.ceil(resetAfter / 1000) },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(resetAfter / 1000)) } }
+    )
+  }
   try {
     const { searchParams } = new URL(request.url)
     const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const limit = Number.parseInt(searchParams.get("limit") || "50")
     const category = searchParams.get("category")
     const status = searchParams.get("status")
     const search = searchParams.get("search")
 
-    let filteredEvents = [...mockEvents]
+    let source: "supabase" | "mock" = "mock"
+    let rawEvents: Array<Record<string, unknown>> = []
 
-    // カテゴリフィルター
-    if (category && category !== "all") {
-      filteredEvents = filteredEvents.filter((event) => event.category === category)
+    try {
+      const supabase = createAdminClient()
+      let query = supabase
+        .from("events")
+        .select("id, title, description, date, time, end_time, location, status, category, image_url, created_at")
+        .in("status", ["upcoming", "ongoing", "completed"])
+        .order("date", { ascending: true })
+
+      if (category && category !== "all") {
+        query = query.eq("category", category)
+      }
+      if (status && status !== "all") {
+        query = query.eq("status", status)
+      }
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
+      }
+
+      const { data, error } = await query.range(0, 200)
+      if (!error && data && data.length >= 0) {
+        source = "supabase"
+        rawEvents = (data as Array<Record<string, unknown>>).map((e) => ({
+          id: e.id,
+          title: e.title,
+          description: e.description,
+          date: e.date,
+          start_date: e.date,
+          time: e.time,
+          location: e.location,
+          status: e.status,
+          category: e.category,
+          image_url: e.image_url,
+        }))
+      }
+    } catch (_) {
+      // fallback to mock
     }
 
-    // ステータスフィルター
-    if (status && status !== "all") {
-      filteredEvents = filteredEvents.filter((event) => event.status === status)
-    }
+    let filteredEvents: Array<Record<string, unknown>> =
+      source === "supabase" ? rawEvents : [...mockEvents]
 
-    // 検索フィルター
-    if (search) {
-      const searchLower = search.toLowerCase()
-      filteredEvents = filteredEvents.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchLower) ||
-          event.description.toLowerCase().includes(searchLower) ||
-          event.tags.some((tag) => tag.toLowerCase().includes(searchLower)),
+    if (source === "mock") {
+      if (category && category !== "all") {
+        filteredEvents = filteredEvents.filter((e) => e.category === category)
+      }
+      if (status && status !== "all") {
+        filteredEvents = filteredEvents.filter((e) => e.status === status)
+      }
+      if (search) {
+        const searchLower = search.toLowerCase()
+        filteredEvents = filteredEvents.filter(
+          (e) =>
+            String(e.title).toLowerCase().includes(searchLower) ||
+            String(e.description || "").toLowerCase().includes(searchLower) ||
+            (Array.isArray(e.tags) && (e.tags as string[]).some((tag) => tag.toLowerCase().includes(searchLower))),
+        )
+      }
+      filteredEvents.sort(
+        (a, b) =>
+          new Date(String(b.date)).getTime() - new Date(String(a.date)).getTime(),
       )
     }
 
-    // 日付順でソート（新しい順）
-    filteredEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-
-    // ページネーション
     const startIndex = (page - 1) * limit
     const endIndex = startIndex + limit
     const paginatedEvents = filteredEvents.slice(startIndex, endIndex)

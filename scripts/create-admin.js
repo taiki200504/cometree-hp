@@ -2,11 +2,20 @@
 
 /**
  * UNION HP 管理者アカウント作成スクリプト
- * 使用方法: node scripts/create-admin.js
+ * 使用方法:
+ *   環境変数: ADMIN_EMAIL=... ADMIN_PASSWORD=... node scripts/create-admin.js
+ *   対話入力: node scripts/create-admin.js
  */
 
 const { createClient } = require('@supabase/supabase-js')
+const readline = require('readline')
 require('dotenv').config({ path: '.env.local' })
+
+function ask(rl, message) {
+  return new Promise((resolve) => {
+    rl.question(message, (answer) => resolve((answer || '').trim()))
+  })
+}
 
 async function createAdminUser() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -18,14 +27,24 @@ async function createAdminUser() {
     process.exit(1)
   }
 
+  let adminEmail = process.env.ADMIN_EMAIL
+  let adminPassword = process.env.ADMIN_PASSWORD
+
+  if (!adminEmail || !adminPassword) {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+    if (!adminEmail) adminEmail = await ask(rl, '管理者メールアドレス: ')
+    if (!adminPassword) adminPassword = await ask(rl, '管理者パスワード: ')
+    rl.close()
+    if (!adminEmail || !adminPassword) {
+      console.error('❌ メールアドレスとパスワードは必須です')
+      process.exit(1)
+    }
+  }
+
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   try {
     console.log('🔧 管理者アカウントを作成中...')
-
-    // 管理者ユーザー情報
-    const adminEmail = 'gakusei.union266@gmail.com'
-    const adminPassword = 'gakusei226'
 
     // 1. 既存のユーザーを確認
     const { data: existingUser, error: checkError } = await supabase.auth.admin.listUsers()
@@ -56,15 +75,20 @@ async function createAdminUser() {
       console.log('✅ 既存のユーザーが見つかりました:', targetUser.id)
     }
 
-    // 2. usersテーブルに管理者権限を設定
-    const { error: roleError } = await supabase
-      .from('users')
-      .upsert({
+    // 2. usersテーブルに管理者権限を設定（001: full_name あり / 007: id, email, role のみ）
+    let roleError = await supabase.from('users').upsert({
+      id: targetUser.id,
+      email: adminEmail,
+      full_name: 'UNION Administrator',
+      role: 'admin',
+    }).then((r) => r.error)
+    if (roleError) {
+      roleError = (await supabase.from('users').upsert({
         id: targetUser.id,
         email: adminEmail,
-        name: 'UNION Administrator',
         role: 'admin',
-      })
+      })).error
+    }
 
     if (roleError) {
       console.error('❌ 管理者権限の設定に失敗:', roleError.message)

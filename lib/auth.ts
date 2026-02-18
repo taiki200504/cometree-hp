@@ -38,29 +38,17 @@ export async function getCurrentUser(): Promise<User | null> {
       }
     }
 
-    // 本番環境での管理者チェック
-    const productionAdminEmails = ['gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
-    if (productionAdminEmails.includes(user.email!)) {
-      console.log('[Auth] Production mode: treating production admin as admin')
-      return {
-        id: user.id,
-        email: user.email!,
-        name: 'UNION Administrator',
-        role: 'admin',
-        organization_id: null
-      }
-    }
+    // 本番環境ではDBのロールのみで判定する
 
-    // ユーザーの詳細情報を取得
+    // ユーザーの詳細情報を取得（001: full_name, role / 007: role のみ。full_name がある環境なら取得）
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('name, role, organization_id')
+      .select('full_name, role')
       .eq('id', user.id)
       .single()
 
     if (profileError) {
       console.error('Profile fetch error:', profileError)
-      // プロファイルが見つからない場合はデフォルト値を返す
       return {
         id: user.id,
         email: user.email!,
@@ -70,12 +58,15 @@ export async function getCurrentUser(): Promise<User | null> {
       }
     }
 
+    const displayName = (profile as { full_name?: string })?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0]
+    const role = profile?.role === 'admin' || profile?.role === 'editor' ? profile.role : 'user'
+
     return {
       id: user.id,
       email: user.email!,
-      name: profile?.name || user.user_metadata?.name,
-      role: profile?.role || 'user',
-      organization_id: profile?.organization_id ?? null
+      name: displayName,
+      role: role === 'editor' ? 'editor' : role === 'admin' ? 'admin' : 'user',
+      organization_id: null
     }
   } catch (error) {
     console.error('getCurrentUser error:', error)
@@ -136,12 +127,7 @@ export async function requireAdmin(request: NextRequest) {
     }
   }
   
-  // 本番環境での管理者チェック
-  const productionAdminEmails = ['gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
-  if (productionAdminEmails.includes(user.email)) {
-    console.log('[Auth] Production mode: allowing production admin access')
-    return user
-  }
+  // 本番環境ではDBのロールのみで判定する
   
   if (user.role !== 'admin') {
     throw new Error('Admin access required')

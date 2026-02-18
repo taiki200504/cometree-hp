@@ -68,6 +68,16 @@
   }
 }
 
+/* モバイルメニュー: Tailwind 未読込時も閉じているときは非表示にする */
+[data-mobile-menu="closed"] {
+  display: none !important;
+}
+@media (min-width: 1024px) {
+  [data-mobile-menu] {
+    display: none !important;
+  }
+}
+
 /* カスタムアニメーション - より滑らかで遅い */
 @keyframes blob {
   0% {
@@ -168,6 +178,14 @@
 
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 45s linear infinite;
 }
 
 /* スムーズなスクロール */
@@ -318,5 +336,159 @@ html {
   .dark .text-gray-300 {
     color: #ffffff;
   }
+}
+
+/* ========== UNION デザインシステム（トンマナ統一） ========== */
+:root {
+  --union-primary: #066ff2;
+  --union-primary-hover: #055bc9;
+  --union-accent: #ec4faf;
+  --union-section-bg: #fafafa;
+  --union-section-alt: #ffffff;
+  --union-border: #e5e7eb;
+  --union-text: #111827;
+  --union-text-muted: #4b5563;
+  --union-radius: 0.5rem;
+  --union-radius-lg: 0.75rem;
+  --union-container: 72rem;
+}
+
+.dark {
+  --union-section-bg: rgba(17, 24, 39, 0.5);
+  --union-section-alt: #111827;
+  --union-border: #374151;
+  --union-text: #f9fafb;
+  --union-text-muted: #9ca3af;
+}
+
+/* セクション: コンテナ・余白統一 */
+.union-section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+@media (min-width: 1024px) {
+  .union-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+.union-container {
+  width: 100%;
+  max-width: var(--union-container);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .union-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .union-container { padding-left: 2rem; padding-right: 2rem; }
+}
+
+/* 見出し: フォントウェイト・行間統一 */
+.union-heading-section {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--union-text);
+  line-height: 1.3;
+}
+@media (min-width: 768px) {
+  .union-heading-section { font-size: 1.875rem; }
+}
+
+.union-heading-card {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--union-text);
+}
+
+.union-body {
+  color: var(--union-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.union-body-lg {
+  color: var(--union-text-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* ボタン: プライマリ・セカンダリ統一（hoverは控えめ） */
+.union-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--union-primary);
+  border-radius: var(--union-radius);
+  transition: background-color 0.2s ease;
+}
+.union-btn-primary:hover {
+  background-color: var(--union-primary-hover);
+}
+
+.union-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--union-text);
+  background-color: transparent;
+  border: 1px solid var(--union-border);
+  border-radius: var(--union-radius);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.union-btn-secondary:hover {
+  border-color: var(--union-primary);
+  color: var(--union-primary);
+}
+
+/* カード: 背景・枠・角丸統一 */
+.union-card {
+  background-color: var(--union-section-alt);
+  border: 1px solid var(--union-border);
+  border-radius: var(--union-radius-lg);
+  padding: 1.5rem;
+  transition: box-shadow 0.2s ease;
+}
+.union-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.dark .union-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ラベル（セクション上の小さなラベル）: 控えめに */
+.union-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--union-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* リンク: 色・下線統一 */
+.union-link {
+  color: var(--union-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+.union-link:hover {
+  opacity: 0.85;
+  text-decoration: underline;
 }
 

@@ -178,12 +178,12 @@ export default function MediaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-[var(--union-section-alt)] dark:bg-gray-900 pt-16">
       <Header />
 
       <ModernHero
-        subtitle="Media Business"
-        title="メディア事業"
+        subtitle="Media"
+        title="メディア「ワカモノ」"
         description="学生の声を社会に届けるポッドキャスト番組を制作・配信し、Z世代のリアルな想いを発信しています"
         primaryAction={{
           text: "ニュース投稿",
@@ -193,6 +193,7 @@ export default function MediaPage() {
           text: "出演申請",
           href: "https://docs.google.com/forms/d/e/1FAIpQLSeOQutZeoIiVYSASMeWjbkzZFpd4VSzIliJjB2xsIVYAOU8LQ/viewform?usp=sf_link",
         }}
+        variant="minimal"
       />
 
       {/* タブナビゲーション */}

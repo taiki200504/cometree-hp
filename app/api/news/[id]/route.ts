@@ -1,44 +1,49 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { getNewsById } from "@/lib/news"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 
-    // Supabaseからニュースデータを取得
-    const { data: news, error } = await supabase
-      .from('news')
-      .select('*')
-      .eq('id', id)
-      .eq('status', 'published')
-      .single()
+    const { item, source, raw } = await getNewsById(id)
 
-    if (error || !news) {
+    if (!item || item.status !== 'published') {
       return NextResponse.json({ error: "記事が見つかりません" }, { status: 404 })
     }
 
-    // 閲覧数を増加
-    await supabase
-      .from('news')
-      .update({ views: news.views + 1 })
-      .eq('id', id)
+    let viewCount = item.view_count ?? 0
 
-    // フロントエンド用のデータ形式に変換
+    if (source === 'supabase') {
+      try {
+        const currentViews = Number.isFinite(raw?.views) ? raw.views : viewCount
+        const updatedViews = (currentViews ?? 0) + 1
+        await supabase
+          .from('news')
+          .update({ views: updatedViews })
+          .eq('id', id)
+        viewCount = updatedViews
+      } catch (incrementError) {
+        console.error(`[api/news/${id}] Failed to increment views:`, incrementError)
+      }
+    }
+
     const formattedNews = {
-      id: news.id,
-      title: news.title,
-      excerpt: news.excerpt || '',
-      content: news.content,
-      category: news.category,
-      status: news.status,
-      tags: news.tags || [],
-      featuredImage: news.featured_image || '/images/news-sample.jpg',
-      seoTitle: news.title,
-      seoDescription: news.excerpt || '',
-      publishedAt: news.published_at || news.created_at,
-      createdAt: news.created_at,
-      updatedAt: news.updated_at,
-      viewCount: news.views + 1
+      id: item.id,
+      title: item.title,
+      excerpt: item.excerpt || '',
+      content: item.content,
+      category: item.category ?? 'general',
+      status: item.status,
+      tags: item.tags || [],
+      featuredImage: item.featured_image || '/images/news-sample.jpg',
+      seoTitle: item.title,
+      seoDescription: item.excerpt || '',
+      publishedAt: item.published_at || item.created_at,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      viewCount,
+      source,
     }
 
     return NextResponse.json(formattedNews)

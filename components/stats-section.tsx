@@ -10,54 +10,47 @@ const StatsSection = () => {
   const statsData = [
     {
       icon: Building2,
-      number: loading ? "..." : `${stats?.organizationCount || 0}+`,
+      number: loading ? "—" : `${stats?.organizationCount ?? 0}+`,
       label: "加盟学生団体",
-      description: "様々な分野で活動する学生団体が参加",
     },
     {
       icon: Users,
-      number: loading ? "..." : `${stats?.memberCount || 0}+`,
+      number: loading ? "—" : `${stats?.memberCount ?? 0}+`,
       label: "コミュニティメンバー",
-      description: "活発に交流する学生コミュニティ",
     },
     {
       icon: Building,
-      number: loading ? "..." : `${stats?.partnerCount || 0}+`,
+      number: loading ? "—" : `${stats?.partnerCount ?? 0}+`,
       label: "提携企業・団体",
-      description: "学生の成長を支援するパートナー",
     },
     {
       icon: Radio,
-      number: loading ? "..." : `${stats?.mediaCount || 0}`,
+      number: loading ? "—" : `${stats?.mediaCount ?? 0}`,
       label: "メディアコンテンツ",
-      description: "ポッドキャスト番組を制作・配信",
     },
   ]
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">数字で見るUNION</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              学生団体の連携と成長を支援する私たちの実績をご紹介します
-            </p>
-          </div>
-        </AnimatedSection>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <section className="union-section bg-[var(--union-section-alt)] border-y border-[var(--union-border)]">
+      <div className="union-container">
+        <p className="union-label text-center">About</p>
+        <h2 className="union-heading-section text-center mb-4">
+          数字で見るUNION
+        </h2>
+        <p className="union-body text-center max-w-xl mx-auto mb-12">
+          信頼の基盤となる実績。学生・企業双方に選ばれ続けています。
+        </p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {statsData.map((stat, index) => (
-            <AnimatedSection key={index} delay={index * 0.1}>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-100 dark:border-gray-700">
-                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#066ff2] to-[#ec4faf] rounded-lg mb-4 mx-auto">
-                  <stat.icon className="h-6 w-6 text-white" />
+            <AnimatedSection key={index} delay={index * 0.05}>
+              <div className="union-card text-center">
+                <div className="w-10 h-10 rounded-lg bg-[#066ff2]/10 flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="h-5 w-5 text-[#066ff2]" />
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{stat.number}</div>
-                  <div className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">{stat.label}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.description}</div>
+                <div className="text-2xl font-semibold text-[var(--union-text)] mb-1">
+                  {stat.number}
                 </div>
+                <div className="union-body text-sm">{stat.label}</div>
               </div>
             </AnimatedSection>
           ))}

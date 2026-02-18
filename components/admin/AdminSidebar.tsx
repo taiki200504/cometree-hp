@@ -13,7 +13,9 @@ import {
   Heart,
   BarChart3,
   Settings,
-  BookOpen
+  BookOpen,
+  Database,
+  Link as LinkIcon
 } from 'lucide-react'
 
 const menu = [
@@ -25,6 +27,8 @@ const menu = [
   { href: '/admin/organizations', label: '加盟団体管理', Icon: Building },
   { href: '/admin/partners', label: '提携企業管理', Icon: Handshake },
   { href: '/admin/supporters', label: '支援者管理', Icon: Heart },
+  { href: '/admin/notion', label: 'Notion管理', Icon: Database },
+  { href: '/admin/portal/links', label: 'ポータルリンク', Icon: LinkIcon },
   { href: '/admin/stats', label: '統計・分析', Icon: BarChart3 },
   { href: '/admin/settings', label: 'システム設定', Icon: Settings },
   { href: '/admin/help', label: '運用ガイド', Icon: BookOpen },

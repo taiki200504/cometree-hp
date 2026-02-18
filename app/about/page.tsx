@@ -95,17 +95,18 @@ export default function AboutPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-[var(--union-section-alt)] dark:bg-gray-900 pt-16">
       <Header />
-      
+
       <ModernHero
-        title="About UNION"
-        subtitle="私たちについて"
-        description="学生の声を社会に響かせる。学生団体連合UNIONについてご紹介します"
+        title="運営会社について"
+        subtitle="About"
+        description="学生の声を社会に響かせる。学生団体連合UNIONの理念・組織概要・事業内容・支援者など、信頼の基盤となる情報をご紹介します。"
+        variant="minimal"
       />
 
-      <main className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="union-section">
+        <div className="union-container">
           {/* Main Purpose Section - 改善されたデザイン */}
           <AnimatedSection>
             <div className="text-center mb-24">
@@ -268,7 +269,7 @@ export default function AboutPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link
-                  href="/join"
+                  href="/for-students"
                   className="inline-flex items-center justify-center space-x-2 bg-white text-[#066ff2] px-10 py-5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl text-lg"
                 >
                   <span>メンバー募集</span>

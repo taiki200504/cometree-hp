@@ -38,12 +38,7 @@ export function useAdminAuthSimple() {
           }
         }
 
-        // 本番環境での管理者チェック
-        const productionAdminEmails = ['gakusei.union266@gmail.com', 'gakusei.union226@gmail.com']
-        if (productionAdminEmails.includes(user.email!)) {
-          console.log('[Auth] Production mode: treating production admin as admin')
-          return true
-        }
+        // 本番環境ではDBのロールのみで判定する
 
         // 本番環境でのみデータベースチェック
         const { data, error } = await supabase

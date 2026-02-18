@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -71,56 +71,8 @@ const portalSections = [
   // removed on request: 統計・レポート
 ]
 
-const availableServices = [
-  {
-    title: "ユニラジ出演申請",
-    icon: Radio,
-    description: "UNION加盟団体限定のポッドキャスト番組に出演できます",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSezGGnC-2BM8alhR3Z1skS1jrjxgSQl53GZ_6bcIRFGcMT79A/viewform?usp=sf_link",
-    badge: "優先対応",
-    color: "bg-blue-500",
-  },
-  {
-    title: "告知申請",
-    icon: Bell,
-    description: "UNION公式SNSやメディアでの活動告知を申請できます",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSe_LKIbtn0IAsI-qafZJugn6XW7TGX20GSyamb8-4hjUXV1Uw/viewform?usp=sf_link",
-    badge: "無料",
-    color: "bg-green-500",
-  },
-  {
-    title: "Slackコミュニティ参加",
-    icon: Users2,
-    description: "加盟団体限定のSlackワークスペースに参加できます",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSe_LKIbtn0IAsI-qafZJugn6XW7TGX20GSyamb8-4hjUXV1Uw/viewform?usp=sf_link",
-    badge: "限定",
-    color: "bg-purple-500",
-  },
-  {
-    title: "カウンセリング",
-    icon: Heart,
-    description: "団体運営や活動に関する相談を専門家に相談できます",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSe_LKIbtn0IAsI-qafZJugn6XW7TGX20GSyamb8-4hjUXV1Uw/viewform?usp=sf_link",
-    badge: "無料",
-    color: "bg-pink-500",
-  },
-  {
-    title: "1on1相談",
-    icon: MessageSquare,
-    description: "UNION事務局との個別相談セッションを予約できます",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSe_LKIbtn0IAsI-qafZJugn6XW7TGX20GSyamb8-4hjUXV1Uw/viewform?usp=sf_link",
-    badge: "無料",
-    color: "bg-orange-500",
-  },
-  {
-    title: "インターン紹介",
-    icon: Briefcase,
-    description: "UNION協賛・提携企業のインターン情報を紹介します",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSfz49ZCBPXiZqMNKOjSqvqqhU2tVYVciz-zmWSfjBD0FoF2Xw/viewform?usp=sf_link",
-    badge: "限定",
-    color: "bg-indigo-500",
-  },
-]
+// Fetched from API: /api/community/portal/links
+const availableServices: any[] = []
 
 const comingSoonServices = [
   {
@@ -166,12 +118,28 @@ const quickActions = [
 export default function PortalPage() {
   const { user, loading, logout } = useAuth()
   const router = useRouter()
+  const [links, setLinks] = useState<any[]>([])
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/community/portal/login")
     }
   }, [user, loading, router])
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      try {
+        const res = await fetch('/api/community/portal/links')
+        if (res.ok) {
+          const data = await res.json()
+          setLinks(data)
+        }
+      } catch (e) {
+        // noop
+      }
+    }
+    fetchLinks()
+  }, [])
 
   const handleLogout = async () => {
     await logout()
@@ -246,23 +214,29 @@ export default function PortalPage() {
           <AnimatedSection animation="fadeInUp" className="mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">利用可能なサービス</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableServices.map((service, index) => {
+              {/* Dynamic links */}
+              {/* The server provides title, url, description, badge, color. We map icons by category if needed. */}
+              {(links.length ? links : availableServices).map((service: any, index: number) => {
                 const Icon = service.icon
                 return (
                   <AnimatedSection key={service.title} animation="fadeInUp" delay={index * 100}>
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center justify-between mb-4">
-                        <div className={`w-12 h-12 ${service.color} rounded-xl flex items-center justify-center`}>
-                          <Icon className="h-6 w-6 text-white" />
+                        <div className={`w-12 h-12 ${service.color ?? 'bg-blue-500'} rounded-xl flex items-center justify-center`}>
+                          <ExternalLink className="h-6 w-6 text-white" />
                         </div>
-                        <Badge className={`${service.color} text-white`}>
-                          {service.badge}
-                        </Badge>
+                        {service.badge && (
+                          <Badge className={`${service.color ?? 'bg-blue-500'} text-white`}>
+                            {service.badge}
+                          </Badge>
+                        )}
                       </div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{service.description}</p>
+                      {service.description && (
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{service.description}</p>
+                      )}
                       <Button 
-                        onClick={() => handleExternalLink(service.link)}
+                        onClick={() => handleExternalLink(service.url)}
                         className="w-full bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white hover:opacity-90"
                       >
                         申請する

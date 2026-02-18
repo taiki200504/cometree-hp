@@ -128,12 +128,15 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                アカウントをお持ちでない方は{" "}
-                <Link href="/auth/signup" className="text-[#066ff2] hover:text-[#0556cc] font-medium transition-colors">
-                  新規登録
+                加盟団体の方は{" "}
+                <Link href="/community/portal/login" className="text-[#066ff2] hover:text-[#0556cc] font-medium transition-colors">
+                  加盟団体ポータルからログイン
                 </Link>
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                一般ユーザーのログインは現在準備中です
               </p>
             </div>
           </CardContent>

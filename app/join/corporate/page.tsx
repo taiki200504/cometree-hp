@@ -11,10 +11,7 @@ import {
   Megaphone,
   Users,
   Award,
-  TrendingUp,
   ArrowRight,
-  Heart,
-  Globe,
   CheckCircle,
   Handshake,
   Star,
@@ -104,11 +101,11 @@ export default function CorporateJoinPage() {
 
       <main>
         <ModernHero
-          title="次世代を担う学生と共に未来を創る"
-          subtitle="企業提携・協賛"
-          description="学生団体連合UNIONとの提携を通じて、全国1200名の学生とつながり、社会課題の解決と次世代人材の育成に貢献しませんか？"
+          title="主体的な学生をプレイヤーとして抜擢しませんか"
+          subtitle="企業提携・協賛・案件登録"
+          description="ポテンシャル人材となる学生・学生団体にすぐつながる。案件情報の登録・Discordアクセス・イベント委託をご用意しています。"
           primaryAction={{
-            text: "お問い合わせ",
+            text: "お問い合わせ・案件登録",
             href: "/contact",
           }}
           secondaryAction={{
@@ -119,6 +116,24 @@ export default function CorporateJoinPage() {
         />
 
         <div className="container mx-auto px-4 py-20">
+          {/* 有料会員の特典 */}
+          <AnimatedSection className="mb-16">
+            <div className="rounded-2xl border border-[#066ff2]/30 bg-[#066ff2]/5 dark:bg-[#066ff2]/10 p-8">
+              <h2 className="text-2xl font-bold mb-4">有料会員となった企業が得られること</h2>
+              <ul className="space-y-2 text-muted-foreground mb-4">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  案件情報を学生に流せる
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  Discordで学生と交流できる
+                </li>
+              </ul>
+              <p className="text-sm text-muted-foreground">案件登録・Discordアクセス・イベント委託はお問い合わせからご相談ください。</p>
+            </div>
+          </AnimatedSection>
+
           {/* 提携企業のメリット */}
           <AnimatedSection className="mb-20">
             <div className="text-center mb-12">

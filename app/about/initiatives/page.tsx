@@ -180,7 +180,7 @@ export default function InitiativesPage() {
                                   <p className={`text-sm font-medium ${colorClasses.text}`}>{service.metric}</p>
                                 </div>
                                 <Link
-                                  href={domain.id === "media" ? "/media" : domain.id === "community" ? "/community" : "/about/matching-detail"}
+                                  href={domain.id === "media" ? "/media" : domain.id === "community" ? "/for-students" : "/about/matching-detail"}
                                   className={`h-5 w-5 ${colorClasses.text} ml-4 flex-shrink-0 hover:scale-110 transition-transform`}
                                 >
                                   <Play className="h-5 w-5" />
@@ -237,7 +237,7 @@ export default function InitiativesPage() {
                     
                     {/* 各ステップへの詳細リンク */}
                     <Link
-                      href={index === 0 ? "/media" : index === 1 ? "/community" : "/about/matching-detail"}
+                      href={index === 0 ? "/media" : index === 1 ? "/for-students" : "/about/matching-detail"}
                       className={`inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                         index === 0 
                           ? "bg-[#066ff2] hover:bg-blue-600 text-white" 
@@ -307,7 +307,7 @@ export default function InitiativesPage() {
                 </Link>
 
                 <Link
-                  href="/community"
+                  href="/for-students"
                   className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-200"
                 >
                   <div className="w-12 h-12 bg-[#ec4faf] rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -345,14 +345,14 @@ export default function InitiativesPage() {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">UNIONの事業に参加しませんか？</h2>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/join"
+                  href="/for-students"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-[#066ff2] to-[#ec4faf] text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity duration-200"
                 >
                   参加する
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
-                  href="/services"
+                  href="/for-corporate"
                   className="inline-flex items-center justify-center border-2 border-[#066ff2] text-[#066ff2] dark:text-blue-400 px-8 py-3 rounded-lg font-semibold hover:bg-[#066ff2] hover:text-white transition-colors duration-200"
                 >
                   サービス詳細
