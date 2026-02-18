@@ -135,7 +135,7 @@ export default function CorporateCasePage() {
                 },
               ].map((testimonial, index) => (
                 <div key={index} className="union-card">
-                  <p className="union-body mb-4 italic">"{testimonial.quote}"</p>
+                  <p className="union-body mb-4 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                   <p className="text-sm font-semibold text-[var(--union-text-muted)]">— {testimonial.author}</p>
                 </div>
               ))}
